@@ -5,3 +5,9 @@ listen="127.0.0.1:8080"
 listen="127.0.0.1:8443"
 certfile="/path/to/cert.crt"
 keyfile="/path/to/cert.pem"
+
+[evapi]
+client_id=""
+secret_key=""
+return_url=""
+scopes=[]

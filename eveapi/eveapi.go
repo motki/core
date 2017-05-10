@@ -1,3 +1,4 @@
+// Package eveapi manages fetching and posting data to the EVE Swagger API.
 package eveapi
 
 //import (

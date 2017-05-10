@@ -1,3 +1,7 @@
+[db]
+connection_string="postgres://localhost/motki"
+max_connections=5
+
 [http]
 listen="127.0.0.1:8080"
 

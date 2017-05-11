@@ -42,5 +42,8 @@ func (e *EveDB) GetRaces() ([]string, error) {
 		}
 		res = append(res, name)
 	}
+	if err = rs.Err(); err != nil {
+		return nil, err
+	}
 	return res, nil
 }

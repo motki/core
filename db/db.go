@@ -1,4 +1,8 @@
 // Package db manages interaction with an underlying database store.
+//
+// This package is designed to abstract the actual library used for interacting
+// with the database. The exported API returns standard database/sql
+// structures.
 package db
 
 import (
@@ -16,7 +20,8 @@ type Config struct {
 
 // New creates a new ConnPool using the given Config.
 //
-// Generally only one ConnPool is needed, shared by the entire application.
+// Generally only one ConnPool should be used, shared by the entire
+// application.
 func New(c Config) (*ConnPool, error) {
 	pcon, err := pgx.ParseConnectionString(c.ConnString)
 	if err != nil {
@@ -35,6 +40,13 @@ type ConnPool struct {
 }
 
 // Open acquires a connection for the caller.
+//
+// This method is designed to allow compatibility with the database/sql
+// package.
+//
+// Remember to Close the DB when you're done with it! Otherwise the connection
+// will not be released back to the pool, and eventually you will run out of
+// available connections.
 func (p *ConnPool) Open() (*sql.DB, error) {
 	return stdlib.OpenFromConnPool(p.pool)
 }

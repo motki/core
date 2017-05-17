@@ -8,6 +8,7 @@ import (
 	"github.com/gregjones/httpcache"
 )
 
+// Config represents the configuration for a EVE Swagger API client.
 type Config struct {
 	ClientID  string `toml:"client_id"`
 	SecretKey string `toml:"secret_key"`
@@ -15,11 +16,13 @@ type Config struct {
 	UserAgent string `toml:"user_agent"`
 }
 
+// EveAPI is the entry point for interacting with the EVE Swagger API.
 type EveAPI struct {
 	client *goesi.APIClient
 	conf   Config
 }
 
+// New creates a new EveAPI with the given configuration.
 func New(c Config) *EveAPI {
 	t := httpcache.NewMemoryCacheTransport()
 	t.Transport = &http.Transport{Proxy: http.ProxyFromEnvironment}

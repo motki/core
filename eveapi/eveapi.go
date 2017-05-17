@@ -17,7 +17,7 @@ type Config struct {
 
 type EveAPI struct {
 	client *goesi.APIClient
-	conf Config
+	conf   Config
 }
 
 func New(c Config) *EveAPI {

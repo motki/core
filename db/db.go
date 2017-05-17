@@ -10,8 +10,8 @@ import (
 
 // Config represents configuration details for creating a connection pool.
 type Config struct {
-	ConnString string `toml:"connection_string"`
-	MaxConnections int `toml:"max_connections"`
+	ConnString     string `toml:"connection_string"`
+	MaxConnections int    `toml:"max_connections"`
 }
 
 // New creates a new ConnPool using the given Config.

@@ -4,10 +4,10 @@ import "strings"
 
 // A Race is a race in EVE.
 type Race struct {
-	ID int
-	Name string
-	Description string
-	IconFile string
+	ID               int
+	Name             string
+	Description      string
+	IconFile         string
 	ShortDescription string
 }
 
@@ -26,14 +26,13 @@ func (e *EveDB) GetRaces() ([]*Race, error) {
 		return nil, err
 	}
 	defer c.Close()
-	// TODO: Super unhappy about formatting
 	rs, err := c.Query(
 		`SELECT
 			  race."raceID"
 			, race."raceName"
 			, COALESCE(race."description", '')
 			, COALESCE(icon."iconFile", '')
-			, COALESCE("shortDescription", '')
+			, COALESCE(race."shortDescription", '')
 			FROM evesde."chrRaces" race
 			LEFT JOIN evesde."eveIcons" icon ON race."iconID" = icon."iconID"`)
 	if err != nil {

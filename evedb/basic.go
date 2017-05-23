@@ -93,7 +93,7 @@ func (e *EveDB) GetItemType(typeID int) (*ItemType, error) {
 
 // GetBlueprint fetches a Blueprint from the database.
 func (e *EveDB) GetBlueprint(typeID int) (*Blueprint, error) {
-	it, err := e.GetItemType(typeID) // TODO: Pass in the typeID
+	it, err := e.GetItemType(typeID)
 	if err != nil {
 		return nil, err
 	}

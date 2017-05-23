@@ -12,7 +12,7 @@ type Race struct {
 }
 
 type ItemType struct {
-	ID int
+	ID   int
 	Name string
 }
 
@@ -22,8 +22,8 @@ type Blueprint struct {
 }
 
 type Material struct {
-	ID int
-	Name string
+	ID       int
+	Name     string
 	Quantity int
 }
 

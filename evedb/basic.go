@@ -11,15 +11,19 @@ type Race struct {
 	ShortDescription string
 }
 
-type Blueprint struct {
+type ItemType struct {
 	ID int
+	Name string
+}
+
+type Blueprint struct {
+	*ItemType
 	Materials []Material
 }
 
 type Material struct {
 	ID int
 	Name string
-	MaterialID int
 	Quantity int
 }
 
@@ -66,8 +70,33 @@ func (e *EveDB) GetRaces() ([]*Race, error) {
 	return res, nil
 }
 
-// GetRaces fetches all Races from the database.
-func (e *EveDB) GetBlueprint(/* typeID int */) (*Blueprint, error) {
+// GetItemType fetches a specific ItemType from the database.
+func (e *EveDB) GetItemType(typeID int) (*ItemType, error) {
+	c, err := e.pool.Open()
+	if err != nil {
+		return nil, err
+	}
+	defer c.Close()
+	r := c.QueryRow(
+		`SELECT
+			  type."typeID" as ID,
+			  type."typeName" as typeName
+			FROM evesde."invTypes" type
+			WHERE type."typeID" = $1 `, typeID)
+	it := &ItemType{}
+	err = r.Scan(&it.ID, &it.Name)
+	if err != nil {
+		return nil, err
+	}
+	return it, nil
+}
+
+// GetBlueprint fetches a Blueprint from the database.
+func (e *EveDB) GetBlueprint(typeID int) (*Blueprint, error) {
+	it, err := e.GetItemType(typeID) // TODO: Pass in the typeID
+	if err != nil {
+		return nil, err
+	}
 	c, err := e.pool.Open()
 	if err != nil {
 		return nil, err
@@ -75,13 +104,12 @@ func (e *EveDB) GetBlueprint(/* typeID int */) (*Blueprint, error) {
 	defer c.Close()
 	rs, err := c.Query(
 		`SELECT
-			  mats."typeID" as typeID,
 			  type."typeName" as typeName,
 			  type."typeID" as materialID,
 			  mats."quantity"
 			FROM evesde."invTypeMaterials" mats
 			INNER JOIN evesde."invTypes" type ON type."typeID" = mats."materialTypeID"
-			WHERE mats."typeID" IN(16242) `) // TODO: Pass in the typeID
+			WHERE mats."typeID" = $1 `, it.ID)
 
 	if err != nil {
 		return nil, err
@@ -90,7 +118,7 @@ func (e *EveDB) GetBlueprint(/* typeID int */) (*Blueprint, error) {
 	res := []Material{}
 	for rs.Next() {
 		r := Material{}
-		err := rs.Scan(&r.ID, &r.Name, &r.MaterialID, &r.Quantity)
+		err := rs.Scan(&r.Name, &r.ID, &r.Quantity)
 		if err != nil {
 			return nil, err
 		}
@@ -99,5 +127,18 @@ func (e *EveDB) GetBlueprint(/* typeID int */) (*Blueprint, error) {
 	if err = rs.Err(); err != nil {
 		return nil, err
 	}
-	return &Blueprint{Materials: res}, nil
+	return &Blueprint{ItemType: it, Materials: res}, nil
+}
+
+// GetBlueprints is a utility function to retrieve multiple Blueprints.
+func (e *EveDB) GetBlueprints(typeIDs ...int) ([]*Blueprint, error) {
+	res := []*Blueprint{}
+	for _, id := range typeIDs {
+		bp, err := e.GetBlueprint(id)
+		if err != nil {
+			return nil, err
+		}
+		res = append(res, bp)
+	}
+	return res, nil
 }

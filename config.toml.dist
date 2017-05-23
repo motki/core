@@ -10,6 +10,12 @@ listen="127.0.0.1:8443"
 certfile="/path/to/cert.crt"
 keyfile="/path/to/cert.pem"
 
+[http.sessions]
+storage_path="tmp"
+
+[http.templates]
+views_path="views"
+
 [eveapi]
 client_id=""
 secret_key=""

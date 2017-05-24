@@ -11,6 +11,9 @@ certfile="/path/to/cert.crt"
 keyfile="/path/to/cert.pem"
 
 [http.sessions]
+store="file" # or "memory"
+
+[http.sessions.file]
 storage_path="tmp"
 
 [http.templates]

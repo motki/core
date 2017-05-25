@@ -79,7 +79,7 @@ func (e *EveDB) GetBlueprint(typeID int) (*Blueprint, error) {
 }
 
 // GetBlueprints is a utility function to retrieve multiple Blueprints.
-func (e *EveDB) GetBlueprints(typeIDs map[int]int) ([]*Blueprint, error) {
+func (e *EveDB) GetBlueprints(typeIDs ...int) ([]*Blueprint, error) {
 	res := []*Blueprint{}
 	for _, id := range typeIDs {
 		bp, err := e.GetBlueprint(id)

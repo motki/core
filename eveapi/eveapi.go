@@ -41,10 +41,10 @@ func (api *EveAPI) TokenExchange(code string) (*goesi.CRESTToken, error) {
 	return api.ssoAuth.TokenExchange(code)
 }
 
-func (api *EveAPI) Verify(tok *goesi.CRESTToken) (*goesi.VerifyResponse, error) {
-	source, err := api.ssoAuth.TokenSource(tok)
-	if err != nil {
-		return nil, err
-	}
+func (api *EveAPI) TokenSource(tok *goesi.CRESTToken) (goesi.CRESTTokenSource, error) {
+	return api.ssoAuth.TokenSource(tok)
+}
+
+func (api *EveAPI) Verify(source goesi.CRESTTokenSource) (*goesi.VerifyResponse, error) {
 	return api.ssoAuth.Verify(source)
 }

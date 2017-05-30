@@ -5,7 +5,7 @@ import (
 	"path"
 )
 
-const imageServerHost = "https://imageserver.eveonline.com"
+const imageServerHost = "https://imageserver.eveonline.com/"
 
 type imageKind string
 
@@ -22,5 +22,5 @@ func ImageURL(kind imageKind, id int, width int) string {
 	if kind == ImageCharacterPortrait {
 		ext = "jpg"
 	}
-	return path.Join(imageServerHost, string(kind), fmt.Sprintf("%d_%d.%s", id, width, ext))
+	return imageServerHost + path.Join(string(kind), fmt.Sprintf("%d_%d.%s", id, width, ext))
 }

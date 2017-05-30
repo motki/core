@@ -37,13 +37,11 @@ To use the EVE API you need to set up an Application at the [EVE Developer Porta
 
 Once you have created your application on the developer portal, put the Client ID, Secret, and Return URL in the corresponding section in `config.toml`.
 
-If you're using SSL, you currently must set `require=true` in the SSL configuration in `config.toml` and use the SSL listen address as the return URL for the EVE API Application.
 
 #### Configuring SSL
 
-You need to generate a certificate and private key to properly set up SSL. You can generate a self-signed cert or use something like Let's Encrypt.
+You need to generate a certificate and private key to properly set up SSL. During development, a self-signed certificate is recommended. For production deployments, the process is made simpler by using Let's Encrypt to automatically generate a valid certificate.
 
-If you're using SSL, you currently must set `require=true` in the SSL configuration in `config.toml` and use the SSL listen address as the return URL for the EVE API Application.
 
 ##### Generating a self-signed cert
 
@@ -58,7 +56,12 @@ If you're using SSL, you currently must set `require=true` in the SSL configurat
 
 ##### Generating a cert with letsencrypt
 
-TBD
+1. Configure the SSL section in `config.toml`
+    1. Set `autocert=true` in config.toml.
+    2. Set `certfile=""` and `keyfile=""` in config.toml
+    3. Set the SSL `listen` parameter to a valid public hostname.
+2. ...
+3. Profit
 
 
 ### Running the app
@@ -73,4 +76,33 @@ go run ./cmd/motkid/main.go
 
 #### Building and deploying
 
-TBD
+Build and package all necessary assets with the following bash script.
+
+```bash
+#!/usr/bin/env bash
+go build -ldflags "-s -w" -o motkid ./cmd/motkid/main.go
+tar czf motkid.tar.gz ./motkid ./config.toml.dist ./public/ ./views/
+echo "Built motkid.tar.gz"
+```
+
+If you need to only redeploy the binary only, you can skip the script and just run:
+
+```bash
+go build -o motkid ./cmd/motkid/main.go
+```
+
+Then deploy the resulting `motkid` binary to the server.
+
+##### Cross-platform building
+
+If you're on Mac and want to target Linux, for example, you can simply set the `GOOS=linux` command line variable.
+
+```bash
+GOOS=linux ./build.sh
+```
+
+Or build only the binary.
+
+```bash
+GOOS=linux go build -o motkid ./cmd/motkid/main.go
+```

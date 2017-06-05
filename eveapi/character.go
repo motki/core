@@ -14,14 +14,14 @@ type Character struct {
 	AllianceID    int
 	BirthDate     time.Time
 	Description   string
-	PortraitURL   string
 }
 
-func (api *EveAPI) GetCharacter(characterID int) (char Character, err error) {
+func (api *EveAPI) GetCharacter(characterID int) (char *Character, err error) {
 	dat, _, err := api.client.V4.CharacterApi.GetCharactersCharacterId(int32(characterID), nil)
 	if err != nil {
 		return char, err
 	}
+	char = &Character{}
 	char.CharacterID = characterID
 	char.Name = dat.Name
 	char.Description = dat.Description
@@ -31,6 +31,5 @@ func (api *EveAPI) GetCharacter(characterID int) (char Character, err error) {
 	char.BirthDate = dat.Birthday
 	char.CorporationID = int(dat.CorporationId)
 	char.AllianceID = int(dat.AllianceId)
-	char.PortraitURL = ImageURL(ImageCharacterPortrait, characterID, 256)
 	return char, nil
 }

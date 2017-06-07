@@ -3,7 +3,7 @@ package model
 import "golang.org/x/oauth2"
 
 type User struct {
-	ID          int
+	UserID      int
 	CharacterID int
 	Name        string
 	Email       string

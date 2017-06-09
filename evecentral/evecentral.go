@@ -8,6 +8,8 @@ import (
 	"net/http"
 	"strings"
 	"time"
+
+	"github.com/shopspring/decimal"
 )
 
 const baseURL = "https://api.eve-central.com/api/marketstat/json"
@@ -31,14 +33,14 @@ type MarketStat struct {
 	Kind        StatKind
 	TypeID      int
 	Volume      int
-	WAvg        float64
-	Avg         float64
-	Variance    float64
-	StdDev      float64
-	Median      float64
-	FivePercent float64
-	Max         float64
-	Min         float64
+	WAvg        decimal.Decimal
+	Avg         decimal.Decimal
+	Variance    decimal.Decimal
+	StdDev      decimal.Decimal
+	Median      decimal.Decimal
+	FivePercent decimal.Decimal
+	Max         decimal.Decimal
+	Min         decimal.Decimal
 	Timestamp   time.Time
 }
 
@@ -127,35 +129,35 @@ func parseBody(body []byte) ([]*MarketStat, error) {
 					}
 				case "wavg":
 					if f, ok := v.(float64); ok {
-						stat.WAvg = f
+						stat.WAvg = decimal.NewFromFloat(f)
 					}
 				case "avg":
 					if f, ok := v.(float64); ok {
-						stat.Avg = f
+						stat.Avg = decimal.NewFromFloat(f)
 					}
 				case "variance":
 					if f, ok := v.(float64); ok {
-						stat.Variance = f
+						stat.Variance = decimal.NewFromFloat(f)
 					}
 				case "stdDev":
 					if f, ok := v.(float64); ok {
-						stat.StdDev = f
+						stat.StdDev = decimal.NewFromFloat(f)
 					}
 				case "median":
 					if f, ok := v.(float64); ok {
-						stat.Median = f
+						stat.Median = decimal.NewFromFloat(f)
 					}
 				case "fivePercent":
 					if f, ok := v.(float64); ok {
-						stat.FivePercent = f
+						stat.FivePercent = decimal.NewFromFloat(f)
 					}
 				case "max":
 					if f, ok := v.(float64); ok {
-						stat.Max = f
+						stat.Max = decimal.NewFromFloat(f)
 					}
 				case "min":
 					if f, ok := v.(float64); ok {
-						stat.Min = f
+						stat.Min = decimal.NewFromFloat(f)
 					}
 				case "generated":
 					if f, ok := v.(float64); ok {

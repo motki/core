@@ -58,7 +58,6 @@ func (e *EveDB) GetBlueprint(typeID int) (*Blueprint, error) {
 			FROM evesde."invTypeMaterials" mats
 			INNER JOIN evesde."invTypes" typ ON typ."typeID" = mats."materialTypeID"
 			WHERE mats."typeID" = $1`, it.ID)
-
 	if err != nil {
 		return nil, err
 	}

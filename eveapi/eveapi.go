@@ -2,11 +2,15 @@
 package eveapi
 
 import (
+	"context"
+	"errors"
 	"net/http"
 
 	"github.com/antihax/goesi"
 	"github.com/gregjones/httpcache"
 )
+
+var ErrNoToken = errors.New("unable to get token from context")
 
 // Config represents the configuration for a EVE Swagger API client.
 type Config struct {
@@ -47,4 +51,11 @@ func (api *EveAPI) TokenSource(tok *goesi.CRESTToken) (goesi.CRESTTokenSource, e
 
 func (api *EveAPI) Verify(source goesi.CRESTTokenSource) (*goesi.VerifyResponse, error) {
 	return api.ssoAuth.Verify(source)
+}
+
+func TokenFromContext(ctx context.Context) (goesi.CRESTTokenSource, error) {
+	if v, ok := ctx.Value(goesi.ContextOAuth2).(goesi.CRESTTokenSource); ok {
+		return v, nil
+	}
+	return nil, ErrNoToken
 }

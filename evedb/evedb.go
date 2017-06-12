@@ -5,7 +5,7 @@
 package evedb
 
 import (
-	"github.com/tyler-sommer/motki/db"
+	"github.com/motki/motkid/db"
 )
 
 // EveDB is the central service for accessing all EVE Static Dump data.

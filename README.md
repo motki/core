@@ -1,6 +1,6 @@
 # MOTKI
 
-Moritake Industries EVE Corporation website
+Moritake Industries EVE Corporation website.
 
 
 ## Installation
@@ -10,9 +10,9 @@ Clone the repository to the appropriate place in your `$GOPATH`.
 > This assumes you have a simple `$GOPATH` with only one value (and no colons in it)
 
 ```bash
-mkdir -p $GOPATH/src/github.com/tyler-sommer
-git clone git@github.com:tyler-sommer/motki $GOPATH/src/tyler-sommer/motki
-cd $GOPATH/src/tyler-sommer/motki
+mkdir -p $GOPATH/src/github.com/motki
+git clone git@github.com:motki/motkid $GOPATH/src/github.com/motki/motkid
+cd $GOPATH/src/github.com/motki/motkid
 ```
 
 
@@ -69,7 +69,7 @@ You need to generate a certificate and private key to properly set up SSL. Durin
 For now, it's easiest to start `motkid` using `go run`.
 
 ```bash
-cd $GOPATH/src/tyler-sommer/motki
+cd $GOPATH/src/motki/motkid
 go run ./cmd/motkid/main.go
 ```
 
@@ -78,10 +78,12 @@ go run ./cmd/motkid/main.go
 
 Build and package all necessary assets with the following bash script.
 
+> Note: this excludes the EVE Static Dump assets.
+
 ```bash
 #!/usr/bin/env bash
 go build -ldflags "-s -w" -o motkid ./cmd/motkid/main.go
-tar czf motkid.tar.gz ./motkid ./config.toml.dist ./public/ ./views/
+tar czf motkid.tar.gz ./motkid ./config.toml.dist ./views/ ./public/fonts/ ./public/images/*.png ./public/scripts/ ./public/styles/ ./public/browserconfig.xml ./public/favicon.ico ./public/manifest.json
 echo "Built motkid.tar.gz"
 ```
 

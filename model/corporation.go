@@ -4,7 +4,7 @@ import (
 	"database/sql"
 	"time"
 
-	"github.com/tyler-sommer/motki/eveapi"
+	"github.com/motki/motkid/eveapi"
 )
 
 type Corporation struct {

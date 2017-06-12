@@ -1,10 +1,10 @@
 package model
 
 import (
-	"github.com/tyler-sommer/motki/db"
-	"github.com/tyler-sommer/motki/eveapi"
-	"github.com/tyler-sommer/motki/evecentral"
-	"github.com/tyler-sommer/motki/evedb"
+	"github.com/motki/motkid/db"
+	"github.com/motki/motkid/eveapi"
+	"github.com/motki/motkid/evecentral"
+	"github.com/motki/motkid/evedb"
 )
 
 type Manager struct {

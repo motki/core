@@ -6,8 +6,8 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/motki/motkid/evecentral"
 	"github.com/shopspring/decimal"
-	"github.com/tyler-sommer/motki/evecentral"
 )
 
 // MarketStat is reported price information for the given type.

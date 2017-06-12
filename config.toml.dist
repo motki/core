@@ -7,6 +7,7 @@ listen="127.0.0.1:8080"
 
 [http.ssl]
 listen="127.0.0.1:8443"
+autocert=false
 certfile="/path/to/cert.crt"
 keyfile="/path/to/cert.pem"
 require=false

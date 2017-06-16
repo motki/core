@@ -1,28 +1,97 @@
+# Example configuration
+#
+# Copy this file to config.toml and edit appropriately.
+
+
+# Database connection parameters
 [db]
+# Valid database/sql connection string. Currently only postgres is supported.
 connection_string="postgres://localhost/motki"
+
+# Max number of connections to keep open.
 max_connections=5
 
-[http]
-listen="127.0.0.1:8080"
 
+# HTTP server parameters
+[http]
+# http.listen requires a port specification, but host is optional.
+# The hostname is considered the canonical hostname.
+listen="localhost:8080"
+
+# If http.redirect is set to true, the server will listen on any host/ip and
+# configured port. If a request is received with a different host than the
+# canonical hostname specified in the http.listen option, the user will be
+# redirected.
+redirect=false
+
+
+# HTTPS server parameters
 [http.ssl]
-listen="127.0.0.1:8443"
+# http.ssl.listen requires a port specification, but host is optional.
+# The hostname should be a canonical name that matches the SSL certificate.
+# If the http.redirect option is specified, the server will listen on any
+# host/ip and configured port. If a request is received with a different host
+# than the canonical hostname specified in http.ssl.listen, the user will be
+# redirected.
+listen="localhost:8443"
+
+# If enabled, the application will generate a certificate using Let's Encrypt
+# using the server's canonical hostname specified in http.ssl.listen.
 autocert=false
+
+# If http.ssl.autocert is enabled, this option can be used to add additional
+# hostnames that should be automatically certified by Let's Encrypt.
+extra_hosts=[]
+
+# Full path to the certificate file, including the CA chain.
+# If http.ssl.autocert is enabled, http.ssl.certfile should be an empty string.
 certfile="/path/to/cert.crt"
+
+# Full path to the certificate private key.
+# If http.ssl.autocert is enabled, http.ssl.keyfile should be an empty string.
 keyfile="/path/to/cert.pem"
+
+# If http.ssl.require is enabled, any insecure request will be redirected to
+# the configured http.ssl.listen address.
 require=false
 
-[http.sessions]
-store="file" # or "memory"
 
+# Sessions parameters
+[http.sessions]
+# Defines which type of session store the application should use.
+# Possible values are "file" or "memory".
+# Specifying "memory" will store session data in memory. Specifying
+# "file" will store session data in the configured
+# http.sessions.file.storage_path option.
+store="file"
+
+
+# File session storage parameters
+# These are only used when http.sessions.store is set to "file".
 [http.sessions.file]
+# Specifies where user session data will be stored.
 storage_path="tmp"
 
+
+# Templating parameters
 [http.templates]
+# Defines where the application's twig views are stored.
 views_path="views"
 
+
+# EVE API parameters
+# See https://developers.eveonline.com/applications to retreive these values.
 [eveapi]
+# Client ID generated for the application.
 client_id=""
+
+# Secret key generated for the application.
 secret_key=""
-return_url=""
+
+# Return URL specified in the application configuration. This must be a valid
+# value that matches what the server is listening on.
+return_url="http://localhost:8080/auth/finish-login"
+
+# A useful user agent string to describe the application when making requests
+# to the EVE API.
 user_agent="MOTKI Corp Integration <contact@tylersommer.pro>"

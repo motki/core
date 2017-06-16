@@ -83,6 +83,7 @@ func (m *Manager) apiCharacterToDB(char *eveapi.Character) (*Character, error) {
 	if err != nil {
 		return nil, err
 	}
+	defer db.Close()
 	c := &Character{
 		CharacterID:   char.CharacterID,
 		Name:          char.Name,

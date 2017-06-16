@@ -119,6 +119,7 @@ func (m *Manager) apiCorporationIndustryJobsToDB(jobs []*eveapi.IndustryJob) ([]
 	if err != nil {
 		return nil, err
 	}
+	defer db.Close()
 	for _, j := range jobs {
 		_, err = db.Exec(
 			`INSERT INTO app.industry_jobs

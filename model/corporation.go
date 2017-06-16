@@ -74,6 +74,7 @@ func (m *Manager) apiCorporationToDB(corp *eveapi.Corporation) (*Corporation, er
 	if err != nil {
 		return nil, err
 	}
+	defer db.Close()
 	c := &Corporation{
 		CorporationID: corp.CorporationID,
 		Name:          corp.Name,

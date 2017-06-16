@@ -185,6 +185,7 @@ func (m *Manager) apiMarketStatToDB(regionID, systemID int, stats []*evecentral.
 	if err != nil {
 		return nil, err
 	}
+	defer db.Close()
 	res := []*MarketStat{}
 	for _, stat := range stats {
 		s := &MarketStat{

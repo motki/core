@@ -68,6 +68,7 @@ func (m *Manager) apiAllianceToDB(alliance *eveapi.Alliance) (*Alliance, error) 
 	if err != nil {
 		return nil, err
 	}
+	defer db.Close()
 	c := &Alliance{
 		AllianceID:  alliance.AllianceID,
 		Name:        alliance.Name,

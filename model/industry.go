@@ -53,7 +53,8 @@ func (m *Manager) getCorporationIndustryJobsFromDB(corpID int) ([]*eveapi.Indust
 			, c.completed_character_id
 			, c.successful_runs
 			FROM app.industry_jobs c
-			WHERE c.fetched_at > (NOW() - INTERVAL '1 hour')`)
+			WHERE c.corporation_id = $1
+			  AND c.fetched_at > (NOW() - INTERVAL '1 hour')`, corpID)
 	if err != nil {
 		return nil, err
 	}
@@ -111,10 +112,10 @@ func (m *Manager) getCorporationIndustryJobsFromAPI(ctx context.Context, corpID 
 		return nil, err
 	}
 	jobs = append(jobs, hjobs...)
-	return m.apiCorporationIndustryJobsToDB(jobs)
+	return m.apiCorporationIndustryJobsToDB(corpID, jobs)
 }
 
-func (m *Manager) apiCorporationIndustryJobsToDB(jobs []*eveapi.IndustryJob) ([]*eveapi.IndustryJob, error) {
+func (m *Manager) apiCorporationIndustryJobsToDB(corpID int, jobs []*eveapi.IndustryJob) ([]*eveapi.IndustryJob, error) {
 	db, err := m.pool.Open()
 	if err != nil {
 		return nil, err
@@ -123,7 +124,7 @@ func (m *Manager) apiCorporationIndustryJobsToDB(jobs []*eveapi.IndustryJob) ([]
 	for _, j := range jobs {
 		_, err = db.Exec(
 			`INSERT INTO app.industry_jobs
-					VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24, $25, $26, $27, DEFAULT)
+					VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24, $25, $26, $27, $28, DEFAULT)
 					ON CONFLICT ON CONSTRAINT "industry_jobs_pkey" DO
 						UPDATE SET completed_date = EXCLUDED.completed_date,
 							     completed_character_id = EXCLUDED.completed_character_id,
@@ -131,6 +132,7 @@ func (m *Manager) apiCorporationIndustryJobsToDB(jobs []*eveapi.IndustryJob) ([]
 							     successful_runs = EXCLUDED.successful_runs,
 							     fetched_at = DEFAULT`,
 			j.JobID,
+			corpID,
 			j.InstallerID,
 			j.InstallerName,
 			j.FacilityID,

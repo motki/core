@@ -14,8 +14,6 @@ import (
 	"golang.org/x/oauth2"
 )
 
-var ErrUserSessionExpired = errors.New("user session expired")
-
 type Role int
 
 const (

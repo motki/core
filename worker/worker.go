@@ -2,9 +2,10 @@
 package worker
 
 import (
-	"fmt"
 	"sync"
 	"time"
+
+	"github.com/motki/motkid/log"
 )
 
 // Job defines the interface for performing asynchronous work.
@@ -19,15 +20,17 @@ type Scheduler struct {
 	waiting chan Job
 	quit    chan struct{}
 	wg      sync.WaitGroup
+	logger  log.Logger
 }
 
 // New creates a new scheduler, ready to use.
-func New() *Scheduler {
+func New(logger log.Logger) *Scheduler {
 	s := &Scheduler{
 		tick:    time.NewTicker(5 * time.Second),
 		waiting: make(chan Job, 5),
 		quit:    make(chan struct{}, 0),
 		wg:      sync.WaitGroup{},
+		logger:  logger,
 	}
 	go s.Loop()
 	return s
@@ -53,8 +56,7 @@ func (s *Scheduler) Loop() {
 			case j := <-s.waiting:
 				err := j.Perform()
 				if err != nil {
-					// TODO: use logger
-					fmt.Println("scheduler: job returned error:", err.Error())
+					s.logger.Warnf("scheduler: job returned error: %s", err.Error())
 				}
 			default:
 				// nothing to work on, wait until next tick

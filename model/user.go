@@ -1,7 +1,6 @@
 package model
 
 import (
-	"context"
 	"crypto/rand"
 	"database/sql"
 	"database/sql/driver"
@@ -20,18 +19,19 @@ const (
 	RoleAnon Role = iota
 	RoleUser
 	RoleMember
+	RoleLogistics
 	RoleDirector
 	RoleAdmin
 )
 
 func (r Role) Value() (driver.Value, error) {
-	return int(r), nil
+	return int64(r), nil
 }
 
 func (r *Role) Scan(src interface{}) error {
-	i, ok := src.(int)
+	i, ok := src.(int32)
 	if !ok {
-		return fmt.Errorf("invalid value for role: %v", src)
+		return fmt.Errorf("invalid %t for role: %v", src, src)
 	}
 	switch Role(i) {
 	case RoleAnon:
@@ -40,6 +40,8 @@ func (r *Role) Scan(src interface{}) error {
 		*r = RoleUser
 	case RoleMember:
 		*r = RoleMember
+	case RoleLogistics:
+		*r = RoleLogistics
 	case RoleDirector:
 		*r = RoleDirector
 	case RoleAdmin:
@@ -154,9 +156,45 @@ func (m *Manager) GetUserBySessionKey(key string) (*User, error) {
 	return u, nil
 }
 
-func (m *Manager) AuthorizeUser(user *User, role Role) (context.Context, error) {
-	// Check database
-	return nil, nil
+func (m *Manager) SaveAuthorization(u *User, r Role, characterID int, tok *oauth2.Token) error {
+	db, err := m.pool.Open()
+	if err != nil {
+		return err
+	}
+	defer db.Close()
+	_, err = db.Exec(
+		`INSERT INTO app.user_authorizations (user_id, character_id, role, token)
+		  	   VALUES($1, $2, $3, $4)
+			   ON CONFLICT ON CONSTRAINT "user_authorizations_pkey"  DO
+				UPDATE SET character_id = EXCLUDED.character_id,
+				  token = EXCLUDED.token`,
+		u.UserID,
+		characterID,
+		r,
+		(*oAuth2Token)(tok),
+	)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (m *Manager) GetAuthorization(user *User, role Role) (*Authorization, error) {
+	db, err := m.pool.Open()
+	if err != nil {
+		return nil, err
+	}
+	defer db.Close()
+	a := &Authorization{}
+	row := db.QueryRow(`SELECT user_id, character_id, "role", token
+					    FROM app.user_authorizations
+					    WHERE user_id = $1
+						AND "role" = $2`, user.UserID, role)
+	err = row.Scan(&a.UserID, &a.CharacterID, &a.Role, &a.token)
+	if err != nil {
+		return nil, err
+	}
+	return a, nil
 }
 
 type oAuth2Token oauth2.Token
@@ -166,11 +204,11 @@ func (r *oAuth2Token) Value() (driver.Value, error) {
 }
 
 func (r *oAuth2Token) Scan(src interface{}) error {
-	s, ok := src.(string)
+	s, ok := src.([]byte)
 	if !ok {
 		return fmt.Errorf("invalid value for token: %v", src)
 	}
-	return json.Unmarshal([]byte(s), &r)
+	return json.Unmarshal(s, &r)
 }
 
 type Authorization struct {
@@ -179,4 +217,8 @@ type Authorization struct {
 	Role        Role
 
 	token *oAuth2Token
+}
+
+func (a *Authorization) Token() *oauth2.Token {
+	return (*oauth2.Token)(a.token)
 }

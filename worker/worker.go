@@ -53,6 +53,7 @@ func (s *Scheduler) Loop() {
 			case j := <-s.waiting:
 				err := j.Perform()
 				if err != nil {
+					// TODO: use logger
 					fmt.Println("scheduler: job returned error:", err.Error())
 				}
 			default:

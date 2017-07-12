@@ -37,8 +37,11 @@ func New(c Config) *EveAPI {
 	}
 }
 
-func (api *EveAPI) AuthorizeURL(state string) string {
-	return api.ssoAuth.AuthorizeURL(state, true, AllScopes)
+func (api *EveAPI) AuthorizeURL(state string, scopes ...string) string {
+	if len(scopes) == 0 {
+		scopes = AllScopes
+	}
+	return api.ssoAuth.AuthorizeURL(state, true, scopes)
 }
 
 func (api *EveAPI) TokenExchange(code string) (*goesi.CRESTToken, error) {

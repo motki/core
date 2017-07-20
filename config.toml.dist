@@ -75,6 +75,19 @@ storage_path="tmp"
 [http.templates]
 # Defines where the application's twig views are stored.
 views_path="views"
+# The base URL for external links (for example, in emails).
+base_url="http://localhost:8080"
+
+
+# Mail sending parameters
+[mail]
+# Address (host:port) for SMTP server.
+smtp_address=":587"
+# Username and password for SMTP authentication.
+smtp_username=""
+smtp_password=""
+# System contact information as it should appear in the "From:" line in an email.
+system={name="Moritake Industries", email="system@localhost"}
 
 
 # EVE API parameters

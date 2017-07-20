@@ -14,6 +14,13 @@ type Job interface {
 	Perform() error
 }
 
+// JobFunc allows bare functions to implement the Job interface.
+type JobFunc func() error
+
+func (j JobFunc) Perform() error {
+	return j()
+}
+
 // Scheduler is the entry-point for scheduling jobs to run asynchronously.
 type Scheduler struct {
 	tick    *time.Ticker
@@ -39,6 +46,12 @@ func New(logger log.Logger) *Scheduler {
 // Schedule adds a job to be performed.
 func (s *Scheduler) Schedule(j Job) error {
 	s.waiting <- j
+	return nil
+}
+
+// ScheduleFunc is a convenience method accepting a function as a job.
+func (s *Scheduler) ScheduleFunc(j func() error) error {
+	s.waiting <- JobFunc(j)
 	return nil
 }
 

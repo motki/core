@@ -258,6 +258,16 @@ func (m *Manager) GetAuthorization(user *User, role Role) (*Authorization, error
 	return a, nil
 }
 
+func (m *Manager) RemoveAuthorization(user *User, role Role) error {
+	db, err := m.pool.Open()
+	if err != nil {
+		return err
+	}
+	defer db.Close()
+	_, err = db.Exec(`DELETE FROM app.user_authorizations WHERE user_id = $1 AND "role" = $2`, user.UserID, role)
+	return err
+}
+
 type oAuth2Token oauth2.Token
 
 func (r *oAuth2Token) Value() (driver.Value, error) {

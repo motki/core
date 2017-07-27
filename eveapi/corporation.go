@@ -21,7 +21,7 @@ type Alliance struct {
 }
 
 func (api *EveAPI) GetCorporation(corpID int) (corp *Corporation, err error) {
-	dat, _, err := api.client.V3.CorporationApi.GetCorporationsCorporationId(int32(corpID), nil)
+	dat, _, err := api.client.ESI.CorporationApi.GetCorporationsCorporationId(int32(corpID), nil)
 	if err != nil {
 		return corp, err
 	}
@@ -36,7 +36,7 @@ func (api *EveAPI) GetCorporation(corpID int) (corp *Corporation, err error) {
 }
 
 func (api *EveAPI) GetAlliance(allianceID int) (alliance *Alliance, err error) {
-	dat, _, err := api.client.V2.AllianceApi.GetAlliancesAllianceId(int32(allianceID), nil)
+	dat, _, err := api.client.ESI.AllianceApi.GetAlliancesAllianceId(int32(allianceID), nil)
 	if err != nil {
 		return alliance, err
 	}

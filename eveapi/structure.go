@@ -7,7 +7,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/antihax/goesi/v1"
+	"github.com/antihax/goesi/esi"
 )
 
 type Structure struct {
@@ -64,7 +64,7 @@ func (s VulnSchedule) String() string {
 }
 
 func (api *EveAPI) GetCorporationStructures(ctx context.Context, corpID int) ([]*Structure, error) {
-	res, _, err := api.client.V1.CorporationApi.GetCorporationsCorporationIdStructures(ctx, int32(corpID), nil)
+	res, _, err := api.client.ESI.CorporationApi.GetCorporationsCorporationIdStructures(ctx, int32(corpID), nil)
 	if err != nil {
 		return nil, err
 	}
@@ -99,16 +99,16 @@ func (api *EveAPI) GetCorporationStructures(ctx context.Context, corpID int) ([]
 }
 
 func (api *EveAPI) UpdateCorporationStructureVulnSchedule(ctx context.Context, corpID int, structureID int, sched VulnSchedule) error {
-	newSched := []goesiv1.PutCorporationsCorporationIdStructuresStructureIdNewSchedule{}
+	newSched := []esi.PutCorporationsCorporationIdStructuresStructureIdNewSchedule{}
 	for day, hrs := range sched {
 		for _, hr := range hrs {
-			newSched = append(newSched, goesiv1.PutCorporationsCorporationIdStructuresStructureIdNewSchedule{
+			newSched = append(newSched, esi.PutCorporationsCorporationIdStructuresStructureIdNewSchedule{
 				Day:  int32(day),
 				Hour: int32(hr),
 			})
 		}
 	}
-	_, err := api.client.V1.CorporationApi.PutCorporationsCorporationIdStructuresStructureId(ctx, int32(corpID), newSched, int64(structureID), nil)
+	_, err := api.client.ESI.CorporationApi.PutCorporationsCorporationIdStructuresStructureId(ctx, int32(corpID), newSched, int64(structureID), nil)
 	if err != nil {
 		return err
 	}

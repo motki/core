@@ -6,13 +6,11 @@ import (
 	"github.com/motki/motkid/eveapi"
 )
 
-func (m *Manager) GetCorporationStructures(ctx context.Context, corpID int) (jobs []*eveapi.Structure, err error) {
-	jobs, err = m.getCorporationStructuresFromDB(corpID)
-	if err != nil {
-		return nil, err
-	}
-	if jobs != nil {
+func (m *Manager) GetCorporationStructures(ctx context.Context, corpID int) ([]*eveapi.Structure, error) {
+	if jobs, err := m.getCorporationStructuresFromDB(corpID); err == nil && jobs != nil {
 		return jobs, nil
+	} else if err != nil {
+		return nil, err
 	}
 	return m.getCorporationStructuresFromAPI(ctx, corpID)
 }

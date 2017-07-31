@@ -20,9 +20,10 @@ cd $GOPATH/src/github.com/motki/motkid
 
 Load the data in the `resources` folder.
 
-* Use `pg_restore` to load the EVE static dump.
-  > Warnings abouts a missing "yaml" role can be ignored.
-* Extract the Icons, Renders, and Types zips to `public/images` (creating `public/images/Icons`, `public/images/Renders`, and `public/images/Types`)
+1. Un-bzip the `evesde-*-postgres.dmp.bz2`.
+2. Use `pg_restore` to load the EVE static dump.
+   > Warnings abouts a missing "yaml" role can be ignored.
+3. Extract the Icons, Renders, and Types zips to `public/images` (creating `public/images/Icons`, `public/images/Renders`, and `public/images/Types`)
 
 
 ### Configuration

@@ -44,6 +44,12 @@
   version = "v2.11.0"
 
 [[projects]]
+  name = "github.com/leekchan/accounting"
+  packages = ["."]
+  revision = "a35854c075934d6aa1a6c1ab3ea8a82ee0dc1a93"
+  version = "v0.2"
+
+[[projects]]
   branch = "master"
   name = "github.com/mailru/easyjson"
   packages = [".","buffer","jlexer","jwriter"]
@@ -100,6 +106,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "979dcdf9d964378fd374e755263391977a39662ae27a1992311e6d58f708f8bd"
+  inputs-digest = "b744e346e6faf4439f8a41b393397a811688ff7ba7f477c3ec599d3bdcd2a6f4"
   solver-name = "gps-cdcl"
   solver-version = 1

@@ -39,6 +39,35 @@ func (e *EveDB) GetItemType(typeID int) (*ItemType, error) {
 	return it, nil
 }
 
+// QueryItemTypes returns a list of matching items given the query.
+func (e *EveDB) QueryItemTypes(query string) ([]*ItemType, error) {
+	c, err := e.pool.Open()
+	if err != nil {
+		return nil, err
+	}
+	defer c.Close()
+	rs, err := c.Query(
+		`SELECT
+			  type."typeID"
+			, type."typeName"
+			FROM evesde."invTypes" type
+			WHERE type."typeName" ILIKE '%' || $1 || '%' LIMIT 20`, query)
+	if err != nil {
+		return nil, err
+	}
+	defer rs.Close()
+	res := []*ItemType{}
+	for rs.Next() {
+		r := &ItemType{}
+		err := rs.Scan(&r.ID, &r.Name)
+		if err != nil {
+			return nil, err
+		}
+		res = append(res, r)
+	}
+	return res, nil
+}
+
 // GetBlueprint fetches a Blueprint from the database.
 func (e *EveDB) GetBlueprint(typeID int) (*Blueprint, error) {
 	it, err := e.GetItemType(typeID)

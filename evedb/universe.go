@@ -82,3 +82,30 @@ func (e *EveDB) GetRegion(id int) (*Region, error) {
 	}
 	return &r, nil
 }
+
+func (e *EveDB) GetAllRegions() ([]*Region, error) {
+	c, err := e.pool.Open()
+	if err != nil {
+		return nil, err
+	}
+	defer c.Close()
+	rs, err := c.Query(
+		`SELECT
+			  s."regionID"
+			, s."regionName"
+			FROM evesde."mapRegions" s`)
+	if err != nil {
+		return nil, err
+	}
+	defer rs.Close()
+	var res []*Region
+	for rs.Next() {
+		r := Region{}
+		err = rs.Scan(&r.RegionID, &r.Name)
+		if err != nil {
+			return nil, err
+		}
+		res = append(res, &r)
+	}
+	return res, nil
+}

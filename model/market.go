@@ -68,38 +68,17 @@ type marketStatView struct {
 
 // GetMarketStat gets market information for the given types.
 func (m *Manager) GetMarketStat(typeIDs ...int) ([]*MarketStat, error) {
-	res, err := m.getMarketStatFromDB(0, 0, typeIDs...)
-	if err != nil {
-		return nil, err
-	}
-	if res == nil {
-		return m.getMarketStatFromAPI(0, 0, typeIDs...)
-	}
-	return res, nil
+	return m.getMarketStatFromDB(0, 0, typeIDs...)
 }
 
 // GetMarketStatRegion gets market information for the given region and types.
 func (m *Manager) GetMarketStatRegion(regionID int, typeIDs ...int) ([]*MarketStat, error) {
-	res, err := m.getMarketStatFromDB(regionID, 0, typeIDs...)
-	if err != nil {
-		return nil, err
-	}
-	if res == nil {
-		return m.getMarketStatFromAPI(regionID, 0, typeIDs...)
-	}
-	return res, nil
+	return m.getMarketStatFromDB(regionID, 0, typeIDs...)
 }
 
 // GetMarketStatSystem gets market information for the given system and types.
 func (m *Manager) GetMarketStatSystem(systemID int, typeIDs ...int) ([]*MarketStat, error) {
-	res, err := m.getMarketStatFromDB(0, systemID, typeIDs...)
-	if err != nil {
-		return nil, err
-	}
-	if res == nil {
-		return m.getMarketStatFromAPI(0, systemID, typeIDs...)
-	}
-	return res, nil
+	return m.getMarketStatFromDB(0, systemID, typeIDs...)
 }
 
 func (m *Manager) getMarketStatFromDB(regionID, systemID int, typeIDs ...int) ([]*MarketStat, error) {
@@ -158,7 +137,26 @@ func (m *Manager) getMarketStatFromDB(regionID, systemID int, typeIDs ...int) ([
 		res = append(res, r)
 	}
 	if len(res) == 0 {
-		return nil, nil
+		// No results, get them from the API
+		return m.getMarketStatFromAPI(regionID, systemID, typeIDs...)
+	}
+	got := map[int]struct{}{}
+	for _, s := range res {
+		got[s.TypeID] = struct{}{}
+	}
+	// If we're missing any stats for some of the types, fetch them now.
+	if len(got) != len(typeIDs) {
+		ids := make([]int, 0)
+		for _, id := range typeIDs {
+			if _, ok := got[id]; !ok {
+				ids = append(ids, id)
+			}
+		}
+		ares, err := m.getMarketStatFromAPI(regionID, systemID, ids...)
+		if err != nil {
+			return nil, err
+		}
+		res = append(res, ares...)
 	}
 	return res, nil
 }

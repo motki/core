@@ -1,5 +1,10 @@
 package evedb
 
+import (
+	"strconv"
+	"strings"
+)
+
 // An ItemType is a type of item in EVE.
 type ItemType struct {
 	ID   int
@@ -40,18 +45,30 @@ func (e *EveDB) GetItemType(typeID int) (*ItemType, error) {
 }
 
 // QueryItemTypes returns a list of matching items given the query.
-func (e *EveDB) QueryItemTypes(query string) ([]*ItemType, error) {
+func (e *EveDB) QueryItemTypes(query string, catIDs ...int) ([]*ItemType, error) {
 	c, err := e.pool.Open()
 	if err != nil {
 		return nil, err
 	}
 	defer c.Close()
+	if len(catIDs) == 0 {
+		// Default to Modules, Ships, Drones, and Charges
+		catIDs = []int{6, 7, 8, 18}
+	}
+	cats := []string{}
+	for _, id := range catIDs {
+		cats = append(cats, strconv.Itoa(id))
+	}
 	rs, err := c.Query(
 		`SELECT
 			  type."typeID"
 			, type."typeName"
 			FROM evesde."invTypes" type
-			WHERE type."typeName" ILIKE '%' || $1 || '%' LIMIT 20`, query)
+			  JOIN evesde."invGroups" grp
+			    ON type."groupID" = grp."groupID" AND grp."categoryID" = ANY($1::INTEGER[])
+			WHERE  type."published" = TRUE
+			  AND type."typeName" ILIKE '%' || $2 || '%'
+			LIMIT 20`, "{"+strings.Join(cats, ",")+"}", query)
 	if err != nil {
 		return nil, err
 	}

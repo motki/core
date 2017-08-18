@@ -8,6 +8,7 @@ import (
 
 	"github.com/antihax/goesi"
 	"github.com/gregjones/httpcache"
+	"github.com/motki/motkid/log"
 )
 
 var ErrNoToken = errors.New("unable to get token from context")
@@ -27,7 +28,10 @@ type EveAPI struct {
 }
 
 // New creates a new EveAPI with the given configuration.
-func New(c Config) *EveAPI {
+func New(c Config, l log.Logger) *EveAPI {
+	l.Debugf("eveapi: init with client ID: %s", c.ClientID)
+	l.Debugf("eveapi: return URL: %s", c.ReturnURL)
+	l.Debugf("eveapi: user agent: %s", c.UserAgent)
 	t := httpcache.NewMemoryCacheTransport()
 	t.Transport = &http.Transport{Proxy: http.ProxyFromEnvironment}
 	hc := &http.Client{Transport: t}

@@ -10,6 +10,7 @@ import (
 
 	"github.com/jackc/pgx"
 	"github.com/jackc/pgx/stdlib"
+	"github.com/motki/motkid/log"
 )
 
 // Config represents configuration details for creating a connection pool.
@@ -22,7 +23,9 @@ type Config struct {
 //
 // Generally only one ConnPool should be used, shared by the entire
 // application.
-func New(c Config) (*ConnPool, error) {
+func New(c Config, l log.Logger) (*ConnPool, error) {
+	l.Debugf("db: init database connection pool for: %s", c.ConnString)
+	l.Debugf("db: max connections: %d", c.MaxConnections)
 	pcon, err := pgx.ParseConnectionString(c.ConnString)
 	if err != nil {
 		return nil, err

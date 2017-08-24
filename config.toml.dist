@@ -59,9 +59,12 @@ require=false
 # Defines which type of session store the application should use.
 # Possible values are "file" or "memory".
 # Specifying "memory" will store session data in memory. Specifying
-# "file" will store session data in the configured
+# "file" will store session data in the path specified by the
 # http.sessions.file.storage_path option.
 store="file"
+# Controls whether session cookies are set on insecure connections.
+# This should be set to true if http.ssl.require is enabled.
+secure_only=false
 
 
 # File session storage parameters

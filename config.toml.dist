@@ -65,6 +65,10 @@ store="file"
 # Controls whether session cookies are set on insecure connections.
 # This should be set to true if http.ssl.require is enabled.
 secure_only=false
+# The session secret is used to authenticate cookie and CSRF tokens.
+# Both cookies and CSRF tokens are created containing a signature that
+# is generated using this secret.
+secret="" # This needs to be changed!
 
 
 # File session storage parameters

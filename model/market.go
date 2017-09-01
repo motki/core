@@ -1,10 +1,9 @@
 package model
 
 import (
-	"time"
-
 	"fmt"
 	"strings"
+	"time"
 
 	"github.com/motki/motkid/evecentral"
 	"github.com/shopspring/decimal"
@@ -67,18 +66,27 @@ type marketStatView struct {
 }
 
 // GetMarketStat gets market information for the given types.
-func (m *Manager) GetMarketStat(typeIDs ...int) ([]*MarketStat, error) {
-	return m.getMarketStatFromDB(0, 0, typeIDs...)
+//
+// Multiple typeIDs may be specified, but the method signature requires at least
+// the first is given.
+func (m *Manager) GetMarketStat(typeID int, typeIDs ...int) ([]*MarketStat, error) {
+	return m.getMarketStatFromDB(0, 0, append(typeIDs, typeID)...)
 }
 
 // GetMarketStatRegion gets market information for the given region and types.
-func (m *Manager) GetMarketStatRegion(regionID int, typeIDs ...int) ([]*MarketStat, error) {
-	return m.getMarketStatFromDB(regionID, 0, typeIDs...)
+//
+// Multiple typeIDs may be specified, but the method signature requires at least
+// the first is given.
+func (m *Manager) GetMarketStatRegion(regionID int, typeID int, typeIDs ...int) ([]*MarketStat, error) {
+	return m.getMarketStatFromDB(regionID, 0, append(typeIDs, typeID)...)
 }
 
 // GetMarketStatSystem gets market information for the given system and types.
-func (m *Manager) GetMarketStatSystem(systemID int, typeIDs ...int) ([]*MarketStat, error) {
-	return m.getMarketStatFromDB(0, systemID, typeIDs...)
+//
+// Multiple typeIDs may be specified, but the method signature requires at least
+// the first is given.
+func (m *Manager) GetMarketStatSystem(systemID int, typeID int, typeIDs ...int) ([]*MarketStat, error) {
+	return m.getMarketStatFromDB(0, systemID, append(typeIDs, typeID)...)
 }
 
 func (m *Manager) getMarketStatFromDB(regionID, systemID int, typeIDs ...int) ([]*MarketStat, error) {

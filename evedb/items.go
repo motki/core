@@ -7,8 +7,9 @@ import (
 
 // An ItemType is a type of item in EVE.
 type ItemType struct {
-	ID   int
-	Name string
+	ID          int
+	Name        string
+	Description string
 }
 
 // A Blueprint describes what is necessary to build an item.
@@ -32,12 +33,13 @@ func (e *EveDB) GetItemType(typeID int) (*ItemType, error) {
 	defer c.Close()
 	r := c.QueryRow(
 		`SELECT
-			  type."typeID" as ID
-			, type."typeName" as typeName
+			  type."typeID"
+			, type."typeName"
+			, type."description"
 			FROM evesde."invTypes" type
-			WHERE type."typeID" = $1 `, typeID)
+			WHERE type."typeID" = $1`, typeID)
 	it := &ItemType{}
-	err = r.Scan(&it.ID, &it.Name)
+	err = r.Scan(&it.ID, &it.Name, &it.Description)
 	if err != nil {
 		return nil, err
 	}

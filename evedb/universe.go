@@ -71,7 +71,7 @@ func (e *EveDB) GetRegion(id int) (*Region, error) {
 	defer c.Close()
 	row := c.QueryRow(
 		`SELECT
-			, s."regionID"
+			  s."regionID"
 			, s."regionName"
 			FROM evesde."mapRegions" s
 			WHERE s."regionID" = $1`, id)

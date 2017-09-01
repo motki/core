@@ -3,9 +3,9 @@ package log
 
 import (
 	"errors"
-	stdlog "log"
-
 	"io"
+	stdlog "log"
+	"os"
 
 	"github.com/sirupsen/logrus"
 )
@@ -13,9 +13,17 @@ import (
 // Logger is the standard interface services should make use of.
 type Logger logrus.FieldLogger
 
+type outputType int
+
+const (
+	OutputStdout outputType = iota
+	OutputStderr
+)
+
 // Config contains information on how to configure a logger.
 type Config struct {
-	Level string `toml:"level"`
+	Level      string     `toml:"level"`
+	OutputType outputType `toml:"output_type"`
 }
 
 // New creates and configures a new Logger using the given Config.
@@ -25,6 +33,9 @@ func New(c Config) Logger {
 		l = logrus.DebugLevel
 	}
 	logger := logrus.New()
+	if c.OutputType == OutputStderr {
+		logger.Out = os.Stderr
+	}
 	logger.Level = l
 	logger.Formatter = &logrus.TextFormatter{ForceColors: true}
 	// Re-check for the above error and log it as a warning if it exist

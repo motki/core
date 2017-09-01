@@ -29,9 +29,9 @@ type EveAPI struct {
 
 // New creates a new EveAPI with the given configuration.
 func New(c Config, l log.Logger) *EveAPI {
-	l.Debugf("eveapi: init with client ID: %s", c.ClientID)
-	l.Debugf("eveapi: return URL: %s", c.ReturnURL)
-	l.Debugf("eveapi: user agent: %s", c.UserAgent)
+	l.Debugf("eveapi: init with EVE Developer Portal application client ID: %s", c.ClientID)
+	l.Debugf("eveapi: SSO return URL: %s", c.ReturnURL)
+	l.Debugf("eveapi: API client user agent: %s", c.UserAgent)
 	t := httpcache.NewMemoryCacheTransport()
 	t.Transport = &http.Transport{Proxy: http.ProxyFromEnvironment}
 	hc := &http.Client{Transport: t}

@@ -13,8 +13,11 @@ package app
 import (
 	"io/ioutil"
 	"os"
+	"os/signal"
 	"path/filepath"
 	"sync"
+	"syscall"
+	"time"
 
 	"github.com/BurntSushi/toml"
 	"github.com/pkg/errors"
@@ -34,10 +37,6 @@ import (
 	"github.com/motki/motkid/mail"
 	"github.com/motki/motkid/model"
 	"github.com/motki/motkid/worker"
-
-	"os/signal"
-	"syscall"
-	"time"
 
 	modaccount "github.com/motki/motkid/http/module/account"
 	modauth "github.com/motki/motkid/http/module/auth"
@@ -108,8 +107,7 @@ func NewEnv(conf *Config) (*Env, error) {
 		Logger:    logger,
 		DB:        pool,
 		Scheduler: work,
-
-		Model: mdl,
+		Model:     mdl,
 
 		EveCentral: ec,
 		EveDB:      edb,
@@ -117,9 +115,9 @@ func NewEnv(conf *Config) (*Env, error) {
 	}, nil
 }
 
-type AbortFunc func()
+type abortFunc func()
 
-func (env *Env) BlockUntilAbortWith(abort chan os.Signal, fns ...AbortFunc) {
+func (env *Env) BlockUntilAbortWith(abort chan os.Signal, fns ...abortFunc) {
 	signal.Notify(abort, syscall.SIGINT, syscall.SIGTERM)
 	select {
 	case s := <-abort:
@@ -128,7 +126,7 @@ func (env *Env) BlockUntilAbortWith(abort chan os.Signal, fns ...AbortFunc) {
 		wg := &sync.WaitGroup{}
 		for _, fn := range fns {
 			wg.Add(1)
-			go func(fn AbortFunc) {
+			go func(fn abortFunc) {
 				fn()
 				wg.Done()
 			}(fn)
@@ -154,7 +152,7 @@ func (env *Env) BlockUntilAbort(abort chan os.Signal) {
 	env.BlockUntilAbortWith(abort, env.abortFunc())
 }
 
-func (env *Env) abortFunc() AbortFunc {
+func (env *Env) abortFunc() abortFunc {
 	return func() {
 		if err := env.Scheduler.Shutdown(); err != nil {
 			env.Logger.Warnf("app: error shutting down scheduler: %s", err.Error())
@@ -219,7 +217,7 @@ func (webEnv *WebEnv) BlockUntilAbort(abort chan os.Signal) {
 	webEnv.BlockUntilAbortWith(abort, webEnv.Env.abortFunc(), webEnv.abortFunc())
 }
 
-func (webEnv *WebEnv) abortFunc() AbortFunc {
+func (webEnv *WebEnv) abortFunc() abortFunc {
 	return func() {
 		if err := webEnv.Web.Shutdown(); err != nil {
 			webEnv.Logger.Warnf("app: error shutting down web server: %s", err.Error())

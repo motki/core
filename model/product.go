@@ -18,16 +18,16 @@ const (
 )
 
 type Product struct {
-	ProductID     int
-	parentID      int
-	corporationID int
-
+	ProductID      int
 	TypeID         int
 	Materials      []*Product
 	Quantity       int
 	MarketPrice    decimal.Decimal
 	MarketRegionID int
 	Kind           ProductKind
+
+	parentID      int
+	corporationID int
 }
 
 func (p Product) Cost() decimal.Decimal {
@@ -47,8 +47,7 @@ func (m *Manager) NewProduct(corpID int, typeID int) (*Product, error) {
 		return nil, errors.Wrapf(err, "unable to create production line for typeID %d", typeID)
 	}
 	p := &Product{
-		corporationID: corpID,
-
+		corporationID:  corpID,
 		TypeID:         typeID,
 		Materials:      make([]*Product, 0),
 		Quantity:       1,
@@ -73,7 +72,7 @@ func (m *Manager) UpdateProductMarketPrices(product *Product, regionID int) erro
 	if err != nil {
 		return errors.Wrapf(err, "unable to update production line market price for typeID %d", product.TypeID)
 	}
-	var max = decimal.NewFromFloat(1000000000000)
+	max := decimal.NewFromFloat(1000000000000)
 	var bestSell = max
 	for _, s := range stat {
 		if s.TypeID != product.TypeID {
@@ -92,8 +91,7 @@ func (m *Manager) UpdateProductMarketPrices(product *Product, regionID int) erro
 	product.MarketPrice = bestSell
 	product.MarketRegionID = regionID
 	for _, p := range product.Materials {
-		err = m.UpdateProductMarketPrices(p, regionID)
-		if err != nil {
+		if err = m.UpdateProductMarketPrices(p, regionID); err != nil {
 			return errors.Wrapf(err, "unable to update production line market price for typeID %d", product.TypeID)
 		}
 	}

@@ -75,6 +75,10 @@ func NewConfigFromTOMLFile(tomlPath string) (*Config, error) {
 	return conf, nil
 }
 
+// An Env is a fully integrated environment.
+//
+// This struct contains all the core services needed by motkid, but
+// does not contain any web or mail server related services.
 type Env struct {
 	conf *Config
 
@@ -88,6 +92,7 @@ type Env struct {
 	EveAPI     *eveapi.EveAPI
 }
 
+// NewEnv creates an Env using the given configuration.
 func NewEnv(conf *Config) (*Env, error) {
 	logger := log.New(conf.Logging)
 	pool, err := db.New(conf.Database, logger)
@@ -115,8 +120,18 @@ func NewEnv(conf *Config) (*Env, error) {
 	}, nil
 }
 
+// abortFunc is a simple function intended to be called prior to application exit.
 type abortFunc func()
 
+// BlockUntilAbortWith will block until it receives the abort signal.
+//
+// This function attempts to perform a graceful shutdown, shutting
+// down all services and doing whatever clean up processes are necessary.
+//
+// Each pre-exit task exists in the form of an abortFunc.
+//
+// Note that each abortFunc is run concurrently and there is a finite amount
+// of time for them to return before the application exits anyway.
 func (env *Env) BlockUntilAbortWith(abort chan os.Signal, fns ...abortFunc) {
 	signal.Notify(abort, syscall.SIGINT, syscall.SIGTERM)
 	select {
@@ -148,10 +163,18 @@ func (env *Env) BlockUntilAbortWith(abort chan os.Signal, fns ...abortFunc) {
 	}
 }
 
+// BlockUntilAbort will block until it receives the abort signal.
+//
+// This function performs the default shutdown procedure when it receives
+// an abort signal.
+//
+// See BlockUntilAbortWith for more details.
 func (env *Env) BlockUntilAbort(abort chan os.Signal) {
 	env.BlockUntilAbortWith(abort, env.abortFunc())
 }
 
+// abortFunc returns a function to be called when the application is
+// shutting down.
 func (env *Env) abortFunc() abortFunc {
 	return func() {
 		if err := env.Scheduler.Shutdown(); err != nil {
@@ -160,6 +183,7 @@ func (env *Env) abortFunc() abortFunc {
 	}
 }
 
+// A WebEnv wraps a regular Env, providing web and mail servers.
 type WebEnv struct {
 	*Env
 
@@ -168,8 +192,14 @@ type WebEnv struct {
 	Templates template.Renderer
 	Auth      auth.Manager
 	Web       *http.Server
+
+	unexported struct{}
 }
 
+// NewWebEnv creates a new web environment using the given configuration.
+//
+// This function will initialize a regular Env before it initializes the
+// web and mail server related functionality.
 func NewWebEnv(conf *Config) (*WebEnv, error) {
 	env, err := NewEnv(conf)
 	if err != nil {
@@ -213,10 +243,18 @@ func NewWebEnv(conf *Config) (*WebEnv, error) {
 	}, nil
 }
 
+// BlockUntilAbort will block until it receives the abort signal.
+//
+// This function performs the default shutdown procedure when it receives
+// an abort signal.
+//
+// See BlockUntilAbortWith for more details.
 func (webEnv *WebEnv) BlockUntilAbort(abort chan os.Signal) {
 	webEnv.BlockUntilAbortWith(abort, webEnv.Env.abortFunc(), webEnv.abortFunc())
 }
 
+// abortFunc returns a function to be called when the application is
+// shutting down.
 func (webEnv *WebEnv) abortFunc() abortFunc {
 	return func() {
 		if err := webEnv.Web.Shutdown(); err != nil {

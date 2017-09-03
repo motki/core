@@ -54,18 +54,18 @@ func (m *Manager) NewProduct(corpID int, typeID int) (*Product, error) {
 		corporationID:  corpID,
 		TypeID:         typeID,
 		Materials:      make([]*Product, 0),
-		Quantity:       1,
+		Quantity:       bp.ProducesQty,
 		MarketPrice:    decimal.NewFromFloat(0),
 		MarketRegionID: 0,
 		Kind:           ProductManufacture,
 	}
 	for _, mat := range bp.Materials {
 		part, err := m.NewProduct(corpID, mat.ID)
-		part.Kind = ProductBuy
-		part.Quantity = mat.Quantity
 		if err != nil {
 			return nil, errors.Wrapf(err, "unable to create production chain for typeID %d", typeID)
 		}
+		part.Kind = ProductBuy
+		part.Quantity = mat.Quantity
 		p.Materials = append(p.Materials, part)
 	}
 	return p, nil
@@ -213,7 +213,7 @@ func (m *Manager) getProducts(corpID int, productIDs ...int) ([]*Product, error)
 	if len(ids) > 0 {
 		idClause = "AND p1.product_id IN(" + strings.Join(ids, ",") + ")"
 	}
-	// This relies on a recursive CTE to generate the list of products needed for the given root products.
+	// This relies on a recursive CTE to generate the full list of products needed for the given root products.
 	r, err := c.Query(`WITH RECURSIVE chain(f, t) AS (
 		SELECT NULL::INT, p1.product_id FROM app.production_chains p1 WHERE p1.corporation_id = $1 AND p1.parent_id IS NULL `+idClause+`
 		UNION

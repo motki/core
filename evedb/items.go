@@ -167,7 +167,7 @@ func (e *EveDB) QueryItemTypeDetails(query string, catIDs ...int) ([]*ItemTypeDe
 // A Blueprint describes what is necessary to build an item.
 type Blueprint struct {
 	*ItemType
-	Materials   []Material
+	Materials   []*Material
 	ProducesQty int
 }
 
@@ -200,9 +200,9 @@ func (e *EveDB) GetBlueprint(typeID int) (*Blueprint, error) {
 		return nil, err
 	}
 	defer rs.Close()
-	res := []Material{}
+	res := []*Material{}
 	for rs.Next() {
-		r := Material{ItemType: &ItemType{}}
+		r := &Material{ItemType: &ItemType{}}
 		err := rs.Scan(&r.Name, &r.ID, &r.Quantity)
 		if err != nil {
 			return nil, err

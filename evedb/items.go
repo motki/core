@@ -33,7 +33,7 @@ type ItemTypeDetail struct {
 const baseQueryItemType = `SELECT
   type."typeID"
 , type."typeName"
-, type."description"
+, COALESCE(type."description", '')
 FROM evesde."invTypes" type
 `
 
@@ -83,7 +83,7 @@ func (e *EveDB) QueryItemTypes(query string, catIDs ...int) ([]*ItemType, error)
 	res := []*ItemType{}
 	for rs.Next() {
 		r := &ItemType{}
-		err := rs.Scan(&r.ID, &r.Name)
+		err := rs.Scan(&r.ID, &r.Name, &r.Description)
 		if err != nil {
 			return nil, err
 		}
@@ -95,16 +95,16 @@ func (e *EveDB) QueryItemTypes(query string, catIDs ...int) ([]*ItemType, error)
 const baseQueryItemTypeDetail = `SELECT
   type."typeID"
 , type."typeName"
-, type."description"
+, COALESCE(type."description", '')
 , type."groupID"
 , grp."groupName"
 , grp."categoryID"
 , cat."categoryName"
-, type."mass"
-, type."volume"
-, type."capacity"
-, type."portionSize"
-, type."basePrice"
+, COALESCE(type."mass", 0)
+, COALESCE(type."volume", 0)
+, COALESCE(type."capacity", 0)
+, COALESCE(type."portionSize", 0)
+, COALESCE(type."basePrice", 0)
 FROM evesde."invTypes" type
   JOIN evesde."invGroups" grp ON type."groupID" = grp."groupID"
   JOIN evesde."invCategories" cat ON grp."categoryID" = cat."categoryID"

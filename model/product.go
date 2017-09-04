@@ -20,28 +20,42 @@ const (
 
 // Product represents one part of a production chain.
 type Product struct {
-	ProductID      int
-	TypeID         int
-	Materials      []*Product
-	Quantity       int
-	MarketPrice    decimal.Decimal
-	MarketRegionID int
-	Kind           ProductKind
+	ProductID          int
+	TypeID             int
+	Materials          []*Product
+	Quantity           int
+	MarketPrice        decimal.Decimal
+	MarketRegionID     int
+	MaterialEfficiency decimal.Decimal
+	BatchSize          int
+	Kind               ProductKind
 
 	parentID      int
 	corporationID int
 }
 
-// Cost returns the total cost for the completed product.
+// Cost returns the total cost for one single unit of the completed parent product.
 func (p Product) Cost() decimal.Decimal {
+	batchSize := decimal.NewFromFloat(float64(p.BatchSize))
 	if p.Kind == ProductBuy {
 		return p.MarketPrice
 	}
+	// Calculate the cost, and be sure to include the tiny savings received on
+	// ME% bonuses when calculating larger job sizes. We do this by multiplying
+	// the material cost by the received batchSize, which is always the "parent"
+	// Product's BatchSize to the current component.
 	cost := decimal.NewFromFloat(0)
 	for _, m := range p.Materials {
-		cost = cost.Add(m.Cost().Mul(decimal.NewFromFloat(float64(m.Quantity))))
+		// cost = cost + (m.Cost * round(m.Quantity / (1 + p.MaterialEfficiency) * p.BatchSize)
+		cost = cost.Add(m.Cost().
+			Mul(decimal.NewFromFloat(float64(m.Quantity)).
+				Div(p.MaterialEfficiency.Add(decimal.NewFromFloat(1))).
+				Mul(batchSize).
+				Round(0)))
 	}
-	return cost
+	// We bring the final cost back to a single-product scale by dividing by the
+	// received batch size at the end.
+	return cost.Div(batchSize)
 }
 
 // NewProduct creates a new production chain for the given corporation and type.
@@ -51,13 +65,15 @@ func (m *Manager) NewProduct(corpID int, typeID int) (*Product, error) {
 		return nil, errors.Wrapf(err, "unable to create production chain for typeID %d", typeID)
 	}
 	p := &Product{
-		corporationID:  corpID,
-		TypeID:         typeID,
-		Materials:      make([]*Product, 0),
-		Quantity:       bp.ProducesQty,
-		MarketPrice:    decimal.NewFromFloat(0),
-		MarketRegionID: 0,
-		Kind:           ProductManufacture,
+		corporationID:      corpID,
+		TypeID:             typeID,
+		Materials:          make([]*Product, 0),
+		Quantity:           bp.ProducesQty,
+		MarketPrice:        decimal.Zero,
+		MarketRegionID:     0,
+		MaterialEfficiency: decimal.Zero,
+		BatchSize:          1,
+		Kind:               ProductManufacture,
 	}
 	for _, mat := range bp.Materials {
 		part, err := m.NewProduct(corpID, mat.ID)
@@ -124,24 +140,29 @@ func (m *Manager) saveProductWithTx(tx *sql.Tx, product *Product) error {
 		market_price,
 		market_region_id,
 		quantity,
+		material_efficiency,
+		batch_size,
 		kind,
 		parent_id,
 		corporation_id)
-	VALUES(`+prodID+`, $1, $2, $3, $4, $5, $6, $7)
+	VALUES(`+prodID+`, $1, $2, $3, $4, $5, $6, $7, $8, $9)
 	ON CONFLICT ON CONSTRAINT "production_chains_pkey"
 		 DO UPDATE SET market_price = EXCLUDED.market_price,
 		     market_region_id = EXCLUDED.market_region_id,
-		     kind = EXCLUDED.kind
+		     kind = EXCLUDED.kind,
+		     material_efficiency = EXCLUDED.material_efficiency,
+		     batch_size = EXCLUDED.batch_size
 	RETURNING product_id`,
 		product.TypeID,
 		product.MarketPrice,
 		product.MarketRegionID,
 		product.Quantity,
+		product.MaterialEfficiency,
+		product.BatchSize,
 		product.Kind,
 		parentID,
 		product.corporationID)
 	id := 0
-
 	if err := r.Scan(&id); err != nil {
 		return err
 	}
@@ -222,16 +243,18 @@ func (m *Manager) getProducts(corpID int, productIDs ...int) ([]*Product, error)
 			LEFT OUTER JOIN app.production_chains p2 ON p2.parent_id = c.t
 			WHERE c.t IS NOT NULL
 		)
-		SELECT p.product_id,
-			 p.type_id,
-			 p.market_price,
-			 p.market_region_id,
-			 p.quantity,
-			 p.kind,
-			 p.parent_id
+		SELECT p.product_id
+		     , p.type_id
+		     , p.market_price
+		     , p.market_region_id
+		     , p.quantity
+		     , p.material_efficiency
+		     , p.batch_size
+		     , p.kind
+		     , p.parent_id
 		FROM app.production_chains p
 		 	JOIN chain c ON c.t = p.product_id
-		WHERE c.t IS NOT NULL ORDER BY p.parent_id NULLS FIRST`, corpID)
+		WHERE c.t IS NOT NULL ORDER BY p.parent_id NULLS FIRST, p.product_id`, corpID)
 	if err != nil {
 		return nil, err
 	}
@@ -240,7 +263,7 @@ func (m *Manager) getProducts(corpID int, productIDs ...int) ([]*Product, error)
 	for r.Next() {
 		p := &Product{corporationID: corpID}
 		var parentID sql.NullInt64
-		err := r.Scan(&p.ProductID, &p.TypeID, &p.MarketPrice, &p.MarketRegionID, &p.Quantity, &p.Kind, &parentID)
+		err := r.Scan(&p.ProductID, &p.TypeID, &p.MarketPrice, &p.MarketRegionID, &p.Quantity, &p.MaterialEfficiency, &p.BatchSize, &p.Kind, &parentID)
 		if err != nil {
 			return nil, err
 		}

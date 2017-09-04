@@ -22,27 +22,29 @@ import (
 	"github.com/BurntSushi/toml"
 	"github.com/pkg/errors"
 
-	_ "github.com/motki/motkid/http/middleware"
-	_ "github.com/motki/motkid/http/route"
-
+	_ "github.com/motki/motkid/cli"
+	_ "github.com/motki/motkid/cli/command"
+	_ "github.com/motki/motkid/cli/text"
 	"github.com/motki/motkid/db"
 	"github.com/motki/motkid/eveapi"
 	"github.com/motki/motkid/evecentral"
 	"github.com/motki/motkid/evedb"
 	"github.com/motki/motkid/http"
-	"github.com/motki/motkid/http/auth"
-	"github.com/motki/motkid/http/session"
-	"github.com/motki/motkid/http/template"
+	_ "github.com/motki/motkid/http/auth"
+	_ "github.com/motki/motkid/http/middleware"
+	_ "github.com/motki/motkid/http/route"
+	_ "github.com/motki/motkid/http/session"
+	_ "github.com/motki/motkid/http/template"
 	"github.com/motki/motkid/log"
 	"github.com/motki/motkid/mail"
 	"github.com/motki/motkid/model"
 	"github.com/motki/motkid/worker"
 
-	modaccount "github.com/motki/motkid/http/module/account"
-	modauth "github.com/motki/motkid/http/module/auth"
-	modhome "github.com/motki/motkid/http/module/home"
-	modindustry "github.com/motki/motkid/http/module/industry"
-	modmarket "github.com/motki/motkid/http/module/market"
+	_ "github.com/motki/motkid/http/module/account"
+	_ "github.com/motki/motkid/http/module/auth"
+	_ "github.com/motki/motkid/http/module/home"
+	_ "github.com/motki/motkid/http/module/industry"
+	_ "github.com/motki/motkid/http/module/market"
 )
 
 // Config represents a fully configured motkid installation.
@@ -179,86 +181,6 @@ func (env *Env) abortFunc() abortFunc {
 	return func() {
 		if err := env.Scheduler.Shutdown(); err != nil {
 			env.Logger.Warnf("app: error shutting down scheduler: %s", err.Error())
-		}
-	}
-}
-
-// A WebEnv wraps a regular Env, providing web and mail servers.
-type WebEnv struct {
-	*Env
-
-	Mailer    *mail.Sender
-	Sessions  session.Manager
-	Templates template.Renderer
-	Auth      auth.Manager
-	Web       *http.Server
-
-	unexported struct{}
-}
-
-// NewWebEnv creates a new web environment using the given configuration.
-//
-// This function will initialize a regular Env before it initializes the
-// web and mail server related functionality.
-func NewWebEnv(conf *Config) (*WebEnv, error) {
-	env, err := NewEnv(conf)
-	if err != nil {
-		return nil, err
-	}
-	mailer := mail.NewSender(conf.Mail, env.Logger)
-	mailer.DoNotSend, err = mail.NewModelList(env.Model, "unsubscribe")
-	if err != nil {
-		return nil, errors.Wrap(err, "app: unable to init 'unsubscribe' list")
-	}
-	sessions := session.NewManager(conf.HTTP.Session, env.Logger)
-	templates := template.NewRenderer(conf.HTTP.Templating, env.Logger)
-	authManager := auth.NewManager(
-		auth.NewFormLoginAuthenticator(env.Model, env.Logger, "/login/begin"),
-		auth.NewEveAPIAuthorizer(env.Model, env.EveAPI, env.Logger),
-		sessions,
-	)
-	srv, err := http.New(conf.HTTP, env.Logger)
-	if err != nil {
-		return nil, errors.Wrap(err, "app: unable to initialize web server")
-	}
-	err = srv.Register(
-		modauth.New(sessions, authManager, templates, env.Model, env.Scheduler, mailer, env.Logger),
-		modhome.New(sessions, templates, mailer, env.Logger),
-		modmarket.New(authManager, templates, env.Model, env.EveDB, env.Logger),
-		modaccount.New(authManager, templates, env.Model, env.EveDB, env.Logger),
-		modindustry.New(authManager, templates, env.Model, env.EveDB, env.Logger),
-	)
-	if err != nil {
-		return nil, errors.Wrap(err, "app: error registering http modules")
-	}
-
-	return &WebEnv{
-		Env: env,
-
-		Mailer:    mailer,
-		Sessions:  sessions,
-		Templates: templates,
-		Auth:      authManager,
-		Web:       srv,
-	}, nil
-}
-
-// BlockUntilAbort will block until it receives the abort signal.
-//
-// This function performs the default shutdown procedure when it receives
-// an abort signal.
-//
-// See BlockUntilAbortWith for more details.
-func (webEnv *WebEnv) BlockUntilAbort(abort chan os.Signal) {
-	webEnv.BlockUntilAbortWith(abort, webEnv.Env.abortFunc(), webEnv.abortFunc())
-}
-
-// abortFunc returns a function to be called when the application is
-// shutting down.
-func (webEnv *WebEnv) abortFunc() abortFunc {
-	return func() {
-		if err := webEnv.Web.Shutdown(); err != nil {
-			webEnv.Logger.Warnf("app: error shutting down web server: %s", err.Error())
 		}
 	}
 }

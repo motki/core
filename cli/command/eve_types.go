@@ -45,6 +45,9 @@ func (c EVETypesCommand) Handle(subcmd string, args ...string) {
 		fmt.Printf("%s%s\n", text.PadTextRight("Mass", 15), item.Mass.StringFixed(2))
 		fmt.Printf("%s%s\n", text.PadTextRight("Capacity", 15), item.Capacity.StringFixed(2))
 		fmt.Printf("%s%s\n", text.PadTextRight("Base Price", 15), item.BasePrice.StringFixed(2))
+		fmt.Println()
+		fmt.Printf("%s%d\n", text.PadTextRight("Parent Type ID", 15), item.ParentTypeID)
+		fmt.Printf("%s%d\n", text.PadTextRight("Blueprint ID", 15), item.BlueprintID)
 		fmt.Printf("%s%s (ID: %d)\n", text.PadTextRight("Group", 15), item.GroupName, item.GroupID)
 		fmt.Printf("%s%s (ID: %d)\n", text.PadTextRight("Category", 15), item.CategoryName, item.CategoryID)
 

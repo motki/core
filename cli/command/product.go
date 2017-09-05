@@ -5,8 +5,12 @@ import (
 	"strconv"
 	"strings"
 
+	"context"
+
 	"github.com/motki/motkid/cli"
+	"github.com/motki/motkid/cli/auth"
 	"github.com/motki/motkid/cli/text"
+	"github.com/motki/motkid/eveapi"
 	"github.com/motki/motkid/evedb"
 	"github.com/motki/motkid/log"
 	"github.com/motki/motkid/model"
@@ -15,14 +19,33 @@ import (
 
 // ProductCommand provides an interactive manager for production chains.
 type ProductCommand struct {
+	corpID  int
+	authCtx context.Context
+
 	env    *cli.Prompter
 	model  *model.Manager
 	evedb  *evedb.EveDB
+	eveapi *eveapi.EveAPI
 	logger log.Logger
 }
 
-func NewProductCommand(p *cli.Prompter, evedb *evedb.EveDB, mdl *model.Manager, logger log.Logger) ProductCommand {
-	return ProductCommand{p, mdl, evedb, logger}
+func NewProductCommand(s *auth.Session, p *cli.Prompter, api *eveapi.EveAPI, evedb *evedb.EveDB, mdl *model.Manager, logger log.Logger) ProductCommand {
+	corpID := 0
+	ctx, charID, err := s.AuthorizedContext(model.RoleLogistics)
+	if err == nil {
+		char, err := api.GetCharacter(charID)
+		if err == nil {
+			corp, err := api.GetCorporation(char.CorporationID)
+			if err == nil {
+				corpID = corp.CorporationID
+				fmt.Printf("Welcome, %s!\n", char.Name)
+			}
+		}
+	}
+	if err != nil {
+		logger.Debugf("command: unable to load auth details: %s", err.Error())
+	}
+	return ProductCommand{corpID, ctx, p, mdl, evedb, api, logger}
 }
 
 func (c ProductCommand) Prefixes() []string {
@@ -30,7 +53,7 @@ func (c ProductCommand) Prefixes() []string {
 }
 
 func (c ProductCommand) Description() string {
-	return "Manipulate production chains."
+	return fmt.Sprintf("Manipulate production chains for corpID %d.", c.corpID)
 }
 
 func (c ProductCommand) Handle(subcmd string, args ...string) {
@@ -61,17 +84,17 @@ func (c ProductCommand) Handle(subcmd string, args ...string) {
 
 func (c ProductCommand) PrintHelp() {
 	colWidth := 20
-	fmt.Println(text.WrapText(`Command "product" can be used to manipulate production chains.
+	fmt.Println(text.WrapText(fmt.Sprintf(`Command "product" can be used to manipulate production chains.
 
-All production chains used here have the corporation ID of 0, and are therefore not accessible by normal means.
+All production chains available here have the corporation ID of %d.
 
-When invoking a subcommand, if the optional ID parameter is omitted, an interactive prompt will begin to collect the necessary details.`, text.StandardTerminalWidthInChars))
+When invoking a subcommand, if the optional ID parameter is omitted, an interactive prompt will begin to collect the necessary details.`, c.corpID), text.StandardTerminalWidthInChars))
 	fmt.Printf(`
 Subcommands:
   %s Preview production chains for a specific item type.
   %s Create a new production chain.
 
-  %s List all production chains for corpID 0.
+  %s List all production chains.
   %s Display details for a given production chain.
   %s Edit an existing production chain.
 `,
@@ -100,6 +123,57 @@ func (c ProductCommand) getRegionName(regionID int) string {
 		return "[Error]"
 	}
 	return r.Name
+}
+
+func (c ProductCommand) getBlueprintIndex(p *model.Product) (map[*model.Product]*eveapi.Blueprint, []*model.Product) {
+	if c.corpID == 0 {
+		return nil, nil
+	}
+	needed := map[int]*model.Product{}
+	var fillNeeded func(p *model.Product)
+	fillNeeded = func(p *model.Product) {
+		if p.Kind == model.ProductManufacture {
+			item, err := c.evedb.GetItemTypeDetail(p.TypeID)
+			if err != nil {
+				c.logger.Warnf("unable to get product item type detail: %s", err.Error())
+				return
+			}
+			if item.BlueprintID == 0 {
+				c.logger.Warnf("got blueprintID of 0 for typeID %d", p.TypeID)
+				return
+			}
+			needed[item.BlueprintID] = p
+			for _, m := range p.Materials {
+				fillNeeded(m)
+			}
+		}
+
+	}
+	fillNeeded(p)
+	index := map[*model.Product]*eveapi.Blueprint{}
+	bps, err := c.eveapi.GetCorporationBlueprints(c.authCtx, c.corpID)
+	if err != nil {
+		c.logger.Warnf("unable to get corporation blueprints: %s", err.Error())
+		return nil, nil
+	}
+	for need, prod := range needed {
+		for _, bp := range bps {
+			if bp.Quantity != -2 {
+				continue
+			}
+			if int(bp.TypeID) == need {
+				index[prod] = bp
+			}
+		}
+	}
+
+	missing := []*model.Product{}
+	for _, prod := range needed {
+		if _, ok := index[prod]; !ok {
+			missing = append(missing, prod)
+		}
+	}
+	return index, missing
 }
 
 // printProductInfo prints production chain details.
@@ -173,6 +247,26 @@ func (c ProductCommand) printChildProductInfo(p *model.Product, parentBatchSize 
 	}
 }
 
+func (c ProductCommand) printBlueprintOverview(p *model.Product) {
+	bpIndex, missing := c.getBlueprintIndex(p)
+
+	if len(missing) > 0 {
+		fmt.Println("Missing Blueprints:")
+		for _, prod := range missing {
+			fmt.Printf("%s %s\n", text.PadTextLeft(fmt.Sprintf("%d", prod.TypeID), 9), c.getProductName(prod))
+		}
+	}
+
+	fmt.Println("Acquired Blueprints:")
+	col1Width := 9
+	col2Width := 12
+	col3Width := 12
+	fmt.Printf("%s%s%s  %s\n", text.PadTextLeft("Type ID", col1Width), text.PadTextLeft("ME", col2Width), text.PadTextLeft("TE", col3Width), "Name")
+	for prod, bp := range bpIndex {
+		fmt.Printf("%s%s%s  %s\n", text.PadTextLeft(fmt.Sprintf("%d", prod.TypeID), 9), text.PadTextLeft(fmt.Sprintf("%d%%", bp.MaterialEfficiency), col2Width), text.PadTextLeft(fmt.Sprintf("%d%%", bp.TimeEfficiency), col3Width), c.getProductName(prod))
+	}
+}
+
 func (c ProductCommand) getProductLineIndex(p *model.Product) map[int]*model.Product {
 	index := map[int]*model.Product{}
 	curr := 0
@@ -223,7 +317,7 @@ func (c ProductCommand) previewProduct(args ...string) *model.Product {
 	if !ok {
 		return nil
 	}
-	product, err := c.model.NewProduct(0, item.ID)
+	product, err := c.model.NewProduct(c.corpID, item.ID)
 	if err != nil {
 		c.logger.Warnf("unable to create product: %s", err.Error())
 		fmt.Println("Error creating production chain, try again.")
@@ -257,7 +351,7 @@ func (c ProductCommand) showProduct(args ...string) {
 			return
 		}
 	}
-	product, err := c.model.GetProduct(0, productID)
+	product, err := c.model.GetProduct(c.corpID, productID)
 	if err != nil {
 		c.logger.Debugf("unable to load product: %s", err.Error())
 		fmt.Println("Error loading production chain from db, try again.")
@@ -266,9 +360,9 @@ func (c ProductCommand) showProduct(args ...string) {
 	c.printProductInfo(product)
 }
 
-// listProducts lists all the production chains in corpID 0.
+// listProducts lists all the production chains.
 func (c ProductCommand) listProducts() {
-	products, err := c.model.GetAllProducts(0)
+	products, err := c.model.GetAllProducts(c.corpID)
 	if err != nil {
 		c.logger.Debugf("unable to fetch production chain: %s", err.Error())
 		fmt.Println("Error loading production chain from db, try again.")
@@ -326,10 +420,10 @@ func (c ProductCommand) productEditor(p *model.Product) {
 	}
 	for {
 		cmd, args, ok := c.env.PromptStringWithArgs(
-			"Specify operation [Q,S,V,D,U,R,C,B,F,M,P,?]",
+			"Specify operation [Q,S,V,O,D,U,R,C,B,F,M,P,?]",
 			nil,
 			transformStringToCaps,
-			validateStringIsOneOf([]string{"Q", "S", "V", "D", "U", "R", "C", "B", "F", "M", "P", "?"}))
+			validateStringIsOneOf([]string{"Q", "S", "V", "O", "D", "U", "R", "C", "B", "F", "M", "P", "?"}))
 		cmd = strings.ToUpper(cmd)
 		if !ok || cmd == "Q" {
 			return
@@ -347,6 +441,9 @@ func (c ProductCommand) productEditor(p *model.Product) {
 			}
 			fmt.Println("Production chain saved.")
 			return
+
+		case "O":
+			c.printBlueprintOverview(p)
 
 		case "D":
 			prod, ok := promptLineNumber("Show detail for which line", firstArg)

@@ -23,6 +23,7 @@ import (
 	"github.com/pkg/errors"
 
 	_ "github.com/motki/motkid/cli"
+	_ "github.com/motki/motkid/cli/auth"
 	_ "github.com/motki/motkid/cli/command"
 	_ "github.com/motki/motkid/cli/text"
 	"github.com/motki/motkid/db"

@@ -8,6 +8,7 @@ import (
 	"github.com/pkg/errors"
 
 	"github.com/motki/motkid/cli"
+	"github.com/motki/motkid/cli/auth"
 	"github.com/motki/motkid/cli/command"
 )
 
@@ -45,9 +46,18 @@ func NewCLIEnv(conf *Config, historyPath string) (*CLIEnv, error) {
 	}
 	srv := cli.NewServer(appEnv.Logger)
 	prompter := cli.NewPrompter(srv, appEnv.EveDB, appEnv.Logger)
+	sess := auth.NewSession(appEnv.Model, appEnv.EveAPI)
+	if u, ok := os.LookupEnv("MOTKI_USERNAME"); ok {
+		if p, ok := os.LookupEnv("MOTKI_PASSWORD"); ok {
+			_, err := sess.Authenticate(u, p)
+			if err != nil {
+				return nil, err
+			}
+		}
+	}
 	srv.SetCommands(
 		command.NewEVETypesCommand(prompter),
-		command.NewProductCommand(prompter, appEnv.EveDB, appEnv.Model, appEnv.Logger))
+		command.NewProductCommand(sess, prompter, appEnv.EveAPI, appEnv.EveDB, appEnv.Model, appEnv.Logger))
 	if f, err := os.Open(historyPath); err == nil {
 		srv.ReadHistory(f)
 		f.Close()

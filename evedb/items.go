@@ -28,6 +28,9 @@ type ItemTypeDetail struct {
 	Capacity    decimal.Decimal
 	PortionSize int
 	BasePrice   decimal.Decimal
+
+	ParentTypeID int
+	BlueprintID  int
 }
 
 const baseQueryItemType = `SELECT
@@ -105,10 +108,15 @@ const baseQueryItemTypeDetail = `SELECT
 , COALESCE(type."capacity", 0)
 , COALESCE(type."portionSize", 0)
 , COALESCE(type."basePrice", 0)
+, COALESCE(meta."parentTypeID", 0)
+, COALESCE(bp."typeID", 0)
 FROM evesde."invTypes" type
   JOIN evesde."invGroups" grp ON type."groupID" = grp."groupID"
   JOIN evesde."invCategories" cat ON grp."categoryID" = cat."categoryID"
-`
+  LEFT JOIN evesde."invMetaTypes" meta ON meta."metaGroupID" = 2 AND meta."typeID" = type."typeID"
+  -- TODO: This is literally the worse join ever:
+  LEFT JOIN evesde."invTypes" bp ON bp."typeName" = CONCAT(type."typeName", ' Blueprint')
+` // TODO: ^
 
 // GetItemTypeDetail fetches a specific ItemType with extra details from the database.
 func (e *EveDB) GetItemTypeDetail(typeID int) (*ItemTypeDetail, error) {
@@ -120,7 +128,7 @@ func (e *EveDB) GetItemTypeDetail(typeID int) (*ItemTypeDetail, error) {
 	r := c.QueryRow(
 		baseQueryItemTypeDetail+`WHERE type."typeID" = $1 AND type."published" = TRUE`, typeID)
 	it := &ItemTypeDetail{ItemType: &ItemType{}}
-	err = r.Scan(&it.ID, &it.Name, &it.Description, &it.GroupID, &it.GroupName, &it.CategoryID, &it.CategoryName, &it.Mass, &it.Volume, &it.Capacity, &it.PortionSize, &it.BasePrice)
+	err = r.Scan(&it.ID, &it.Name, &it.Description, &it.GroupID, &it.GroupName, &it.CategoryID, &it.CategoryName, &it.Mass, &it.Volume, &it.Capacity, &it.PortionSize, &it.BasePrice, &it.ParentTypeID, &it.BlueprintID)
 	if err != nil {
 		return nil, err
 	}

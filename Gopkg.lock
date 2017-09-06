@@ -11,7 +11,7 @@
   branch = "master"
   name = "github.com/antihax/goesi"
   packages = [".","esi","eveapi"]
-  revision = "8fd27a2f5fac8993298dc91f324032b78628670e"
+  revision = "75e11fb3d07857e924154462aaadc87a3449ad57"
 
 [[projects]]
   name = "github.com/davecgh/go-spew"
@@ -20,22 +20,28 @@
   version = "v1.1.0"
 
 [[projects]]
+  name = "github.com/fatih/color"
+  packages = ["."]
+  revision = "570b54cabe6b8eb0bc2dfce68d964677d63b5260"
+  version = "v1.5.0"
+
+[[projects]]
   branch = "master"
   name = "github.com/golang/protobuf"
   packages = ["proto"]
-  revision = "748d386b5c1ea99658fd69fe9f03991ce86a90c1"
+  revision = "17ce1425424ab154092bbb43af630bd647f3bb0d"
 
 [[projects]]
   branch = "master"
   name = "github.com/gregjones/httpcache"
   packages = ["."]
-  revision = "0d2297f241a3503b4d464cd434e6d1490ec76e9a"
+  revision = "787624de3eb7bd915c329cba748687a3b22666a6"
 
 [[projects]]
   name = "github.com/guregu/null"
   packages = ["."]
-  revision = "41961cea0328defc5f95c1c473f89ebf0d1813f6"
-  version = "v3.1"
+  revision = "5d2d1e5a9e25088fb9cc0b0f7cb566250eb42bba"
+  version = "v3.2.0"
 
 [[projects]]
   name = "github.com/jackc/pgx"
@@ -53,19 +59,43 @@
   branch = "master"
   name = "github.com/mailru/easyjson"
   packages = [".","buffer","jlexer","jwriter"]
-  revision = "2f5df55504ebc322e4d52d34df6a1f5b503bf26d"
+  revision = "2a92e673c9a6302dd05c3a691ae1f24aef46457d"
+
+[[projects]]
+  name = "github.com/mattn/go-colorable"
+  packages = ["."]
+  revision = "167de6bfdfba052fa6b2d3664c8f5272e23c9072"
+  version = "v0.0.9"
+
+[[projects]]
+  name = "github.com/mattn/go-isatty"
+  packages = ["."]
+  revision = "fc9e8d8ef48496124e79ae0df75490096eccf6fe"
+  version = "v0.0.2"
+
+[[projects]]
+  branch = "master"
+  name = "github.com/peterh/liner"
+  packages = ["."]
+  revision = "a37ad39843113264dae84a5d89fcee28f50b35c6"
+
+[[projects]]
+  name = "github.com/pkg/errors"
+  packages = ["."]
+  revision = "645ef00459ed84a119197bfb8d8205042c6df63d"
+  version = "v0.8.0"
 
 [[projects]]
   branch = "master"
   name = "github.com/shopspring/decimal"
   packages = ["."]
-  revision = "16a941821474ee3986fdbeab535a68a8aa5a85d2"
+  revision = "730de27aa507d979cb5a8a17b11c82f361c3d4a3"
 
 [[projects]]
   name = "github.com/sirupsen/logrus"
   packages = ["."]
-  revision = "a3f95b5c423586578a4e099b11a46c2479628cac"
-  version = "1.0.2"
+  revision = "f006c2ac4710855cf0f916dd6b77acf6b048dc6e"
+  version = "v1.0.3"
 
 [[projects]]
   branch = "master"
@@ -76,26 +106,26 @@
 [[projects]]
   branch = "master"
   name = "golang.org/x/crypto"
-  packages = ["acme","acme/autocert","bcrypt","blowfish"]
-  revision = "2faea1465de239e4babd8f5905cc25b781712442"
+  packages = ["acme","acme/autocert","bcrypt","blowfish","ssh/terminal"]
+  revision = "81e90905daefcd6fd217b62423c0908922eadb30"
 
 [[projects]]
   branch = "master"
   name = "golang.org/x/net"
   packages = ["context","context/ctxhttp"]
-  revision = "f5079bd7f6f74e23c4d65efa0f4ce14cbd6a3c0f"
+  revision = "66aacef3dd8a676686c7ae3716979581e8b03c47"
 
 [[projects]]
   branch = "master"
   name = "golang.org/x/oauth2"
   packages = [".","internal"]
-  revision = "b53b38ad8a6435bd399ea76d0fa74f23149cca4e"
+  revision = "d89af98d7c6bba047c5a2622f36bc14b8766df85"
 
 [[projects]]
   branch = "master"
   name = "golang.org/x/sys"
-  packages = ["unix"]
-  revision = "02a66801d979d706a4b445e24e03916eeaa2a404"
+  packages = ["unix","windows"]
+  revision = "9aade4d3a3b7e6d876cd3823ad20ec45fc035402"
 
 [[projects]]
   name = "google.golang.org/appengine"
@@ -106,6 +136,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "b744e346e6faf4439f8a41b393397a811688ff7ba7f477c3ec599d3bdcd2a6f4"
+  inputs-digest = "e30af3f87ab584525dbb453ac96bbeeda66996b3313d08a98cf3882a4d95a1f4"
   solver-name = "gps-cdcl"
   solver-version = 1

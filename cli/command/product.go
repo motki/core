@@ -18,8 +18,8 @@ import (
 
 // ProductCommand provides an interactive manager for production chains.
 type ProductCommand struct {
-	character *eveapi.Character
-	corp      *eveapi.Corporation
+	character *model.Character
+	corp      *model.Corporation
 	authCtx   context.Context
 	corpID    int
 
@@ -31,15 +31,15 @@ type ProductCommand struct {
 }
 
 func NewProductCommand(s *auth.Session, p *cli.Prompter, api *eveapi.EveAPI, evedb *evedb.EveDB, mdl *model.Manager, logger log.Logger) ProductCommand {
-	var corp *eveapi.Corporation
-	var char *eveapi.Character
+	var corp *model.Corporation
+	var char *model.Character
 	var corpID int
 	ctx, charID, err := s.AuthorizedContext(model.RoleLogistics)
 	if err == nil {
-		char, err = api.GetCharacter(charID)
+		char, err = mdl.GetCharacter(charID)
 		if err == nil {
 			corpID = char.CorporationID
-			corp, err = api.GetCorporation(corpID)
+			corp, err = mdl.GetCorporation(corpID)
 		}
 	}
 	if err != nil && err != auth.ErrNotAuthenticated {

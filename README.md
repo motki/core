@@ -1,6 +1,8 @@
 # MOTKI
 
-Moritake Industries EVE Corporation website.
+[![GoDoc](https://godoc.org/github.com/motki/motkid?status.svg)](https://godoc.org/github.com/motki/motkid)
+
+The Moritake Industries EVE Corporation web application.
 
 
 ## Installation

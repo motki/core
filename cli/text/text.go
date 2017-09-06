@@ -2,11 +2,23 @@ package text
 
 import (
 	"bytes"
+	"fmt"
+	"os"
 	"strconv"
 	"strings"
 
+	"github.com/fatih/color"
+	"github.com/mattn/go-isatty"
 	"github.com/shopspring/decimal"
 )
+
+var stdOutIsColorTerm = false
+
+func init() {
+	if isatty.IsTerminal(os.Stdout.Fd()) {
+		stdOutIsColorTerm = true
+	}
+}
 
 // StandardTerminalWidthInChars describes the width of a standard terminal window.
 const StandardTerminalWidthInChars = 80
@@ -95,9 +107,9 @@ func PadTextLeft(text string, width int) string {
 	}
 	ln := len(text)
 	if ln >= width {
-		return " " + text[0:width-1]
+		return " " + text[0:width-2] + " "
 	}
-	return strings.Repeat(" ", width-ln-1) + text
+	return strings.Repeat(" ", width-ln-1) + text + " "
 }
 
 // PadTextRight pads the right side of the given text to ensure it is the specified width.
@@ -110,4 +122,11 @@ func PadTextRight(text string, width int) string {
 		return text[0:width-1] + " "
 	}
 	return text + strings.Repeat(" ", width-ln)
+}
+
+func Boldf(format string, args ...interface{}) string {
+	if !stdOutIsColorTerm {
+		return fmt.Sprintf(format, args...)
+	}
+	return color.New(color.FgHiWhite).Sprintf(format, args...)
 }

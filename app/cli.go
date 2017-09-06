@@ -5,11 +5,10 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/pkg/errors"
-
 	"github.com/motki/motkid/cli"
 	"github.com/motki/motkid/cli/auth"
 	"github.com/motki/motkid/cli/command"
+	"github.com/motki/motkid/cli/text"
 )
 
 // A CLIEnv wraps an *Env, providing CLI specific facilities.
@@ -23,37 +22,61 @@ type CLIEnv struct {
 
 	// abort is used to shutdown the program.
 	//
-	// Write any os.Signal to this channel and the program attempt to shutdown
-	// gracefully.
+	// Write any os.Signal to this channel and the program will attempt to
+	// shutdown gracefully.
 	//
 	// The implication is os.Exit() should not be used; stick solely to exiting
 	// by writing to this channel to exit.
 	abort chan os.Signal
 }
 
+// CLIConfig wraps a *Config and contains optional credentials.
+type CLIConfig struct {
+	*Config
+
+	username string
+	password string
+}
+
+// NewCLIConfig creates a new CLI-specific configuration using the given conf.
+func NewCLIConfig(appConf *Config) CLIConfig {
+	return CLIConfig{Config: appConf}
+}
+
+// WithCredentials returns a copy of the CLIConfig with the given credentials.
+func (c CLIConfig) WithCredentials(username, password string) CLIConfig {
+	return CLIConfig{c.Config, username, password}
+}
+
 // NewCLIEnv initializes a new CLI environment.
-func NewCLIEnv(conf *Config, historyPath string) (*CLIEnv, error) {
-	appEnv, err := NewEnv(conf)
+//
+// If the given CLIConfig contains a username or password, authentication
+// will be attempted. If authentication fails, an error is returned.
+func NewCLIEnv(conf CLIConfig, historyPath string) (*CLIEnv, error) {
+	appEnv, err := NewEnv(conf.Config)
 	if err != nil {
-		return nil, errors.Wrap(err, "app: unable to initialize command line environment")
+		return nil, err
 	}
 	if !filepath.IsAbs(historyPath) {
 		cwd, err := os.Getwd()
 		if err != nil {
-			return nil, errors.Wrap(err, "app: unable to initialize command line environment")
+			return nil, err
 		}
 		historyPath = filepath.Join(cwd, historyPath)
 	}
 	srv := cli.NewServer(appEnv.Logger)
 	prompter := cli.NewPrompter(srv, appEnv.EveDB, appEnv.Logger)
 	sess := auth.NewSession(appEnv.Model, appEnv.EveAPI)
-	if u, ok := os.LookupEnv("MOTKI_USERNAME"); ok {
-		if p, ok := os.LookupEnv("MOTKI_PASSWORD"); ok {
-			_, err := sess.Authenticate(u, p)
-			if err != nil {
-				return nil, err
-			}
+	if conf.username != "" || conf.password != "" {
+		if user, err := sess.Authenticate(conf.username, conf.password); err != nil {
+			return nil, err
+		} else {
+			fmt.Println("Welcome, " + text.Boldf(user.Name) + "!")
 		}
+	} else {
+		fmt.Printf("Welcome to the %s command line interface.\n", text.Boldf("motki"))
+		fmt.Println()
+		fmt.Printf("Enter \"%s\" in the prompt for detailed help information.\n", text.Boldf("help"))
 	}
 	srv.SetCommands(
 		command.NewEVETypesCommand(prompter),

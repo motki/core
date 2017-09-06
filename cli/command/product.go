@@ -1,11 +1,10 @@
 package command
 
 import (
+	"context"
 	"fmt"
 	"strconv"
 	"strings"
-
-	"context"
 
 	"github.com/motki/motkid/cli"
 	"github.com/motki/motkid/cli/auth"
@@ -19,8 +18,10 @@ import (
 
 // ProductCommand provides an interactive manager for production chains.
 type ProductCommand struct {
-	corpID  int
-	authCtx context.Context
+	character *eveapi.Character
+	corp      *eveapi.Corporation
+	authCtx   context.Context
+	corpID    int
 
 	env    *cli.Prompter
 	model  *model.Manager
@@ -30,22 +31,30 @@ type ProductCommand struct {
 }
 
 func NewProductCommand(s *auth.Session, p *cli.Prompter, api *eveapi.EveAPI, evedb *evedb.EveDB, mdl *model.Manager, logger log.Logger) ProductCommand {
-	corpID := 0
+	var corp *eveapi.Corporation
+	var char *eveapi.Character
+	var corpID int
 	ctx, charID, err := s.AuthorizedContext(model.RoleLogistics)
 	if err == nil {
-		char, err := api.GetCharacter(charID)
+		char, err = api.GetCharacter(charID)
 		if err == nil {
-			corp, err := api.GetCorporation(char.CorporationID)
-			if err == nil {
-				corpID = corp.CorporationID
-				fmt.Printf("Welcome, %s!\n", char.Name)
-			}
+			corpID = char.CorporationID
+			corp, err = api.GetCorporation(corpID)
 		}
 	}
-	if err != nil {
+	if err != nil && err != auth.ErrNotAuthenticated {
 		logger.Debugf("command: unable to load auth details: %s", err.Error())
 	}
-	return ProductCommand{corpID, ctx, p, mdl, evedb, api, logger}
+	return ProductCommand{
+		char,
+		corp,
+		ctx,
+		corpID,
+		p,
+		mdl,
+		evedb,
+		api,
+		logger}
 }
 
 func (c ProductCommand) Prefixes() []string {
@@ -53,7 +62,10 @@ func (c ProductCommand) Prefixes() []string {
 }
 
 func (c ProductCommand) Description() string {
-	return fmt.Sprintf("Manipulate production chains for corpID %d.", c.corpID)
+	if c.corp == nil {
+		return "Manipulate production chains for corpID 0."
+	}
+	return fmt.Sprintf("Manipulate production chains for %s.", c.corp.Name)
 }
 
 func (c ProductCommand) Handle(subcmd string, args ...string) {
@@ -84,13 +96,21 @@ func (c ProductCommand) Handle(subcmd string, args ...string) {
 
 func (c ProductCommand) PrintHelp() {
 	colWidth := 20
-	fmt.Println(text.WrapText(fmt.Sprintf(`Command "product" can be used to manipulate production chains.
-
-All production chains available here have the corporation ID of %d.
-
-When invoking a subcommand, if the optional ID parameter is omitted, an interactive prompt will begin to collect the necessary details.`, c.corpID), text.StandardTerminalWidthInChars))
-	fmt.Printf(`
-Subcommands:
+	fmt.Println()
+	fmt.Println(fmt.Sprintf(`Command "%s" can be used to manipulate production chains.`, text.Boldf("product")))
+	fmt.Println()
+	fmt.Println(text.WrapText(fmt.Sprintf(`When invoking a subcommand, if the optional parameter is omitted, an interactive prompt will begin to collect the necessary details.`), text.StandardTerminalWidthInChars))
+	fmt.Println()
+	if c.corp != nil {
+		fmt.Println(text.Boldf("Character linked!"))
+		fmt.Println(fmt.Sprintf("You are logged in as %s for %s.",
+			text.Boldf(c.character.Name),
+			text.Boldf(c.corp.Name)))
+		fmt.Println()
+		fmt.Println(text.WrapText(`This command will operate on production chains for your corporation. Additionally, corporation-owned assets will be inventoried to display available and missing materials.`, text.StandardTerminalWidthInChars))
+		fmt.Println()
+	}
+	fmt.Printf(`Subcommands:
   %s Preview production chains for a specific item type.
   %s Create a new production chain.
 
@@ -98,11 +118,12 @@ Subcommands:
   %s Display details for a given production chain.
   %s Edit an existing production chain.
 `,
-		text.PadTextRight("view [typeID]", colWidth),
-		text.PadTextRight("add [typeID]", colWidth),
-		text.PadTextRight("list", colWidth),
-		text.PadTextRight("show [productID]", colWidth),
-		text.PadTextRight("edit [productID]", colWidth))
+		text.Boldf(text.PadTextRight("view [typeID]", colWidth)),
+		text.Boldf(text.PadTextRight("add [typeID]", colWidth)),
+		text.Boldf(text.PadTextRight("list", colWidth)),
+		text.Boldf(text.PadTextRight("show [productID]", colWidth)),
+		text.Boldf(text.PadTextRight("edit [productID]", colWidth)))
+	fmt.Println()
 }
 
 // getProductName returns the given product's name.
@@ -125,7 +146,7 @@ func (c ProductCommand) getRegionName(regionID int) string {
 	return r.Name
 }
 
-func (c ProductCommand) getBlueprintIndex(p *model.Product) (map[*model.Product]*eveapi.Blueprint, []*model.Product) {
+func (c ProductCommand) getBlueprintIndex(p *model.Product) (map[*model.Product][]*eveapi.Blueprint, []*model.Product) {
 	if c.corpID == 0 {
 		return nil, nil
 	}
@@ -150,7 +171,7 @@ func (c ProductCommand) getBlueprintIndex(p *model.Product) (map[*model.Product]
 
 	}
 	fillNeeded(p)
-	index := map[*model.Product]*eveapi.Blueprint{}
+	index := map[*model.Product][]*eveapi.Blueprint{}
 	bps, err := c.eveapi.GetCorporationBlueprints(c.authCtx, c.corpID)
 	if err != nil {
 		c.logger.Warnf("unable to get corporation blueprints: %s", err.Error())
@@ -158,11 +179,12 @@ func (c ProductCommand) getBlueprintIndex(p *model.Product) (map[*model.Product]
 	}
 	for need, prod := range needed {
 		for _, bp := range bps {
+			// Quantity of -2 indicates it is a BPC, ie. manufacture-able.
 			if bp.Quantity != -2 {
 				continue
 			}
 			if int(bp.TypeID) == need {
-				index[prod] = bp
+				index[prod] = append(index[prod], bp)
 			}
 		}
 	}
@@ -180,7 +202,12 @@ func (c ProductCommand) getBlueprintIndex(p *model.Product) (map[*model.Product]
 func (c ProductCommand) printProductInfo(p *model.Product) {
 	batchSize := decimal.NewFromFloat(float64(p.BatchSize))
 	costEach := p.Cost().Mul(batchSize) // Cost has quantity baked in.
-	batchQuantity := decimal.NewFromFloat(float64(p.Quantity)).Mul(batchSize)
+	bp, err := c.evedb.GetBlueprint(p.TypeID)
+	if err != nil {
+		fmt.Println("Unable to print production chain detail:", err.Error())
+		return
+	}
+	batchQuantity := decimal.NewFromFloat(float64(bp.ProducesQty)).Mul(batchSize)
 	sellEach := p.MarketPrice.Mul(batchQuantity)
 	profitEach := sellEach.Sub(costEach)
 	marginEach := decimal.Zero
@@ -191,27 +218,41 @@ func (c ProductCommand) printProductInfo(p *model.Product) {
 	if batchQuantity.GreaterThan(decimal.NewFromFloat(1)) {
 		unitLabel = fmt.Sprintf("%s units", batchQuantity)
 	}
-	fmt.Println(text.CenterText(c.getProductName(p), text.StandardTerminalWidthInChars))
-	fmt.Println(text.CenterText(c.getRegionName(p.MarketRegionID), text.StandardTerminalWidthInChars))
+	hasBuildComponent := false
+	regionName := c.getRegionName(p.MarketRegionID)
+	fmt.Println(text.Boldf(text.CenterText(c.getProductName(p), text.StandardTerminalWidthInChars)))
+	fmt.Println(text.CenterText(regionName, text.StandardTerminalWidthInChars))
 	fmt.Println()
+	if len(p.Materials) == 0 {
+		fmt.Println("This component cannot be manufactured. It must be procured by other means.")
+		fmt.Println()
+		fmt.Println("Best sell price in "+text.Boldf(regionName)+":", text.PadCurrencyLeft(p.MarketPrice, 15)+"/ea")
+		fmt.Println()
+		return
+	}
 	fmt.Printf(
 		" #  %s%s%s%s\n",
-		text.PadTextRight("Material Name", 29),
+		text.PadTextRight("Material Name", 28),
 		text.PadTextLeft("Cost/ea", 17),
 		text.PadTextLeft("Qty Req", 12),
 		text.PadTextLeft("Cost/"+unitLabel, 19))
 	index := new(int)
 	for _, part := range p.Materials {
+		if part.Kind == model.ProductManufacture {
+			hasBuildComponent = true
+		}
 		c.printChildProductInfo(part, batchSize, p.MaterialEfficiency, index, 0)
 	}
 	fmt.Println()
-	fmt.Printf("%s%s%s\n", text.PadTextLeft(fmt.Sprintf("Per %s", unitLabel), 50), text.PadTextLeft("Revenue", 12), text.PadCurrencyLeft(sellEach, 19))
-	fmt.Printf("%s%s%s\n", text.PadTextLeft(fmt.Sprintf("%s%% ME", p.MaterialEfficiency.Mul(decimal.NewFromFloat(100)).StringFixed(0)), 50), text.PadTextLeft("Cost", 12), text.PadCurrencyLeft(costEach, 19))
+	fmt.Printf("%s%s%s\n", text.PadTextLeft(fmt.Sprintf("Per %s", unitLabel), 49), text.PadTextLeft("Revenue", 12), text.PadCurrencyLeft(sellEach, 19))
+	fmt.Printf("%s%s%s\n", text.PadTextLeft(fmt.Sprintf("%s%% ME", p.MaterialEfficiency.Mul(decimal.NewFromFloat(100)).StringFixed(0)), 49), text.PadTextLeft("Cost", 12), text.PadCurrencyLeft(costEach, 19))
 	fmt.Printf("%s%s\n", text.PadTextLeft("Profit", 61), text.PadCurrencyLeft(profitEach, 19))
 	fmt.Printf("%s%s\n", text.PadTextLeft("Margin", 61), "      %"+text.PadTextLeft(marginEach.StringFixed(2), 12))
 
-	fmt.Println()
-	fmt.Println("* 'M' indicates the component will be produced in-house.")
+	if hasBuildComponent {
+		fmt.Println()
+		fmt.Println("* 'M' indicates the component will be produced in-house.")
+	}
 	fmt.Println()
 }
 
@@ -231,9 +272,9 @@ func (c ProductCommand) printChildProductInfo(p *model.Product, parentBatchSize 
 		kind = "M"
 	}
 	fmt.Printf(
-		"%s  %s%s%s%s%s\n",
+		"%s %s%s%s%s%s\n",
 		text.PadTextLeft(strconv.Itoa(*index), 3),
-		text.PadTextRight(strings.Repeat("  ", indent)+c.getProductName(p), 30),
+		text.PadTextRight(strings.Repeat("  ", indent)+c.getProductName(p), 28),
 		text.PadTextLeft(kind, 2),
 		text.PadCurrencyLeft(costEach, 15),
 		text.PadIntegerLeft(int(qtyAfterME.IntPart()), 12),
@@ -247,24 +288,93 @@ func (c ProductCommand) printChildProductInfo(p *model.Product, parentBatchSize 
 	}
 }
 
+// efficiencyValue is a Material or Time Efficiency value.
+type efficiencyValue struct {
+	best     int64
+	worst    int64
+	nonEmpty bool // If false, any value is worse.
+}
+
+func (e *efficiencyValue) String() string {
+	worst := fmt.Sprintf("%d", e.worst)
+	if len(worst) < 2 {
+		worst = " " + worst
+	}
+	return fmt.Sprintf("%d/%s", e.best, worst)
+}
+
+func (e *efficiencyValue) track(val int64) {
+	if e.nonEmpty || val < e.worst {
+		e.worst = val
+	}
+	if val > e.best {
+		e.best = val
+	}
+	e.nonEmpty = true
+}
+
 func (c ProductCommand) printBlueprintOverview(p *model.Product) {
+	if c.corpID == 0 {
+		fmt.Println()
+		fmt.Println("Unable to load materials inventory.")
+		fmt.Println("Start the program with valid credentials to enable this feature.")
+		fmt.Println()
+		return
+	}
 	bpIndex, missing := c.getBlueprintIndex(p)
 
+	fmt.Println()
+	fmt.Println(text.Boldf(text.CenterText("Materials Inventory", text.StandardTerminalWidthInChars)))
+	fmt.Println()
+
 	if len(missing) > 0 {
-		fmt.Println("Missing Blueprints:")
+		fmt.Println("Missing Blueprints")
+		fmt.Println()
 		for _, prod := range missing {
 			fmt.Printf("%s %s\n", text.PadTextLeft(fmt.Sprintf("%d", prod.TypeID), 9), c.getProductName(prod))
 		}
 	}
 
-	fmt.Println("Acquired Blueprints:")
-	col1Width := 9
-	col2Width := 12
-	col3Width := 12
-	fmt.Printf("%s%s%s  %s\n", text.PadTextLeft("Type ID", col1Width), text.PadTextLeft("ME", col2Width), text.PadTextLeft("TE", col3Width), "Name")
-	for prod, bp := range bpIndex {
-		fmt.Printf("%s%s%s  %s\n", text.PadTextLeft(fmt.Sprintf("%d", prod.TypeID), 9), text.PadTextLeft(fmt.Sprintf("%d%%", bp.MaterialEfficiency), col2Width), text.PadTextLeft(fmt.Sprintf("%d%%", bp.TimeEfficiency), col3Width), c.getProductName(prod))
+	fmt.Println("Available Blueprints")
+	col1Width := 44
+	col2Width := 9
+	col3Width := 9
+	col4Width := 9
+	col5Width := 9
+	fmt.Printf(
+		"%s%s\n",
+		text.PadTextLeft("Best/Worst ", col1Width+col2Width+col3Width+col4Width),
+		text.PadTextLeft("Total", col5Width))
+	fmt.Printf(
+		"%s%s%s%s%s\n",
+		text.PadTextRight("Name", col1Width),
+		text.PadTextLeft("Type ID", col2Width),
+		text.PadTextLeft("ME%", col3Width),
+		text.PadTextLeft("TE%", col4Width),
+		text.PadTextLeft("Runs", col5Width))
+
+	for prod, bps := range bpIndex {
+		if len(bps) == 0 {
+			c.logger.Debug("expected to have at least 1 blueprint in the result")
+			continue
+		}
+		totalRuns := 0
+		matEff := &efficiencyValue{}
+		timeEff := &efficiencyValue{}
+		for _, bp := range bps {
+			totalRuns += int(bp.Runs)
+			matEff.track(bp.MaterialEfficiency)
+			timeEff.track(bp.TimeEfficiency)
+		}
+		fmt.Printf(
+			"%s%s%s%s%s\n",
+			text.PadTextRight(c.getProductName(prod), col1Width),
+			text.PadTextLeft(fmt.Sprintf("%d", prod.TypeID), col2Width),
+			text.PadTextLeft(matEff.String(), col3Width),
+			text.PadTextLeft(timeEff.String(), col4Width),
+			text.PadTextLeft(fmt.Sprintf("%d", totalRuns), col5Width))
 	}
+	fmt.Println()
 }
 
 func (c ProductCommand) getProductLineIndex(p *model.Product) map[int]*model.Product {
@@ -299,7 +409,7 @@ func (c ProductCommand) editProduct(args ...string) {
 			return
 		}
 	}
-	product, err := c.model.GetProduct(0, productID)
+	product, err := c.model.GetProduct(c.corpID, productID)
 	if err != nil {
 		c.logger.Debugf("unable to load production chain: %s", err.Error())
 		fmt.Println("Error loading production chain from db, try again.")
@@ -546,26 +656,27 @@ func (c ProductCommand) productEditor(p *model.Product) {
 
 		case "?":
 			fmt.Println()
-			fmt.Println(text.WrapText(`The production chain editor is an interactive application for managing arbitrary production chains. Individual components can be tagged as either "buy" or "manufacture". Cost projections, with material efficiency and batch size accounted for, are updated accordingly. The target market region and target final sell price can also be modified for the production chain as a whole.
+			fmt.Println(text.WrapText(`The production chain editor is an interactive application for managing arbitrary production chains. Individual components can be tagged as either "buy" or "build". Cost projections, with material efficiency and batch size accounted for, are updated accordingly. The target market region and target final sell price can also be modified for the production chain as a whole.
 
 When invoking a tool and omitting an optional parameter, an interactive prompt will begin to collect the necessary information.
 
 The current product is always line item 0, which can be used when specifying a line number.`, text.StandardTerminalWidthInChars))
 			fmt.Println()
 			colWidth := 7
-			fmt.Printf("  %s Save the current production chain and exit the editor.\n", text.PadTextRight("S", colWidth))
-			fmt.Printf("  %s View the production chain details.\n", text.PadTextRight("V", colWidth))
-			fmt.Printf("  %s Update market prices.\n", text.PadTextRight("U", colWidth))
-			fmt.Printf("  %s Set the market region for the production chain.\n", text.PadTextRight("R", colWidth))
-			fmt.Printf("  %s Set the sell price per unit for the final product.\n", text.PadTextRight("P", colWidth))
-			fmt.Printf("  %s Show detailed information for a specific chain item.\n", text.PadTextRight("D [#]", colWidth))
-			fmt.Printf("  %s Set the production kind (buy or build) for a specific chain item.\n", text.PadTextRight("M [#]", colWidth))
-			fmt.Printf("  %s Set the batch size for a specific chain item.\n", text.PadTextRight("B [#]", colWidth))
-			fmt.Printf("  %s Set the material efficiency for a specific chain item.\n", text.PadTextRight("F [#]", colWidth))
-			fmt.Printf("  %s Set the cost per unit for a specific chain item.\n", text.PadTextRight("C [#]", colWidth))
+			fmt.Printf("  %s Save the current production chain and exit the editor.\n", text.Boldf(text.PadTextRight("S", colWidth)))
+			fmt.Printf("  %s Print the production chain details.\n", text.Boldf(text.PadTextRight("V", colWidth)))
+			fmt.Printf("  %s Print the materials inventory.\n", text.Boldf(text.PadTextRight("O", colWidth)))
+			fmt.Printf("  %s Update market prices.\n", text.Boldf(text.PadTextRight("U", colWidth)))
+			fmt.Printf("  %s Set the market region for the production chain.\n", text.Boldf(text.PadTextRight("R", colWidth)))
+			fmt.Printf("  %s Set the sell price per unit for the final product.\n", text.Boldf(text.PadTextRight("P", colWidth)))
+			fmt.Printf("  %s Show detailed information for a specific chain item.\n", text.Boldf(text.PadTextRight("D [#]", colWidth)))
+			fmt.Printf("  %s Set the production kind (buy or build) for a specific chain item.\n", text.Boldf(text.PadTextRight("M [#]", colWidth)))
+			fmt.Printf("  %s Set the batch size for a specific chain item.\n", text.Boldf(text.PadTextRight("B [#]", colWidth)))
+			fmt.Printf("  %s Set the material efficiency for a specific chain item.\n", text.Boldf(text.PadTextRight("F [#]", colWidth)))
+			fmt.Printf("  %s Set the cost per unit for a specific chain item.\n", text.Boldf(text.PadTextRight("C [#]", colWidth)))
 
-			fmt.Printf("  %s Quit the editor without saving changes.\n", text.PadTextRight("Q", colWidth))
-			fmt.Printf("  %s Display this help text.\n", text.PadTextRight("?", colWidth))
+			fmt.Printf("  %s Quit the editor without saving changes.\n", text.Boldf(text.PadTextRight("Q", colWidth)))
+			fmt.Printf("  %s Display this help text.\n", text.Boldf(text.PadTextRight("?", colWidth)))
 			fmt.Println()
 		}
 	}

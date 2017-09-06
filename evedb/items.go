@@ -29,8 +29,9 @@ type ItemTypeDetail struct {
 	PortionSize int
 	BasePrice   decimal.Decimal
 
-	ParentTypeID int
-	BlueprintID  int
+	ParentTypeID      int
+	BlueprintID       int
+	DerivativeTypeIDs []int
 }
 
 const baseQueryItemType = `SELECT
@@ -110,13 +111,15 @@ const baseQueryItemTypeDetail = `SELECT
 , COALESCE(type."basePrice", 0)
 , COALESCE(meta."parentTypeID", 0)
 , COALESCE(bp."typeID", 0)
+, COALESCE((SELECT STRING_AGG(metaDeriv."typeID"::VARCHAR, '|') FROM evesde."invMetaTypes" metaDeriv  WHERE metaDeriv."metaGroupID" = 2 AND metaDeriv."parentTypeID" = type."typeID" GROUP BY metaDeriv."parentTypeID"), '')
 FROM evesde."invTypes" type
   JOIN evesde."invGroups" grp ON type."groupID" = grp."groupID"
   JOIN evesde."invCategories" cat ON grp."categoryID" = cat."categoryID"
   LEFT JOIN evesde."invMetaTypes" meta ON meta."metaGroupID" = 2 AND meta."typeID" = type."typeID"
+
   -- TODO: This is literally the worse join ever:
   LEFT JOIN evesde."invTypes" bp ON bp."typeName" = CONCAT(type."typeName", ' Blueprint')
-` // TODO: ^
+` // TODO: Literally the worst literally ever
 
 // GetItemTypeDetail fetches a specific ItemType with extra details from the database.
 func (e *EveDB) GetItemTypeDetail(typeID int) (*ItemTypeDetail, error) {
@@ -125,13 +128,22 @@ func (e *EveDB) GetItemTypeDetail(typeID int) (*ItemTypeDetail, error) {
 		return nil, err
 	}
 	defer c.Close()
+	var derivs string
 	r := c.QueryRow(
 		baseQueryItemTypeDetail+`WHERE type."typeID" = $1 AND type."published" = TRUE`, typeID)
 	it := &ItemTypeDetail{ItemType: &ItemType{}}
-	err = r.Scan(&it.ID, &it.Name, &it.Description, &it.GroupID, &it.GroupName, &it.CategoryID, &it.CategoryName, &it.Mass, &it.Volume, &it.Capacity, &it.PortionSize, &it.BasePrice, &it.ParentTypeID, &it.BlueprintID)
+	err = r.Scan(&it.ID, &it.Name, &it.Description, &it.GroupID, &it.GroupName, &it.CategoryID, &it.CategoryName, &it.Mass, &it.Volume, &it.Capacity, &it.PortionSize, &it.BasePrice, &it.ParentTypeID, &it.BlueprintID, &derivs)
 	if err != nil {
 		return nil, err
 	}
+	parts := strings.Split(derivs, "|")
+	var derivIDs []int
+	for _, part := range parts {
+		if v, err := strconv.Atoi(part); err == nil {
+			derivIDs = append(derivIDs, v)
+		}
+	}
+	it.DerivativeTypeIDs = derivIDs
 	return it, nil
 }
 
@@ -162,11 +174,20 @@ func (e *EveDB) QueryItemTypeDetails(query string, catIDs ...int) ([]*ItemTypeDe
 	defer rs.Close()
 	res := []*ItemTypeDetail{}
 	for rs.Next() {
+		var derivs string
 		it := &ItemTypeDetail{ItemType: &ItemType{}}
-		err := rs.Scan(&it.ID, &it.Name, &it.Description, &it.GroupID, &it.GroupName, &it.CategoryID, &it.CategoryName, &it.Mass, &it.Volume, &it.Capacity, &it.PortionSize, &it.BasePrice)
+		err := rs.Scan(&it.ID, &it.Name, &it.Description, &it.GroupID, &it.GroupName, &it.CategoryID, &it.CategoryName, &it.Mass, &it.Volume, &it.Capacity, &it.PortionSize, &it.BasePrice, &it.ParentTypeID, &it.BlueprintID, &derivs)
 		if err != nil {
 			return nil, err
 		}
+		parts := strings.Split(derivs, "|")
+		var derivIDs []int
+		for _, part := range parts {
+			if v, err := strconv.Atoi(part); err == nil {
+				derivIDs = append(derivIDs, v)
+			}
+		}
+		it.DerivativeTypeIDs = derivIDs
 		res = append(res, it)
 	}
 	return res, nil

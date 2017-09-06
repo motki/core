@@ -336,6 +336,7 @@ func (p *Prompter) PromptItemTypeDetail(prompt string, initialInput string) (*ev
 		val, err = p.evedb.GetItemTypeDetail(id)
 		if err != nil {
 			fmt.Printf("No item exists with ID %d.\n", id)
+			p.logger.Warnf("error fetching item type detail: %s", err.Error())
 			goto prompt
 		}
 		// We have a valid value, break out of the loop.

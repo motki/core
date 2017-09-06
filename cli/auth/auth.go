@@ -1,14 +1,17 @@
 package auth
 
 import (
-	"github.com/pkg/errors"
-
 	"context"
 
 	"github.com/antihax/goesi"
+	"github.com/pkg/errors"
+
 	"github.com/motki/motkid/eveapi"
 	"github.com/motki/motkid/model"
 )
+
+var ErrBadCredentials = errors.New("cli/auth: invalid username or password")
+var ErrNotAuthenticated = errors.New("cli/auth: not authenticated")
 
 type sessionKey *string
 
@@ -26,7 +29,7 @@ func NewSession(model *model.Manager, api *eveapi.EveAPI) *Session {
 func (s *Session) Authenticate(user, password string) (*model.User, error) {
 	u, key, err := s.model.AuthenticateUser(user, password)
 	if err != nil {
-		return nil, err
+		return nil, ErrBadCredentials
 	}
 	s.sessionKey = &key
 	return u, nil
@@ -34,7 +37,7 @@ func (s *Session) Authenticate(user, password string) (*model.User, error) {
 
 func (s *Session) User() (*model.User, error) {
 	if s.sessionKey == nil {
-		return nil, errors.New("not authenticated")
+		return nil, ErrNotAuthenticated
 	}
 	return s.model.GetUserBySessionKey(*s.sessionKey)
 }

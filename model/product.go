@@ -42,8 +42,9 @@ func (p Product) Cost() decimal.Decimal {
 	}
 	// Calculate the cost, and be sure to include the tiny savings received on
 	// ME% bonuses when calculating larger job sizes. We do this by multiplying
-	// the material cost by the received batchSize, which is always the "parent"
-	// Product's BatchSize to the current component.
+	// the material cost for each component by the batch size, then dividing
+	// by the batch size at the end to scale the final cost back to single-
+	// product scale.
 	cost := decimal.NewFromFloat(0)
 	for _, m := range p.Materials {
 		// cost = cost + (m.Cost * round(m.Quantity / (1 + p.MaterialEfficiency) * p.BatchSize)
@@ -53,8 +54,8 @@ func (p Product) Cost() decimal.Decimal {
 				Mul(batchSize).
 				Round(0)))
 	}
-	// We bring the final cost back to a single-product scale by dividing by the
-	// received batch size at the end.
+	// Bring the final cost back to a single-product scale by dividing by the
+	// total component cost by the batch size at the end.
 	return cost.Div(batchSize)
 }
 

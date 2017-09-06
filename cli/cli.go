@@ -13,13 +13,13 @@ import (
 
 // A Command is a console application.
 type Command interface {
-	// Description returns a ~40 character sentence describing the Command.
+	// Description returns a ~40 character sentence describing the command.
 	Description() string
 
-	// Prefixes defines the names that the Command will be invoked under.
+	// Prefixes defines the names that the command will be invoked under.
 	//
 	// This is a slice to allow for alternatives and shorthands to be considered
-	// as a prefix for the Command.
+	// as a prefix for the command.
 	Prefixes() []string
 
 	// Handle executes the given subcmd, if any, with the given arguments.
@@ -96,7 +96,7 @@ func (srv *Server) LoopCLI() {
 			}
 			srv.AppendHistory(cmd)
 			parts := strings.Split(cmd, " ")
-			if len(parts) < 1 {
+			if len(parts) < 1 || parts[0] == "" {
 				srv.PrintHelp()
 				return nil
 			}
@@ -113,7 +113,7 @@ func (srv *Server) LoopCLI() {
 				}
 				cmd.Handle(subcmd, args...)
 			} else {
-				fmt.Println("Unknown Command:", parts[0])
+				fmt.Println("Unknown command:", parts[0])
 				srv.PrintHelp()
 			}
 			return nil
@@ -132,18 +132,19 @@ func (srv *Server) LoopCLI() {
 
 // PrintHelp prints the application-level help text.
 func (srv *Server) PrintHelp() {
-	fmt.Println(`motki is a command-line utility for interacting with a motkid installation.
+	fmt.Println()
+	fmt.Println(text.Boldf("motki") + ` is a command-line utility for interacting with a motkid installation.
 
 Commands:`)
 	for _, cmd := range srv.commands {
 		for _, prefix := range cmd.Prefixes() {
-			fmt.Printf("  %s %s\n", text.PadTextRight(prefix, 15), cmd.Description())
+			fmt.Printf("  %s %s\n", text.Boldf(text.PadTextRight(prefix, 15)), cmd.Description())
 			break
 		}
 	}
 	fmt.Println()
-	fmt.Println(`More information about a particular Command can be shown by running`)
-	fmt.Println(`  help <Command>`)
+	fmt.Println(`More information about a particular command can be shown by running`)
+	fmt.Println(text.Boldf(`  help <command>`))
 	fmt.Println()
 }
 
@@ -165,6 +166,7 @@ func (c quitCommand) Description() string {
 }
 
 func (c quitCommand) PrintHelp() {
+	fmt.Println()
 	fmt.Printf(`Command "quit" exits the application.
 
 Aliases for quit:
@@ -174,6 +176,7 @@ Aliases for quit:
 	\q
 
 %s`, text.WrapText(`Additionally, the program can be exited by sending a SIGINT or SIGKILL signal, for example by pressing CTRL+C.`, text.StandardTerminalWidthInChars))
+	fmt.Println()
 }
 
 // helpCommand handles printing help information for all registered commands.
@@ -188,9 +191,7 @@ func (c helpCommand) Prefixes() []string {
 func (c helpCommand) Handle(subcmd string, args ...string) {
 	if len(subcmd) > 0 {
 		if cmd, ok := c.env.commandLookup[subcmd]; ok {
-			fmt.Println()
 			cmd.PrintHelp()
-			fmt.Println()
 			return
 		}
 	}

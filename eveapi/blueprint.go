@@ -9,11 +9,15 @@ type Blueprint struct {
 	LocationID         int64
 	TypeID             int64
 	TypeName           string
-	Quantity           int64
 	FlagID             int64
 	TimeEfficiency     int64
 	MaterialEfficiency int64
-	Runs               int64
+
+	// -2 = BPC (and always qty 1), else BPO
+	Quantity int64
+
+	// -1 = infinite runs (a BPO)
+	Runs int64
 }
 
 func (api *EveAPI) GetCorporationBlueprints(ctx context.Context, corpID int) ([]*Blueprint, error) {

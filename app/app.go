@@ -42,6 +42,7 @@ import (
 	"github.com/motki/motkid/worker"
 
 	_ "github.com/motki/motkid/http/module/account"
+	_ "github.com/motki/motkid/http/module/assets"
 	_ "github.com/motki/motkid/http/module/auth"
 	_ "github.com/motki/motkid/http/module/home"
 	_ "github.com/motki/motkid/http/module/industry"

@@ -12,6 +12,7 @@ import (
 	"github.com/motki/motkid/mail"
 
 	modaccount "github.com/motki/motkid/http/module/account"
+	modassets "github.com/motki/motkid/http/module/assets"
 	modauth "github.com/motki/motkid/http/module/auth"
 	modhome "github.com/motki/motkid/http/module/home"
 	modindustry "github.com/motki/motkid/http/module/industry"
@@ -57,6 +58,7 @@ func NewWebEnv(conf *Config) (*WebEnv, error) {
 		return nil, errors.Wrap(err, "app: unable to initialize web environment")
 	}
 	err = srv.Register(
+		modassets.New(),
 		modauth.New(sessions, authManager, templates, env.Model, env.Scheduler, mailer, env.Logger),
 		modhome.New(sessions, templates, mailer, env.Logger),
 		modmarket.New(authManager, templates, env.Model, env.EveDB, env.Logger),

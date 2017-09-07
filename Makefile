@@ -23,6 +23,7 @@
 # Clean up build files:
 #   make clean
 
+# Defines where build files are stored.
 PREFIX ?= build/
 
 # Define all the necessary binary dependencies.
@@ -172,13 +173,14 @@ $(release_targets):
 # This target will build a binary for every combination of
 # RELEASE_ARCHES and RELEASE_OSES specified.
 matrix:
-	@for arch in $(RELEASE_ARCHES); do \
-		for os in $(RELEASE_OSES); do \
-			echo "Building $$os $$arch..."; \
+	@for arch in $(RELEASE_ARCHES); do               \
+		for os in $(RELEASE_OSES); do                \
+			echo "Building $$os $$arch...";          \
 			$(MAKE) release GOOS=$$os GOARCH=$$arch; \
-		done; \
-	done
-	@echo "Done."
+		done;                                        \
+	done;                                            \
+	echo "Done."
+
 
 # Installs the database schemas and data.
 db: $(schema_targets)

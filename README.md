@@ -1,13 +1,86 @@
-# MOTKI
+# motkid
+
+The Moritake Industries EVE Corporation suite of applications.
 
 [![GoDoc](https://godoc.org/github.com/motki/motkid?status.svg)](https://godoc.org/github.com/motki/motkid)
 
-The Moritake Industries EVE Corporation web application.
+## Getting started
+
+This repository contains all the motkid source code, including dependency source code.
+
+#### Pre-requisites for building
+
+* [A recent Go compiler](https://golang.org)
+* [go-bindata](https://github.com/jteeuwen/go-bindata)
+  ```bash
+  go get -u github.com/jteeuwen/go-bindata/...
+  ```
+* postgres9 client (psql and pg_restore)
+* cat, awk, sed, grep, curl, bunzip2, unzip, git
+
+##### Requirements for running
+
+* An available PostgreSQL database.
+* An SMTP provider.
+* A machine to run motkid on.
 
 
-## Installation
+## Install using `make`
 
-Clone the repository to the appropriate place in your `$GOPATH`.
+[Download a copy of this repository](https://github.com/motki/motkid/archive/master.zip) and verify that the Makefile works.
+
+```bash
+curl -L -o motkid.tar.gz https://github.com/motki/motkid/archive/master.tar.gz
+tar xzf motkid.tar.gz
+cd motkid
+make debug
+```
+
+Assuming you haven't copied `config.toml.dist` to `config.toml`, you will be greeted with an error.
+
+```
+Makefile:61: *** config.toml does not exist. Copy config.toml.dist and edit appropriately, then try again..  Stop.
+```
+
+Once you've edited `config.toml`, you can actually build the program. The simplest way is `make`. After that, `make install`.
+
+
+### Makefile reference
+
+|  Target       | Description 
+|-----------    |---------------------------------------------------
+| build         | Build `motkid` and `motki`.
+| install       | Installs database schemas and EVE static dump data.
+| uninstall     | Drop created database schemas and EVE static dump data.
+| clean         | Delete all build files.
+| generate      | Runs `go generate`.
+| matrix        | Build a matrix of arches and OSes, see below.
+| download      | Download EVE static dump data.
+| assets        | Installs EVE static dump data.
+| db            | Install the database schemas.
+| schema_evesde | Installs the EVE static dump schema.
+| schema_app    | Installs the app schema.
+
+#### Notes
+
+Build for a specific OS and arch
+```bash
+make build GOOS=linux GOARCH=arm7
+```
+
+Cross-compile the binaries for many platforms at once
+```bash
+make matrix ARCHES="amd64 arm6 arm7 386" OSES="windows linux darwin"
+```
+
+
+## Manual Installation
+
+Clone or [download the repository](https://github.com/motki/motkid/archive/master.zip).
+
+This application does not rely on `$GOPATH`, but if you are planning on making changes, it may help to put it there.
+
+Below is an example of one way to get the code.
 
 > This assumes you have a simple `$GOPATH` with only one value (and no colons in it)
 
@@ -25,10 +98,10 @@ Load the data in the `resources` folder.
 1. Un-bzip the `evesde-*-postgres.dmp.bz2`.
 2. Use `pg_restore` to load the EVE static dump.
    > Warnings abouts a missing "yaml" role can be ignored.
-3. Extract the Icons, Renders, and Types zips to `public/images` (creating `public/images/Icons`, `public/images/Renders`, and `public/images/Types`)
+3. Extract the Icons and Types zips to `public/images` (creating `public/images/Icons` and `public/images/Types`)
 
 
-### Configuration
+## Configuration
 
 Copy `config.toml.dist` to `config.toml` and edit appropriately.
 
@@ -77,37 +150,4 @@ go run ./cmd/motkid/main.go
 ```
 
 
-#### Building and deploying
 
-Build and package all necessary assets with the following bash script.
-
-> Note: this excludes the EVE Static Dump assets.
-
-```bash
-#!/usr/bin/env bash
-go build -ldflags "-s -w" -o motkid ./cmd/motkid/main.go
-tar czf motkid.tar.gz ./motkid ./config.toml.dist ./views/ ./public/fonts/ ./public/images/*.png ./public/scripts/ ./public/styles/ ./public/browserconfig.xml ./public/favicon.ico ./public/manifest.json
-echo "Built motkid.tar.gz"
-```
-
-If you need to only redeploy the binary only, you can skip the script and just run:
-
-```bash
-go build -o motkid ./cmd/motkid/main.go
-```
-
-Then deploy the resulting `motkid` binary to the server.
-
-##### Cross-platform building
-
-If you're on Mac and want to target Linux, for example, you can simply set the `GOOS=linux` command line variable.
-
-```bash
-GOOS=linux ./build.sh
-```
-
-Or build only the binary.
-
-```bash
-GOOS=linux go build -o motkid ./cmd/motkid/main.go
-```

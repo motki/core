@@ -18,7 +18,7 @@
 #   make build GOOS=linux GOARCH=arm7
 #
 # Cross-compile the binaries for many platforms at once:
-#   make matrix RELEASE_ARCHES="amd64 arm6 arm7 386" RELEASE_OSES="windows linux darwin"
+#   make matrix ARCHES="amd64 arm6 arm7 386" OSES="windows linux darwin"
 #
 # Clean up build files:
 #   make clean
@@ -27,9 +27,9 @@
 PREFIX ?= build/
 
 # Define all the necessary binary dependencies.
-deps := go go-bindata psql pg_restore cat awk grep sed bunzip2 unzip git wget
+deps := go go-bindata psql pg_restore cat awk grep sed bunzip2 unzip git curl
 
-# A template for defining a variable with the form:
+# A template for defining a variable with the final form:
 #   NAME ?= /path/to/bin/name
 deps_tpl = $(shell echo $(1) | tr a-z A-Z) ?= $(shell which $(1))
 
@@ -42,9 +42,9 @@ deps_initialized := $(foreach dep,$(deps),$(eval $(call deps_tpl,$(dep))))
 
 # Error messages.
 err_go_missing := unable to locate "go" binary. See https://golang.org/doc/ for more information.
-err_binary_missing = $(if $(filter $1,go),$(err_go_missing),unable to locate "$1" binary. \
-Ensure that it is installed and on your PATH. Specify a custom path to the binary with \
-"make $(shell echo $1 | tr a-z A-Z)=/path/to/$1 $@")
+err_go-bindata_missing := unable to locate "go-bindata" binary. To install go get: go get -u github.com/jteeuwen/go-bindata/...
+err_default_missing = unable to locate "$1" binary. Ensure that it is installed and on your PATH. Specify a custom path to the binary with "make $(shell echo $1 | tr a-z A-Z)=/path/to/$1 $@"
+err_binary_missing = $(or $(err_$1_missing),$(call err_default_missing,$1))
 err_config_missing := config.toml does not exist. Copy config.toml.dist and edit appropriately, then try again.
 
 # This procedure throws a fatal error if the path to the given binary is empty or
@@ -64,7 +64,7 @@ config_ensured := $(if $(filter $(shell test -f config.toml && echo 1),1),,$(err
 # Matches a URI: postgres://hostname:port/dbname?params
 # Returns a sentence in the form: host:port dbname
 db_conn_params := $(shell $(GREP) 'connection_string' ./config.toml \
-	| $(SED) -E -e 's/^connection_string[\s]+?=[\s]+?\"postgres:\/?\/?(.*)\/(\w+)\??.*?\"$$/\1 \2/')
+				  | $(SED) -E -e 's/^connection_string[\s]+?=[\s]+?\"postgres:\/?\/?(.*)\/(\w+)\??.*?\"$$/\1 \2/')
 # Extract the host part of a host:port pair
 host = $(word 1,$(subst :, ,$1))
 # Extract the port part of a host:port pair.
@@ -83,7 +83,7 @@ pg_args := -d $(DB_NAME) -h $(DB_HOST) -p $(DB_PORT)
 
 # 1 if the schema $1 exists, otherwise 0.
 schema_exists = $(PSQL) $(pg_args) -c "SELECT COUNT(1) FROM information_schema.schemata WHERE schema_name = '$1';" \
-	| $(AWK) '{ if ($$1 == "1") { print "1" } if ($$1 == "0") { print "0" } }'
+				| $(AWK) '{ if ($$1 == "1") { print "1" } }'
 drop_schema = $(PSQL) $(pg_args) -c "DROP SCHEMA $1 CASCADE;" || exit 0
 
 
@@ -93,21 +93,22 @@ drop_schema = $(PSQL) $(pg_args) -c "DROP SCHEMA $1 CASCADE;" || exit 0
 GOOS ?= $(shell $(GO) env GOOS)
 GOARCH ?= $(shell $(GO) env GOARCH)
 
-# When using the "matrix" target, these specify which OSes and archs to target.
+# When using the "matrix" target, these specify which OSes and arches to target.
 # These are both overridable from the command line. For example:
-#   make matrix RELEASE_ARCHES=amd64 arm6 arm7 386 RELEASE_OSES=linux
-RELEASE_ARCHES ?= amd64
-RELEASE_OSES ?= linux darwin
+#   make matrix ARCHES="amd64 arm6 arm7 386" OSES=linux
+ARCHES ?= amd64
+OSES ?= linux darwin
 
 # Components to build up a valid "go build" command.
-build_base := $(GO) build -ldflags "-s -w -X main.Version=$(shell $(GIT) describe --always)"
+build_version := $(if $(shell test -d .git),$(GIT) describe --always,)
+build_base := $(GO) build -ldflags "-s -w -X main.Version=$(or $(shell $(build_version)),snapshot)"
 build_name = $(PREFIX)$1$(if $(filter $(GOOS),windows),.exe,)
 build_src = ./cmd/$(word 1,$(subst _, ,$(subst ., ,$(subst $(PREFIX),,$1))))/*.go
 build_cmd = GOOS=$(GOOS) GOARCH=$(GOARCH) $(build_base) -o $1 $(call build_src,$1)
 release_name = $(call build_name,$1_$(GOOS)_$(GOARCH))
-release_cmd = $(subst  build , build -tags release ,$(call build_cmd,$1))
+release_cmd = $(subst  build ,  build -tags release ,$(call build_cmd,$1))
 
-# These define the programs configured. Adding more targets is
+# These define the programs that get built. Adding more targets is
 # automatic as long as the source code for the target exists in
 # ./cmd/<target>/*.go.
 binaries := motki motkid
@@ -131,19 +132,17 @@ asset_targets := $(foreach a,$(assets),$(asset_images_dir)$(a))
 
 
 # Print configuration information: paths, build options, and config params.
-extra_params := DB_HOST DB_PORT DB_NAME
+extra_params := GOOS GOARCH DB_HOST DB_PORT DB_NAME
 define print_conf
 	@$(foreach dep,$(deps),echo "$(shell echo $(dep) | tr a-z A-Z)=$(value $(shell echo $(dep) | tr a-z A-Z))";)
-	@echo "GOOS=$(GOOS)"
-	@echo "GOARCH=$(GOARCH)"
 	@$(foreach val,$(extra_params),echo "$(val)=$($(val))";)
 endef
 
 # All of the files this generates.
-files := $(PREFIX)motki_*_* $(PREFIX)motkid_*_* $(binary_targets)
+files := $(PREFIX)motki_*_* $(PREFIX)motkid_*_* $(binary_targets) $(PREFIX)go_generated
 
 .PHONY: all
-.PHONY: build matrix release
+.PHONY: generate build release matrix
 .PHONY: install uninstall
 .PHONY: download assets
 .PHONY: db $(schema_targets)
@@ -155,6 +154,13 @@ files := $(PREFIX)motki_*_* $(PREFIX)motkid_*_* $(binary_targets)
 # Build all binaries.
 build: $(binary_targets)
 
+# Runs "go generate".
+generate: $(PREFIX)go_generated
+
+$(PREFIX)go_generated:
+	$(GO) generate
+	touch $(PREFIX)go_generated
+
 # Install assets and initialize database schemas.
 install: db assets
 
@@ -164,17 +170,16 @@ $(binary_targets):
 	$(call build_cmd,$@)
 
 # Make release builds for the specified OS and arch.
-release: $(release_targets)
+release: generate $(release_targets)
 
-$(release_targets):
-	$(GO) generate
+$(release_targets): generate
 	$(call release_cmd,$@)
 
 # This target will build a binary for every combination of
-# RELEASE_ARCHES and RELEASE_OSES specified.
+# ARCHES and OSES specified.
 matrix:
-	@for arch in $(RELEASE_ARCHES); do               \
-		for os in $(RELEASE_OSES); do                \
+	@for arch in $(ARCHES); do                       \
+		for os in $(OSES); do                        \
 			echo "Building $$os $$arch...";          \
 			$(MAKE) release GOOS=$$os GOARCH=$$arch; \
 		done;                                        \
@@ -190,13 +195,13 @@ db: $(schema_targets)
 # This is because the dump currently causes warnings to be emitted
 # and pg_restore exits with an error exit code.
 schema_evesde:
-ifeq ($(shell echo $(call schema_exists,evesde)),0)
+ifneq ($(shell $(call schema_exists,evesde)),1)
 	($(BUNZIP2) -ck ./resources/evesde-postgres.dmp.bz2 | $(PG_RESTORE) $(pg_args) --clean; exit 0)
 endif
 
-# Installs the app schema.
+# Installs the app schema if it does not already exist.
 schema_app:
-ifeq ($(shell $(call schema_exists,app)),0)
+ifneq ($(shell $(call schema_exists,app)),1)
 	$(CAT) $(wildcard ./resources/ddl/*.sql) | $(PSQL) $(pg_args)
 endif
 
@@ -205,9 +210,9 @@ download: $(download_targets)
 
 # This defines a target that matches any static files that need to be downloaded.
 $(download_targets):
-	$(WGET) -P resources $(static_base_url)$@
+	cd resources && $(CURL) -L -O $(static_base_url)$@
 
-# Installs all asset targets.
+# Installs all asset targets, downloading them if necessary.
 assets: download $(asset_targets)
 
 # This defines a target for each asset defined in asset_targets.
@@ -216,7 +221,7 @@ assets: download $(asset_targets)
 $(asset_targets):
 	$(UNZIP) ./resources/$(lastword $(subst /, ,$@)).zip -d $(asset_images_dir)
 
-# Deletes build files and database schemas.
+# Deletes build files.
 clean: clean_files
 
 # Deletes all build files.
@@ -235,7 +240,7 @@ delete_assets:
 # Deletes all database schemas.
 drop_schemas:
 	@$(foreach sch,$(schemas),$(if $(filter $(shell echo $(call schema_exists,$(sch))),1),$(call drop_schema,$(sch)) && echo "Dropped schema $(DB_NAME).$(sch)";,))
-	@echo "Cleaned schemas."
+	@echo "Dropped schemas."
 
 
 # Prints configuration information.

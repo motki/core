@@ -106,7 +106,7 @@ client_id=""
 secret_key=""
 # Return URL specified in the application configuration. This must be a valid
 # value that matches what the server is listening on.
-return_url="http://localhost:8080/auth/finish-login
+return_url="http://localhost:8080/auth/finish-login"
 # A useful user agent string to describe the application when making requests
 # to the EVE API.
 user_agent="MOTKI Corp Integration <contact@tylersommer.pro>"

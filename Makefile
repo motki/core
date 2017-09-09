@@ -90,45 +90,45 @@ drop_schema = $(PSQL) $(pg_args) -c "DROP SCHEMA $1 CASCADE;" || exit 0
 # By default, the system defined GOOS and GOARCH are used.
 # These are overridable from the command line. For example:
 #   make build GOOS=linux GOARCH=arm7
-GOOS ?= $(shell $(GO) env GOOS)
+GOOS   ?= $(shell $(GO) env GOOS)
 GOARCH ?= $(shell $(GO) env GOARCH)
 
 # When using the "matrix" target, these specify which OSes and arches to target.
 # These are both overridable from the command line. For example:
 #   make matrix ARCHES="amd64 arm6 arm7 386" OSES=linux
 ARCHES ?= amd64
-OSES ?= linux darwin
+OSES   ?= linux darwin
 
 # Components to build up a valid "go build" command.
-build_version := $(if $(shell test -d .git),$(GIT) describe --always,)
-build_base := $(GO) build -ldflags "-s -w -X main.Version=$(or $(shell $(build_version)),snapshot)"
-build_name = $(PREFIX)$1$(if $(filter $(GOOS),windows),.exe,)
-build_src = ./cmd/$(word 1,$(subst _, ,$(subst ., ,$(subst $(PREFIX),,$1))))/*.go
-build_cmd = GOOS=$(GOOS) GOARCH=$(GOARCH) $(build_base) -o $1 $(call build_src,$1)
-release_name = $(call build_name,$1_$(GOOS)_$(GOARCH))
-release_cmd = $(subst  build ,  build -tags release ,$(call build_cmd,$1))
+build_version := $(if $(shell test -d .git && echo "1"),$(shell $(GIT) describe --always),snapshot)
+build_base    := $(GO) build -ldflags "-s -w -X main.Version=$(build_version)"
+build_name     = $(PREFIX)$1$(if $(filter $(GOOS),windows),.exe,)
+build_src      = ./cmd/$(word 1,$(subst _, ,$(subst ., ,$(subst $(PREFIX),,$1))))/*.go
+build_cmd      = GOOS=$(GOOS) GOARCH=$(GOARCH) $(build_base) -o $1 $(call build_src,$1)
+release_name   = $(call build_name,$1_$(GOOS)_$(GOARCH))
+release_cmd    = $(subst build, build -tags release,$(call build_cmd,$1))
 
 # These define the programs that get built. Adding more targets is
 # automatic as long as the source code for the target exists in
 # ./cmd/<target>/*.go.
-binaries := motki motkid
-binary_targets := $(foreach bin,$(binaries),$(call build_name,$(bin)))
+binaries        := motki motkid
+binary_targets  := $(foreach bin,$(binaries),$(call build_name,$(bin)))
 release_targets := $(foreach bin,$(binaries),$(call release_name,$(bin)))
 
 # These define the schema names.
 # Note that targets for schemas are manually defined.
-schemas := evesde app
+schemas        := evesde app
 schema_targets := $(foreach sch,$(schemas),schema_$(sch))
 
 # These define where working EVE Static Dump data can be downloaded.
-static_base_url := https://github.com/motki/motkid/raw/master/
+static_base_url  := https://github.com/motki/motkid/raw/master/
 download_targets := resources/evesde-postgres.dmp.bz2 resources/Icons.zip resources/Types.zip
 
 # Static asset targets. These must be zip files and follow a specific
 # convention. It may not be suitable for all assets.
-assets := Types Icons
+assets           := Types Icons
 asset_images_dir := public/images/
-asset_targets := $(foreach a,$(assets),$(asset_images_dir)$(a))
+asset_targets    := $(foreach a,$(assets),$(asset_images_dir)$(a))
 
 
 # Print configuration information: paths, build options, and config params.
@@ -168,12 +168,14 @@ install: db assets
 # This defines a target that matches any of the values listed in binary_targets.
 $(binary_targets):
 	$(call build_cmd,$@)
+	@echo "Built $@"
 
 # Make release builds for the specified OS and arch.
 release: generate $(release_targets)
 
-$(release_targets): generate
+$(release_targets): $(PREFIX)go_generated
 	$(call release_cmd,$@)
+	@echo "Built $@"
 
 # This target will build a binary for every combination of
 # ARCHES and OSES specified.
@@ -239,8 +241,7 @@ delete_assets:
 
 # Deletes all database schemas.
 drop_schemas:
-	@$(foreach sch,$(schemas),$(if $(filter $(shell echo $(call schema_exists,$(sch))),1),$(call drop_schema,$(sch)) && echo "Dropped schema $(DB_NAME).$(sch)";,))
-	@echo "Dropped schemas."
+	@$(foreach sch,$(schemas),$(if $(shell $(call schema_exists,$(sch))),$(call drop_schema,$(sch)) && echo "Dropped schema $(DB_NAME).$(sch)";,))
 
 
 # Prints configuration information.

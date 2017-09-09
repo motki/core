@@ -30,9 +30,9 @@ This repository contains all the motkid source code, including dependency source
 [Download a copy of this repository](https://github.com/motki/motkid/archive/master.zip) and verify that the Makefile works.
 
 ```bash
-curl -L -o motkid.tar.gz https://github.com/motki/motkid/archive/master.tar.gz
-tar xzf motkid.tar.gz
-cd motkid
+curl -L -o motkid-master.tar.gz https://github.com/motki/motkid/archive/master.tar.gz
+tar xzf motkid-master.tar.gz
+cd motkid-master
 make debug
 ```
 
@@ -42,7 +42,7 @@ Assuming you haven't copied `config.toml.dist` to `config.toml`, you will be gre
 Makefile:61: *** config.toml does not exist. Copy config.toml.dist and edit appropriately, then try again..  Stop.
 ```
 
-Once you've edited `config.toml`, you can actually build the program. The simplest way is `make`. After that, `make install`.
+Once you've copied `config.toml`, you can actually build the program. The simplest way is `make`.
 
 
 ### Makefile reference

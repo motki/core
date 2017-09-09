@@ -76,7 +76,9 @@ func (m *Manager) apiAllianceToDB(alliance *eveapi.Alliance) (*Alliance, error) 
 		Ticker:      alliance.Ticker,
 	}
 	_, err = db.Exec(
-		"INSERT INTO app.alliances (alliance_id, name, founded_date, ticker) VALUES($1, $2, $3, $4)",
+		`INSERT INTO app.alliances
+				(alliance_id, name, founded_date, ticker)
+				VALUES($1, $2, $3, $4)`,
 		c.AllianceID,
 		c.Name,
 		c.DateFounded,

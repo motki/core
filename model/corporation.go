@@ -42,7 +42,8 @@ func (m *Manager) getCorporationFromDB(corporationID int) (*Corporation, error) 
 			, c.ticker
 			, c.description
 			FROM app.corporations c
-			WHERE c.corporation_id = $1`, corporationID)
+			WHERE c.corporation_id = $1
+				AND c.fetched_at > NOW() - INTERVAL '7 days'`, corporationID)
 	char := &Corporation{}
 	err = r.Scan(
 		&char.CorporationID,
@@ -84,7 +85,15 @@ func (m *Manager) apiCorporationToDB(corp *eveapi.Corporation) (*Corporation, er
 		Description:   corp.Description,
 	}
 	_, err = db.Exec(
-		"INSERT INTO app.corporations (corporation_id, name, alliance_id, creation_date, ticker, description) VALUES($1, $2, $3, $4, $5, $6)",
+		`INSERT INTO app.corporations
+				(corporation_id, name, alliance_id, creation_date, ticker, description)
+				VALUES($1, $2, $3, $4, $5, $6)
+				ON CONFLICT ON CONSTRAINT "corporations_pkey" DO
+				UPDATE SET name = EXCLUDED.name
+					, alliance_id = EXCLUDED.alliance_id
+					, ticker = EXCLUDED.ticker
+					, description = EXCLUDED.ticker
+					, fetched_at = DEFAULT`,
 		c.CorporationID,
 		c.Name,
 		c.AllianceID,

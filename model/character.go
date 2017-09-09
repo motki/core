@@ -48,7 +48,8 @@ func (m *Manager) getCharacterFromDB(characterID int) (*Character, error) {
 			, c.birth_date
 			, c.description
 			FROM app.characters c
-			WHERE c.character_id = $1`, characterID)
+			WHERE c.character_id = $1
+				AND c.fetched_at > NOW() - INTERVAL '12 hours'`, characterID)
 	char := &Character{}
 	err = r.Scan(
 		&char.CharacterID,
@@ -96,7 +97,16 @@ func (m *Manager) apiCharacterToDB(char *eveapi.Character) (*Character, error) {
 		Description:   char.Description,
 	}
 	_, err = db.Exec(
-		"INSERT INTO app.characters (character_id, name, bloodline_id, race_id, ancestry_id, corporation_id, alliance_id, birth_date, description) VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9)",
+		`INSERT INTO app.characters
+				(character_id, name, bloodline_id, race_id, ancestry_id
+				, corporation_id, alliance_id, birth_date, description)
+				VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9)
+				ON CONFLICT ON CONSTRAINT "characters_pkey" DO
+				UPDATE SET name = EXCLUDED.name
+					, corporation_id = EXCLUDED.corporation_id
+					, alliance_id = EXCLUDED.alliance_id
+					, description = EXCLUDED.description
+					, fetched_at = DEFAULT`,
 		c.CharacterID,
 		c.Name,
 		c.BloodlineID,

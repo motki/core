@@ -440,8 +440,7 @@ func (c ProductCommand) previewProduct(args ...string) *model.Product {
 	}
 	if err = c.model.UpdateProductMarketPrices(product, defaultMarketRegionID); err != nil {
 		c.logger.Warnf("unable to populate production chain prices: %s", err.Error())
-		fmt.Println("Error loading production chain market prices, try again.")
-		return nil
+		fmt.Println("Error loading production chain market prices, prices may be incorrect.")
 	}
 	c.printProductInfo(product)
 	return product
@@ -610,7 +609,7 @@ func (c ProductCommand) productEditor(p *model.Product) {
 			fmt.Printf("Updated %s production mode to %s.\n", prodName, prod.Kind)
 
 		case "B":
-			prod, ok := promptLineNumber("Edit cost for which line", firstArg)
+			prod, ok := promptLineNumber("Edit batch size for which line", firstArg)
 			if !ok {
 				continue
 			}

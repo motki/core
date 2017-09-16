@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/motki/motkid/evecentral"
+	"github.com/pkg/errors"
 	"github.com/shopspring/decimal"
 )
 
@@ -232,4 +233,140 @@ func (m *Manager) apiMarketStatToDB(regionID, systemID int, stats []*evecentral.
 	}
 
 	return res, nil
+}
+
+type MarketPrice struct {
+	TypeID int
+	Avg    decimal.Decimal
+	Base   decimal.Decimal
+}
+
+func (m *Manager) GetMarketPrice(typeID int) (*MarketPrice, error) {
+	res, err := m.getMarketPricesFromDB(typeID)
+	if err != nil {
+		return nil, err
+	}
+	if len(res) == 0 {
+		return nil, errors.Errorf("expected 1 result, got %d", len(res))
+	}
+	return res[0], nil
+}
+
+func (m *Manager) GetMarketPrices(typeID int, typeIDs ...int) ([]*MarketPrice, error) {
+	return m.getMarketPricesFromDB(append(typeIDs, typeID)...)
+}
+
+func (m *Manager) getMarketPricesFromDB(typeIDs ...int) ([]*MarketPrice, error) {
+	c, err := m.pool.Open()
+	if err != nil {
+		return nil, err
+	}
+	defer c.Close()
+	ids := []string{}
+	for _, id := range typeIDs {
+		ids = append(ids, fmt.Sprintf("%d", id))
+	}
+	rs, err := c.Query(
+		`SELECT
+			  c.type_id
+			, c.avg
+			, c.base
+			FROM app.market_prices c
+			WHERE c.type_id = ANY($1::INTEGER[])
+			  AND c.fetched_at >= (NOW() - INTERVAL '1 day')`, "{"+strings.Join(ids, ",")+"}")
+	if err != nil {
+		return nil, err
+	}
+	defer rs.Close()
+	res := []*MarketPrice{}
+	for rs.Next() {
+		r := &MarketPrice{}
+		err := rs.Scan(
+			&r.TypeID,
+			&r.Avg,
+			&r.Base,
+		)
+		if err != nil {
+			return nil, err
+		}
+		res = append(res, r)
+	}
+	if len(res) == 0 {
+		// No results, get them from the API
+		return m.getMarketPricesFromAPI(typeIDs...)
+	}
+	got := map[int]struct{}{}
+	for _, s := range res {
+		got[s.TypeID] = struct{}{}
+	}
+	// If we're missing any stats for some of the types, fetch them now.
+	if len(got) != len(typeIDs) {
+		ids := make([]int, 0)
+		for _, id := range typeIDs {
+			if _, ok := got[id]; !ok {
+				ids = append(ids, id)
+			}
+		}
+		ares, err := m.getMarketPricesFromAPI(ids...)
+		if err != nil {
+			return nil, err
+		}
+		res = append(res, ares...)
+	}
+	return res, nil
+}
+
+func (m *Manager) getMarketPricesFromAPI(typeIDs ...int) ([]*MarketPrice, error) {
+	p, cancel, err := m.eveapi.GetMarketPrices()
+	if err != nil {
+		return nil, err
+	}
+	defer cancel()
+	var prices []*MarketPrice
+	var results []*MarketPrice
+	mp := make(map[int]struct{})
+	for _, t := range typeIDs {
+		mp[t] = struct{}{}
+	}
+	for pr := range p {
+		mktp := &MarketPrice{
+			TypeID: pr.TypeID,
+			Avg:    pr.AveragePrice,
+			Base:   pr.BasePrice,
+		}
+		if _, ok := mp[mktp.TypeID]; ok {
+			results = append(results, mktp)
+		}
+		prices = append(prices, mktp)
+	}
+	// Save all the prices, but only return what we were asked for.
+	return results, m.apiMarketPricesToDB(prices)
+}
+
+func (m *Manager) apiMarketPricesToDB(prices []*MarketPrice) error {
+	db, err := m.pool.Open()
+	if err != nil {
+		return err
+	}
+	defer db.Close()
+	res := []*MarketPrice{}
+	for _, stat := range prices {
+		s := &MarketPrice{
+			TypeID: stat.TypeID,
+			Avg:    stat.Avg,
+			Base:   stat.Base,
+		}
+		_, err = db.Exec(
+			`INSERT INTO app.market_prices (id, type_id, avg, base, fetched_at)
+					VALUES(DEFAULT, $1, $2, $3, DEFAULT)`,
+			s.TypeID,
+			s.Avg,
+			s.Base,
+		)
+		if err != nil {
+			return err
+		}
+		res = append(res, s)
+	}
+	return nil
 }

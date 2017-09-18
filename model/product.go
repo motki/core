@@ -30,7 +30,7 @@ type Product struct {
 	Kind               ProductKind
 
 	ParentID      int
-	corporationID int
+	CorporationID int
 }
 
 // Cost returns the total cost for one single unit of the completed parent product.
@@ -65,7 +65,7 @@ func (m *Manager) NewProduct(corpID int, typeID int) (*Product, error) {
 		return nil, errors.Wrapf(err, "unable to create production chain for typeID %d", typeID)
 	}
 	p := &Product{
-		corporationID:      corpID,
+		CorporationID:      corpID,
 		TypeID:             typeID,
 		Materials:          make([]*Product, 0),
 		Quantity:           bp.ProducesQty,
@@ -167,7 +167,7 @@ func (m *Manager) saveProductWithTx(tx *sql.Tx, product *Product) error {
 		product.BatchSize,
 		product.Kind,
 		parentID,
-		product.corporationID)
+		product.CorporationID)
 	id := 0
 	if err := r.Scan(&id); err != nil {
 		return err
@@ -267,7 +267,7 @@ func (m *Manager) getProducts(corpID int, productIDs ...int) ([]*Product, error)
 	prods := make(map[int]*Product)
 	roots := make([]int, 0)
 	for r.Next() {
-		p := &Product{corporationID: corpID}
+		p := &Product{CorporationID: corpID}
 		var parentID sql.NullInt64
 		err := r.Scan(&p.ProductID, &p.TypeID, &p.MarketPrice, &p.MarketRegionID, &p.Quantity, &p.MaterialEfficiency, &p.BatchSize, &p.Kind, &parentID)
 		if err != nil {

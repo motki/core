@@ -159,6 +159,14 @@ func (srv *GRPCServer) SaveProduct(ctx context.Context, req *proto.SaveProductRe
 			return nil, err
 		}
 	}
+	var setCorpID func(p *model.Product)
+	setCorpID = func(p *model.Product) {
+		p.CorporationID = corp.CorporationID
+		for _, pr := range p.Materials {
+			setCorpID(pr)
+		}
+	}
+	setCorpID(prod)
 	err = srv.model.SaveProduct(prod)
 	if err != nil {
 		return nil, err

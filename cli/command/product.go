@@ -463,7 +463,7 @@ func (c ProductCommand) showProduct(args ...string) {
 			return
 		}
 	}
-	product, err := c.model.GetProduct(c.corpID, productID)
+	product, err := c.client.GetProduct(productID)
 	if err != nil {
 		c.logger.Debugf("unable to load product: %s", err.Error())
 		fmt.Println("Error loading production chain from db, try again.")

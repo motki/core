@@ -106,7 +106,7 @@ build_name     = $(PREFIX)$1$(if $(filter $(GOOS),windows),.exe,)
 build_src      = ./cmd/$(word 1,$(subst _, ,$(subst ., ,$(subst $(PREFIX),,$1))))/*.go
 build_cmd      = GOOS=$(GOOS) GOARCH=$(GOARCH) $(build_base) -o $1 $(call build_src,$1)
 release_name   = $(call build_name,$1_$(GOOS)_$(GOARCH))
-release_cmd    = $(subst build, build -tags release,$(call build_cmd,$1))
+release_cmd    = $(subst build -ldflags, build -tags release -ldflags,$(call build_cmd,$1))
 
 # These define the programs that get built. Adding more targets is
 # automatic as long as the source code for the target exists in

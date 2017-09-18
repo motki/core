@@ -2,6 +2,43 @@
 #
 # Copy this file to config.toml and edit appropriately.
 
+# Backend parameters
+[backend]
+# Defines the backend type. Possible values are: local_grpc, remote_grpc.
+# If you want your motki program to interact with a remote motkid installation,
+# you can configure it here.
+kind="local_grpc"
+# Enable a gRPC server as defined in backend.server_grpc.
+# Remote clients can connect to this server to interact with the application.
+enable_server=false
+
+# Remote gRPC Backend parameters
+# This section is required when backend.kind is remote_grpc.
+[backend.remote_grpc]
+# Address of the remote gRPC server.
+addr="localhost:18443"
+# If enabled, the application will skip verifying the validity of the server's
+# SSL certificate. This should only be enabled for local development.
+insecure_skip_verify_ssl=false
+
+# gRPC Server parameters
+# This section is required when backend.enable_server is true.
+[backend.server_grpc]
+# Address to listen for gRPC requests.
+addr="localhost:18443"
+# If enabled, the application will generate a certificate using Let's Encrypt
+# using the server's hostname specified in backend.server_grpc.addr.
+autocert=false
+# If backend.server_grpc.autocert is enabled, this option can be used to add
+# additional hostnames that should be automatically certified by Let's Encrypt.
+extra_hosts=[]
+# Full path to the certificate file, including the CA chain.
+# If backend.server_grpc.autocert is enabled, backend.server_grpc.certfile
+# should be an empty string.
+certfile="/path/to/cert.crt"
+# Full path to the certificate private key.
+# If http.ssl.autocert is enabled, http.ssl.keyfile should be an empty string.
+keyfile="/path/to/cert.pem"
 
 # Logging parameters
 [logging]
@@ -72,7 +109,7 @@ secret="" # This needs to be changed!
 
 
 # File session storage parameters
-# These are only used when http.sessions.store is set to "file".
+# This section is required when http.sessions.store is set to "file".
 [http.sessions.file]
 # Specifies where user session data will be stored.
 storage_path="tmp"

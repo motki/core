@@ -7,16 +7,15 @@ import (
 
 	"github.com/motki/motkid/http"
 	"github.com/motki/motkid/http/auth"
-	"github.com/motki/motkid/http/session"
-	"github.com/motki/motkid/http/template"
-	"github.com/motki/motkid/mail"
-
 	modaccount "github.com/motki/motkid/http/module/account"
 	modassets "github.com/motki/motkid/http/module/assets"
 	modauth "github.com/motki/motkid/http/module/auth"
 	modhome "github.com/motki/motkid/http/module/home"
 	modindustry "github.com/motki/motkid/http/module/industry"
 	modmarket "github.com/motki/motkid/http/module/market"
+	"github.com/motki/motkid/http/session"
+	"github.com/motki/motkid/http/template"
+	"github.com/motki/motkid/mail"
 )
 
 // A WebEnv wraps a regular Env, providing web and mail servers.
@@ -51,20 +50,19 @@ func NewWebEnv(conf *Config) (*WebEnv, error) {
 	authManager := auth.NewManager(
 		auth.NewFormLoginAuthenticator(env.Model, env.Logger, "/login/begin"),
 		auth.NewEveAPIAuthorizer(env.Model, env.EveAPI, env.Logger),
-		sessions,
-	)
+		sessions)
 	srv, err := http.New(conf.HTTP, env.Logger)
 	if err != nil {
 		return nil, errors.Wrap(err, "app: unable to initialize web environment")
 	}
+
 	err = srv.Register(
 		modassets.New(),
 		modauth.New(sessions, authManager, templates, env.Model, env.Scheduler, mailer, env.Logger),
 		modhome.New(sessions, templates, mailer, env.Logger),
 		modmarket.New(authManager, templates, env.Model, env.EveDB, env.Logger),
 		modaccount.New(authManager, templates, env.Model, env.EveDB, env.Logger),
-		modindustry.New(authManager, templates, env.Model, env.EveDB, env.Logger),
-	)
+		modindustry.New(authManager, templates, env.Model, env.EveDB, env.Logger))
 	if err != nil {
 		return nil, errors.Wrap(err, "app: unable to initialize web environment")
 	}

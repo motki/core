@@ -27,7 +27,7 @@
 PREFIX ?= build/
 
 # Define all the necessary binary dependencies.
-deps := go go-bindata psql pg_restore cat awk grep sed bunzip2 unzip git curl
+deps := go go-bindata protoc psql pg_restore cat awk grep sed bunzip2 unzip git curl
 
 # A template for defining a variable with the final form:
 #   NAME ?= /path/to/bin/name

@@ -4,7 +4,6 @@ import (
 	"sort"
 	"time"
 
-	"github.com/davecgh/go-spew/spew"
 	"github.com/pkg/errors"
 	"github.com/shopspring/decimal"
 )
@@ -134,7 +133,6 @@ func (api *EveAPI) GetMarketHistoryRegionTypeID(regionID, typeID int) ([]*Market
 			Min:       decimal.NewFromFloat(float64(h.Lowest)),
 			Timestamp: t,
 		}
-		spew.Dump(h)
 		res = append(res, s)
 	}
 	sort.Reverse(marketStatSlice(res))

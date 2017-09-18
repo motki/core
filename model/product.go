@@ -13,8 +13,8 @@ import (
 type ProductKind string
 
 const (
-	ProductBuy         ProductKind = "buy"
-	ProductManufacture             = "build"
+	ProductBuy   ProductKind = "buy"
+	ProductBuild ProductKind = "build"
 )
 
 // Product represents one part of a production chain.
@@ -29,7 +29,7 @@ type Product struct {
 	BatchSize          int
 	Kind               ProductKind
 
-	parentID      int
+	ParentID      int
 	corporationID int
 }
 
@@ -73,7 +73,7 @@ func (m *Manager) NewProduct(corpID int, typeID int) (*Product, error) {
 		MarketRegionID:     0,
 		MaterialEfficiency: decimal.Zero,
 		BatchSize:          1,
-		Kind:               ProductManufacture,
+		Kind:               ProductBuild,
 	}
 	for _, mat := range bp.Materials {
 		part, err := m.NewProduct(corpID, mat.ID)
@@ -136,8 +136,8 @@ func (m *Manager) saveProductWithTx(tx *sql.Tx, product *Product) error {
 		prodID = strconv.Itoa(n)
 	}
 	var parentID sql.NullInt64
-	if product.parentID > 0 {
-		parentID.Int64 = int64(product.parentID)
+	if product.ParentID > 0 {
+		parentID.Int64 = int64(product.ParentID)
 		parentID.Valid = true
 	}
 	r := tx.QueryRow(`INSERT INTO app.production_chains (
@@ -177,7 +177,7 @@ func (m *Manager) saveProductWithTx(tx *sql.Tx, product *Product) error {
 	}
 	product.ProductID = id
 	for _, p := range product.Materials {
-		p.parentID = id
+		p.ParentID = id
 		if err := m.saveProductWithTx(tx, p); err != nil {
 			return err
 		}
@@ -273,14 +273,14 @@ func (m *Manager) getProducts(corpID int, productIDs ...int) ([]*Product, error)
 		if err != nil {
 			return nil, err
 		}
-		p.parentID = int(parentID.Int64)
+		p.ParentID = int(parentID.Int64)
 		prods[p.ProductID] = p
-		if p.parentID == 0 {
+		if p.ParentID == 0 {
 			roots = append(roots, p.ProductID)
 		} else {
-			parent, ok := prods[p.parentID]
+			parent, ok := prods[p.ParentID]
 			if !ok {
-				return nil, errors.Errorf("unable to find product with ID %d in product map", p.parentID)
+				return nil, errors.Errorf("unable to find product with ID %d in product map", p.ParentID)
 			}
 			parent.Materials = append(parent.Materials, p)
 		}

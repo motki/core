@@ -7,32 +7,42 @@ import (
 	"github.com/pkg/errors"
 
 	"github.com/motki/motkid/eveapi"
+	"github.com/motki/motkid/log"
 	"github.com/motki/motkid/model"
+	"github.com/motki/motkid/model/client"
 )
 
 var ErrBadCredentials = errors.New("cli/auth: invalid username or password")
-var ErrNotAuthenticated = errors.New("cli/auth: not authenticated")
+var ErrNotAuthenticated = client.ErrNotAuthenticated
 
 type sessionKey *string
 
 type Session struct {
-	model *model.Manager
-	api   *eveapi.EveAPI
+	client client.Client
+	api    *eveapi.EveAPI
+	model  *model.Manager
+	logger log.Logger
 
 	sessionKey sessionKey
 }
 
-func NewSession(model *model.Manager, api *eveapi.EveAPI) *Session {
-	return &Session{model, api, nil}
+func NewSession(cl client.Client, mdl *model.Manager, api *eveapi.EveAPI, l log.Logger) *Session {
+	return &Session{
+		client: cl,
+		api:    api,
+		model:  mdl,
+		logger: l,
+	}
 }
 
 func (s *Session) Authenticate(user, password string) (*model.User, error) {
-	u, key, err := s.model.AuthenticateUser(user, password)
+	key, err := s.client.Authenticate(user, password)
 	if err != nil {
+		s.logger.Warnf("unable to authenticate: %s", err.Error())
 		return nil, ErrBadCredentials
 	}
 	s.sessionKey = &key
-	return u, nil
+	return nil, nil
 }
 
 func (s *Session) User() (*model.User, error) {

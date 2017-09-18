@@ -66,12 +66,12 @@ func NewCLIEnv(conf CLIConfig, historyPath string) (*CLIEnv, error) {
 	}
 	srv := cli.NewServer(appEnv.Logger)
 	prompter := cli.NewPrompter(srv, appEnv.EveDB, appEnv.Logger)
-	sess := auth.NewSession(appEnv.Model, appEnv.EveAPI)
+	sess := auth.NewSession(appEnv.Client, appEnv.Model, appEnv.EveAPI, appEnv.Logger)
 	if conf.username != "" || conf.password != "" {
-		if user, err := sess.Authenticate(conf.username, conf.password); err != nil {
+		if _, err := sess.Authenticate(conf.username, conf.password); err != nil {
 			return nil, err
 		} else {
-			fmt.Println("Welcome, " + text.Boldf(user.Name) + "!")
+			fmt.Println("Welcome, " + text.Boldf(conf.username) + "!")
 		}
 	} else {
 		fmt.Printf("Welcome to the %s command line interface.\n", text.Boldf("motki"))
@@ -80,7 +80,7 @@ func NewCLIEnv(conf CLIConfig, historyPath string) (*CLIEnv, error) {
 	}
 	srv.SetCommands(
 		command.NewEVETypesCommand(prompter),
-		command.NewProductCommand(sess, prompter, appEnv.EveAPI, appEnv.EveDB, appEnv.Model, appEnv.Logger))
+		command.NewProductCommand(appEnv.Client, sess, prompter, appEnv.EveAPI, appEnv.EveDB, appEnv.Model, appEnv.Logger))
 	if f, err := os.Open(historyPath); err == nil {
 		srv.ReadHistory(f)
 		f.Close()
@@ -119,6 +119,11 @@ func (env *CLIEnv) BlockUntilAbort(abort chan os.Signal) {
 			fmt.Println("Exiting.")
 			if err := env.Scheduler.Shutdown(); err != nil {
 				env.Logger.Warnf("app: error shutting down scheduler: %s", err.Error())
+			}
+		},
+		func() {
+			if err := env.Server.Shutdown(); err != nil {
+				env.Logger.Warnf("app: error shutting down grpc server: %s", err.Error())
 			}
 		},
 		func() {

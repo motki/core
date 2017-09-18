@@ -252,6 +252,9 @@ func (m *Manager) GetAuthorization(user *User, role Role) (*Authorization, error
 						AND "role" = $2`, user.UserID, role)
 	err = row.Scan(&a.UserID, &a.CharacterID, &a.Role, &token)
 	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, errors.New("not authorized")
+		}
 		return nil, err
 	}
 	a.Token = (*oauth2.Token)(token)

@@ -21,6 +21,7 @@ import (
 
 	"github.com/BurntSushi/toml"
 	"github.com/pkg/errors"
+	"google.golang.org/grpc/test/bufconn"
 
 	_ "github.com/motki/motkid/cli"
 	_ "github.com/motki/motkid/cli/auth"
@@ -33,20 +34,21 @@ import (
 	"github.com/motki/motkid/http"
 	_ "github.com/motki/motkid/http/auth"
 	_ "github.com/motki/motkid/http/middleware"
-	_ "github.com/motki/motkid/http/route"
-	_ "github.com/motki/motkid/http/session"
-	_ "github.com/motki/motkid/http/template"
-	"github.com/motki/motkid/log"
-	"github.com/motki/motkid/mail"
-	"github.com/motki/motkid/model"
-	"github.com/motki/motkid/worker"
-
 	_ "github.com/motki/motkid/http/module/account"
 	_ "github.com/motki/motkid/http/module/assets"
 	_ "github.com/motki/motkid/http/module/auth"
 	_ "github.com/motki/motkid/http/module/home"
 	_ "github.com/motki/motkid/http/module/industry"
 	_ "github.com/motki/motkid/http/module/market"
+	_ "github.com/motki/motkid/http/route"
+	_ "github.com/motki/motkid/http/session"
+	_ "github.com/motki/motkid/http/template"
+	"github.com/motki/motkid/log"
+	"github.com/motki/motkid/mail"
+	"github.com/motki/motkid/model"
+	"github.com/motki/motkid/model/client"
+	"github.com/motki/motkid/model/server"
+	"github.com/motki/motkid/worker"
 )
 
 // Config represents a fully configured motkid installation.
@@ -56,6 +58,7 @@ type Config struct {
 	HTTP     http.Config   `toml:"http"`
 	Mail     mail.Config   `toml:"mail"`
 	EVEAPI   eveapi.Config `toml:"eveapi"`
+	Backend  model.Config  `toml:"backend"`
 }
 
 // NewConfig loads a TOML configuration from the given path.
@@ -94,6 +97,9 @@ type Env struct {
 	EveCentral *evecentral.EveCentral
 	EveDB      *evedb.EveDB
 	EveAPI     *eveapi.EveAPI
+
+	Client client.Client
+	Server server.Server
 }
 
 // NewEnv creates an Env using the given configuration.
@@ -110,6 +116,24 @@ func NewEnv(conf *Config) (*Env, error) {
 	api := eveapi.New(conf.EVEAPI, logger)
 	mdl := model.NewManager(pool, edb, api, ec)
 
+	if conf.Backend.Kind == model.BackendLocalGRPC {
+		conf.Backend.LocalGRPC.Listener = bufconn.Listen(1024)
+	}
+	cl, err := client.New(conf.Backend, logger)
+	if err != nil {
+		logger.Fatalf("app: unable to init grpc client: %s", err.Error())
+	}
+	srv, err := server.New(conf.Backend, mdl, logger)
+	if err != nil {
+		logger.Fatalf("app: unable to init grpc server: %s", err.Error())
+	}
+
+	// Start serving gRPC immediately.
+	err = srv.Serve()
+	if err != nil {
+		logger.Fatalf("motki: error starting grpc server: %s", err.Error())
+	}
+
 	return &Env{
 		conf: conf,
 
@@ -121,6 +145,9 @@ func NewEnv(conf *Config) (*Env, error) {
 		EveCentral: ec,
 		EveDB:      edb,
 		EveAPI:     api,
+
+		Client: cl,
+		Server: srv,
 	}, nil
 }
 
@@ -183,6 +210,9 @@ func (env *Env) abortFunc() abortFunc {
 	return func() {
 		if err := env.Scheduler.Shutdown(); err != nil {
 			env.Logger.Warnf("app: error shutting down scheduler: %s", err.Error())
+		}
+		if err := env.Server.Shutdown(); err != nil {
+			env.Logger.Warnf("app: error shutting down grpc server: %s", err.Error())
 		}
 	}
 }

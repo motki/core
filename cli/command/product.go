@@ -13,6 +13,7 @@ import (
 	"github.com/motki/motkid/evedb"
 	"github.com/motki/motkid/log"
 	"github.com/motki/motkid/model"
+	"github.com/motki/motkid/model/client"
 	"github.com/shopspring/decimal"
 )
 
@@ -28,19 +29,20 @@ type ProductCommand struct {
 	evedb  *evedb.EveDB
 	eveapi *eveapi.EveAPI
 	logger log.Logger
+	client client.Client
 }
 
-func NewProductCommand(s *auth.Session, p *cli.Prompter, api *eveapi.EveAPI, evedb *evedb.EveDB, mdl *model.Manager, logger log.Logger) ProductCommand {
+func NewProductCommand(cl client.Client, s *auth.Session, p *cli.Prompter, api *eveapi.EveAPI, evedb *evedb.EveDB, mdl *model.Manager, logger log.Logger) ProductCommand {
 	var corp *model.Corporation
 	var char *model.Character
 	var corpID int
-	ctx, charID, err := s.AuthorizedContext(model.RoleLogistics)
+	char, err := cl.CharacterForRole(model.RoleLogistics)
 	if err == nil {
-		char, err = mdl.GetCharacter(charID)
-		if err == nil {
-			corpID = char.CorporationID
-			corp, err = mdl.GetCorporation(corpID)
+		corp, err = cl.GetCorporation(char.CorporationID)
+		if err != nil {
+			logger.Warnf("command: unable to get corporation details: %s", err.Error())
 		}
+		corpID = corp.CorporationID
 	}
 	if err != nil && err != auth.ErrNotAuthenticated {
 		logger.Debugf("command: unable to load auth details: %s", err.Error())
@@ -48,13 +50,14 @@ func NewProductCommand(s *auth.Session, p *cli.Prompter, api *eveapi.EveAPI, eve
 	return ProductCommand{
 		char,
 		corp,
-		ctx,
+		context.Background(), // TODO: replace with client
 		corpID,
 		p,
 		mdl,
 		evedb,
 		api,
-		logger}
+		logger,
+		cl}
 }
 
 func (c ProductCommand) Prefixes() []string {
@@ -153,7 +156,7 @@ func (c ProductCommand) getBlueprintIndex(p *model.Product) (map[*model.Product]
 	needed := map[int]*model.Product{}
 	var fillNeeded func(p *model.Product)
 	fillNeeded = func(p *model.Product) {
-		if p.Kind == model.ProductManufacture {
+		if p.Kind == model.ProductBuild {
 			item, err := c.evedb.GetItemTypeDetail(p.TypeID)
 			if err != nil {
 				c.logger.Warnf("unable to get product item type detail: %s", err.Error())
@@ -238,7 +241,7 @@ func (c ProductCommand) printProductInfo(p *model.Product) {
 		text.PadTextLeft("Cost/"+unitLabel, 19))
 	index := new(int)
 	for _, part := range p.Materials {
-		if part.Kind == model.ProductManufacture {
+		if part.Kind == model.ProductBuild {
 			hasBuildComponent = true
 		}
 		c.printChildProductInfo(part, batchSize, p.MaterialEfficiency, index, 0)
@@ -268,7 +271,7 @@ func (c ProductCommand) printChildProductInfo(p *model.Product, parentBatchSize 
 	costTotal := p.Cost().Mul(qtyAfterME)
 
 	var kind string
-	if p.Kind == model.ProductManufacture {
+	if p.Kind == model.ProductBuild {
 		kind = "M"
 	}
 	fmt.Printf(
@@ -281,7 +284,7 @@ func (c ProductCommand) printChildProductInfo(p *model.Product, parentBatchSize 
 		text.PadCurrencyLeft(costTotal, 19))
 	return
 	indent += 1
-	if p.Kind == model.ProductManufacture {
+	if p.Kind == model.ProductBuild {
 		for _, part := range p.Materials {
 			c.printChildProductInfo(part, parentBatchSize, p.MaterialEfficiency, index, indent)
 		}
@@ -409,7 +412,7 @@ func (c ProductCommand) editProduct(args ...string) {
 			return
 		}
 	}
-	product, err := c.model.GetProduct(c.corpID, productID)
+	product, err := c.client.GetProduct(productID)
 	if err != nil {
 		c.logger.Debugf("unable to load production chain: %s", err.Error())
 		fmt.Println("Error loading production chain from db, try again.")
@@ -435,7 +438,7 @@ func (c ProductCommand) previewProduct(args ...string) *model.Product {
 	}
 	for _, mat := range product.Materials {
 		if len(mat.Materials) > 0 {
-			mat.Kind = model.ProductManufacture
+			mat.Kind = model.ProductBuild
 		}
 	}
 	if err = c.model.UpdateProductMarketPrices(product, defaultMarketRegionID); err != nil {
@@ -471,7 +474,7 @@ func (c ProductCommand) showProduct(args ...string) {
 
 // listProducts lists all the production chains.
 func (c ProductCommand) listProducts() {
-	products, err := c.model.GetAllProducts(c.corpID)
+	products, err := c.client.GetProducts()
 	if err != nil {
 		c.logger.Debugf("unable to fetch production chain: %s", err.Error())
 		fmt.Println("Error loading production chain from db, try again.")
@@ -543,7 +546,7 @@ func (c ProductCommand) productEditor(p *model.Product) {
 		}
 		switch cmd {
 		case "S":
-			if err := c.model.SaveProduct(p); err != nil {
+			if err := c.client.SaveProduct(p); err != nil {
 				c.logger.Warnf("unable to save production chain: %s", err.Error())
 				fmt.Println("Error saving production chain, try again.")
 				continue
@@ -604,7 +607,7 @@ func (c ProductCommand) productEditor(p *model.Product) {
 			if val == "buy" {
 				prod.Kind = model.ProductBuy
 			} else {
-				prod.Kind = model.ProductManufacture
+				prod.Kind = model.ProductBuild
 			}
 			fmt.Printf("Updated %s production mode to %s.\n", prodName, prod.Kind)
 
@@ -635,7 +638,7 @@ func (c ProductCommand) productEditor(p *model.Product) {
 			c.printProductInfo(p)
 
 		case "U":
-			if err := c.model.UpdateProductMarketPrices(p, p.MarketRegionID); err != nil {
+			if _, err := c.client.UpdateProductPrices(p); err != nil {
 				c.logger.Errorf("unable to fetch market prices for region %d: %s", p.MarketRegionID, err.Error())
 				fmt.Println("Error loading production chain prices, try again.")
 				continue
@@ -647,7 +650,7 @@ func (c ProductCommand) productEditor(p *model.Product) {
 			if !ok {
 				continue
 			}
-			if err := c.model.UpdateProductMarketPrices(p, region.RegionID); err != nil {
+			if _, err := c.client.UpdateProductPrices(p); err != nil {
 				c.logger.Errorf("unable to fetch market prices for region %d: %s", region.RegionID, err.Error())
 				fmt.Println("Error loading production chain prices, try again.")
 			}

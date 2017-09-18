@@ -1,0 +1,180 @@
+syntax = "proto3";
+import "google/protobuf/timestamp.proto";
+
+package proto;
+
+
+enum Status {
+    FAILURE = 0;
+    SUCCESS = 1;
+}
+
+message Result {
+    Status status = 1;
+    string description = 2;
+}
+
+message Token {
+    string identifier = 1;
+}
+
+message AuthenticateRequest {
+    string username = 1;
+    string password = 2;
+}
+
+message AuthenticateResponse {
+    Result result = 1;
+    Token token = 2;
+}
+
+service AuthenticationService {
+    rpc Authenticate (AuthenticateRequest) returns (AuthenticateResponse);
+}
+
+
+enum Role {
+    ANON = 0;
+    USER = 1;
+    LOGISTICS = 2;
+}
+
+message Character {
+    int64 id = 1;
+    int64 corporation_id = 2;
+    int64 alliance_id = 3;
+    string name = 4;
+    int32 bloodline_id = 5;
+    int32 race_id = 6;
+    int32 ancestry_id = 7;
+    google.protobuf.Timestamp birth_date = 8;
+    string description = 9;
+}
+
+message GetCharacterRequest {
+    Token token = 1;
+    Role role = 2;
+    int64 character_id = 3;
+}
+
+message CharacterResponse {
+    Result result = 1;
+    Character character = 2;
+}
+
+message Corporation {
+    int64 id = 1;
+    int64 alliance_id = 2;
+    string name = 3;
+    google.protobuf.Timestamp creation_date = 4;
+    string description = 5;
+    string ticker = 6;
+}
+
+message GetCorporationRequest {
+    Token token = 1;
+    int64 corporation_id = 2;
+}
+
+message CorporationResponse {
+    Result result = 1;
+    Corporation corporation = 2;
+}
+
+message Alliance {
+    int64 id = 1;
+    string name = 2;
+    google.protobuf.Timestamp date_founded = 3;
+    string ticker = 4;
+}
+
+
+message GetAllianceRequest {
+    Token token = 1;
+    int64 alliance_id = 2;
+}
+
+message AllianceResponse {
+    Result result = 1;
+    Alliance alliance = 2;
+}
+
+service InfoService {
+    rpc GetCharacter (GetCharacterRequest) returns (CharacterResponse);
+    rpc GetCorporation (GetCorporationRequest) returns (CorporationResponse);
+    rpc GetAlliance (GetAllianceRequest) returns (AllianceResponse);
+}
+
+message Product {
+    enum Kind {
+        BUY = 0;
+        BUILD = 1;
+    }
+    int32 id = 1;
+    int64 type_id = 2;
+    int32 quantity = 3;
+    double market_price = 4;
+    int32 market_region_id = 5;
+    double material_efficiency = 6;
+    int32 batch_size = 7;
+    Kind kind = 8;
+    int32 parent_id = 9;
+
+    repeated Product material = 10;
+}
+
+message ProductResponse {
+    Result result = 1;
+    Product product = 2;
+}
+
+message GetProductRequest {
+    Token token = 1;
+    int32 id = 2;
+}
+
+message NewProductRequest {
+    Token token = 1;
+    int64 type_id = 2;
+}
+
+message SaveProductRequest {
+    Token token = 1;
+    Product product = 2;
+}
+
+message GetProductsRequest {
+    Token token = 1;
+}
+
+message ProductsResponse {
+    Result result = 1;
+    repeated Product product = 2;
+}
+
+service ProductService {
+    rpc GetProducts (GetProductsRequest) returns (ProductsResponse);
+    rpc GetProduct (GetProductRequest) returns (ProductResponse);
+    rpc NewProduct (NewProductRequest) returns (ProductResponse);
+    rpc SaveProduct (SaveProductRequest) returns (ProductResponse);
+}
+
+message MarketPrice {
+    int64 type_id = 1;
+    double average = 2;
+    double base = 3;
+}
+
+message GetMarketPriceRequest {
+    Token token = 1;
+    repeated int64 type_id = 2;
+}
+
+message GetMarketPriceResponse {
+    Result result = 1;
+    map<int64, MarketPrice> prices = 2;
+}
+
+service MarketPriceService {
+    rpc GetMarketPrice (GetMarketPriceRequest) returns (GetMarketPriceResponse);
+}

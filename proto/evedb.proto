@@ -1,0 +1,248 @@
+syntax = "proto3";
+import "motki.proto";
+
+package motki.evedb;
+option go_package = "proto";
+
+
+message Icon {
+    int64 icon_id = 1;
+    string image_url = 2;
+    string description = 3;
+}
+
+// A Race is a race in EVE.
+message Race {
+    int64 race_id = 1;
+    string name = 2;
+    string description = 3;
+    string short_desc = 4;
+    Icon icon = 5;
+}
+
+message Ancestry {
+    int64 ancestry_id = 1;
+    string name = 2;
+    string description = 3;
+    int64 bloodline_id = 4;
+    int64 perception = 5;
+    int64 willpower = 6;
+    int64 charisma = 7;
+    int64 memory = 8;
+    int64 intelligence = 9;
+    string short_desc = 10;
+    Icon icon = 11;
+}
+
+message Bloodline {
+    int64 bloodline_id = 1;
+    string name = 2;
+    int64 race_id = 3;
+    string description = 4;
+    string male_desc = 5;
+    string female_desc = 6;
+    int64 ship_type_id = 7;
+    int64 corporation_id = 8;
+    int64 perception = 9;
+    int64 willpower = 10;
+    int64 charisma = 11;
+    int64 memory = 12;
+    int64 intelligence = 13;
+    string short_desc = 14;
+    string short_male_desc = 15;
+    string short_female_desc = 16;
+    Icon icon = 17;
+}
+
+message System {
+    int64 system_id = 1;
+    string name = 2;
+    int64 region_id = 3;
+    int64 constellation_id = 4;
+    double security = 5;
+}
+
+message Constellation {
+    int64 constellation_id = 1;
+    string name = 2;
+    int64 region_id = 3;
+}
+
+message Region {
+    int64 region_id = 1;
+    string name = 2;
+}
+
+message ItemType {
+    int64 type_id = 1;
+    string name = 2;
+    string description = 3;
+}
+
+message ItemTypeDetail {
+    int64 type_id = 1;
+    string name = 2;
+    string description = 3;
+
+    int64 group_id = 4;
+    string group_name = 5;
+
+    int64 category_id = 6;
+    string category_name = 7;
+
+    double mass = 8;
+    double volume = 9;
+    double capacity = 10;
+    int64 portion_size = 11;
+    double base_price = 12;
+
+    int64 parent_type_id = 13;
+    int64 blueprint_id = 14;
+    repeated int64 derivative_type_id = 15;
+}
+
+// A Blueprint describes what is necessary to build an item.
+message Blueprint {
+    ItemType type = 1;
+    repeated Material materials = 2;
+    int64 produces_qty = 3;
+}
+
+// A Material is a type and quantity of an item used for manufacturing.
+message Material {
+    ItemType type = 1;
+    int64 quantity = 2;
+}
+
+message GetRegionRequest {
+    int64 region_id = 1;
+}
+
+message GetRegionResponse {
+    Result result = 1;
+    Region region = 2;
+}
+
+message GetRegionsRequest {
+}
+
+message GetRegionsResponse {
+    Result result = 1;
+    repeated Region region = 2;
+}
+
+message GetConstellationRequest {
+    int64 constellation_id = 1;
+}
+
+message GetConstellationResponse {
+    Result result = 1;
+    Constellation constellation = 2;
+}
+
+message GetSystemRequest {
+    int64 system_id = 1;
+}
+
+message GetSystemResponse {
+    Result result = 1;
+    System system = 2;
+}
+
+message GetRaceRequest {
+    int64 race_id = 1;
+}
+
+message GetRaceResponse {
+    Result result = 1;
+    Race race = 2;
+}
+
+message GetRacesRequest {
+}
+
+message GetRacesResponse {
+    Result result = 1;
+    repeated Race race = 2;
+}
+
+message GetBloodlineRequest {
+    int64 bloodline_id = 1;
+}
+
+message GetBloodlineResponse {
+    Result result = 1;
+    Bloodline bloodline = 2;
+}
+
+message GetAncestryRequest {
+    int64 ancestry_id = 1;
+}
+
+message GetAncestryResponse {
+    Result result = 1;
+    Ancestry ancestry = 2;
+}
+
+message GetItemTypeRequest {
+    int64 type_id = 1;
+}
+
+message GetItemTypeResponse {
+    Result result = 1;
+    ItemType type = 2;
+}
+
+message GetItemTypeDetailRequest {
+    int64 type_id = 1;
+}
+
+message GetItemTypeDetailResponse {
+    Result result = 1;
+    ItemTypeDetail type = 2;
+}
+
+message QueryItemTypesRequest {
+    string query = 1;
+    repeated int64 category_id = 2;
+}
+
+message QueryItemTypesResponse {
+    Result result = 1;
+    repeated ItemType types = 2;
+}
+
+message QueryItemTypeDetailsRequest {
+    string query = 1;
+    repeated int64 category_id = 2;
+}
+
+message QueryItemTypeDetailsResponse {
+    Result result = 1;
+    repeated ItemTypeDetail types = 2;
+}
+
+message GetBlueprintRequest {
+    int64 type_id = 1;
+}
+
+message GetBlueprintResponse {
+    Result result = 1;
+    Blueprint blueprint = 2;
+}
+
+service EveDBService {
+    rpc GetRegion (GetRegionRequest) returns (GetRegionResponse);
+    rpc GetRegions (GetRegionsRequest) returns (GetRegionsResponse);
+    rpc GetConstellation (GetConstellationRequest) returns (GetConstellationResponse);
+    rpc GetSystem (GetSystemRequest) returns (GetSystemResponse);
+    rpc GetRace (GetRaceRequest) returns (GetRaceResponse);
+    rpc GetRaces (GetRacesRequest) returns (GetRacesResponse);
+    rpc GetBloodline (GetBloodlineRequest) returns (GetBloodlineResponse);
+    rpc GetAncestry (GetAncestryRequest) returns (GetAncestryResponse);
+    rpc GetItemType (GetItemTypeRequest) returns (GetItemTypeResponse);
+    rpc GetItemTypeDetail (GetItemTypeDetailRequest) returns (GetItemTypeDetailResponse);
+    rpc QueryItemTypes (QueryItemTypesRequest) returns (QueryItemTypesResponse);
+    rpc QueryItemTypeDetails (QueryItemTypeDetailsRequest) returns (QueryItemTypeDetailsResponse);
+    rpc GetBlueprint (GetBlueprintRequest) returns (GetBlueprintResponse);
+}

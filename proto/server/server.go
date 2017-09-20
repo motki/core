@@ -5,9 +5,10 @@ import (
 	"crypto/tls"
 	"net"
 
+	"github.com/motki/motkid/evedb"
 	"github.com/motki/motkid/log"
 	"github.com/motki/motkid/model"
-	"github.com/motki/motkid/model/proto"
+	"github.com/motki/motkid/proto"
 	"github.com/pkg/errors"
 	"google.golang.org/grpc"
 )
@@ -17,6 +18,7 @@ type Server interface {
 	proto.ProductServiceServer
 	proto.MarketPriceServiceServer
 	proto.InfoServiceServer
+	proto.EveDBServiceServer
 
 	Serve() error
 	Shutdown() error
@@ -30,19 +32,22 @@ type GRPCServer struct {
 	config model.Config
 
 	model  *model.Manager
+	evedb  *evedb.EveDB
 	logger log.Logger
-	grpc   *grpc.Server
+
+	grpc *grpc.Server
 
 	server net.Listener
 	local  net.Listener
 }
 
-func New(conf model.Config, m *model.Manager, l log.Logger) (Server, error) {
-	srv := &GRPCServer{config: conf, model: m, logger: l, grpc: grpc.NewServer()}
+func New(conf model.Config, m *model.Manager, edb *evedb.EveDB, l log.Logger) (Server, error) {
+	srv := &GRPCServer{config: conf, model: m, evedb: edb, logger: l, grpc: grpc.NewServer()}
 	proto.RegisterAuthenticationServiceServer(srv.grpc, srv)
 	proto.RegisterProductServiceServer(srv.grpc, srv)
 	proto.RegisterMarketPriceServiceServer(srv.grpc, srv)
 	proto.RegisterInfoServiceServer(srv.grpc, srv)
+	proto.RegisterEveDBServiceServer(srv.grpc, srv)
 	return srv, nil
 }
 

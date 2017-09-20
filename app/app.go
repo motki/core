@@ -46,8 +46,8 @@ import (
 	"github.com/motki/motkid/log"
 	"github.com/motki/motkid/mail"
 	"github.com/motki/motkid/model"
-	"github.com/motki/motkid/model/client"
-	"github.com/motki/motkid/model/server"
+	"github.com/motki/motkid/proto/client"
+	"github.com/motki/motkid/proto/server"
 	"github.com/motki/motkid/worker"
 )
 
@@ -121,17 +121,17 @@ func NewEnv(conf *Config) (*Env, error) {
 	}
 	cl, err := client.New(conf.Backend, logger)
 	if err != nil {
-		logger.Fatalf("app: unable to init grpc client: %s", err.Error())
+		return nil, errors.Wrap(err, "app: unable to init grpc client")
 	}
-	srv, err := server.New(conf.Backend, mdl, logger)
+	srv, err := server.New(conf.Backend, mdl, edb, logger)
 	if err != nil {
-		logger.Fatalf("app: unable to init grpc server: %s", err.Error())
+		return nil, errors.Wrap(err, "app: unable to init grpc server")
 	}
 
 	// Start serving gRPC immediately.
 	err = srv.Serve()
 	if err != nil {
-		logger.Fatalf("motki: error starting grpc server: %s", err.Error())
+		return nil, errors.Wrap(err, "app: unable to start grpc server")
 	}
 
 	return &Env{
@@ -201,18 +201,21 @@ func (env *Env) BlockUntilAbortWith(abort chan os.Signal, fns ...abortFunc) {
 //
 // See BlockUntilAbortWith for more details.
 func (env *Env) BlockUntilAbort(abort chan os.Signal) {
-	env.BlockUntilAbortWith(abort, env.abortFunc())
+	env.BlockUntilAbortWith(abort, env.abortFuncs()...)
 }
 
 // abortFunc returns a function to be called when the application is
 // shutting down.
-func (env *Env) abortFunc() abortFunc {
-	return func() {
-		if err := env.Scheduler.Shutdown(); err != nil {
-			env.Logger.Warnf("app: error shutting down scheduler: %s", err.Error())
-		}
-		if err := env.Server.Shutdown(); err != nil {
-			env.Logger.Warnf("app: error shutting down grpc server: %s", err.Error())
-		}
-	}
+func (env *Env) abortFuncs() []abortFunc {
+	return []abortFunc{
+		func() {
+			if err := env.Scheduler.Shutdown(); err != nil {
+				env.Logger.Warnf("app: error shutting down scheduler: %s", err.Error())
+			}
+		},
+		func() {
+			if err := env.Server.Shutdown(); err != nil {
+				env.Logger.Warnf("app: error shutting down grpc server: %s", err.Error())
+			}
+		}}
 }

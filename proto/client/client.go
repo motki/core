@@ -3,8 +3,7 @@ package client
 import (
 	"github.com/pkg/errors"
 
-	"fmt"
-
+	"github.com/motki/motkid/evedb"
 	"github.com/motki/motkid/log"
 	"github.com/motki/motkid/model"
 )
@@ -24,6 +23,20 @@ type Client interface {
 	SaveProduct(product *model.Product) error
 	GetProducts() ([]*model.Product, error)
 	UpdateProductPrices(*model.Product) (*model.Product, error)
+
+	GetRace(raceID int) (*evedb.Race, error)
+	GetRaces() ([]*evedb.Race, error)
+	GetBloodline(bloodlineID int) (*evedb.Bloodline, error)
+	GetAncestry(ancestryID int) (*evedb.Ancestry, error)
+	GetItemType(typeID int) (*evedb.ItemType, error)
+	GetItemTypeDetail(typeID int) (*evedb.ItemTypeDetail, error)
+	GetRegion(regionID int) (*evedb.Region, error)
+	GetRegions() ([]*evedb.Region, error)
+	GetConstellation(constellationID int) (*evedb.Constellation, error)
+	GetSystem(systemID int) (*evedb.System, error)
+	QueryItemTypes(query string, catIDs ...int) ([]*evedb.ItemType, error)
+	QueryItemTypeDetails(query string, catIDs ...int) ([]*evedb.ItemTypeDetail, error)
+	GetBlueprint(typeID int) (*evedb.Blueprint, error)
 }
 
 func New(conf model.Config, logger log.Logger) (Client, error) {
@@ -36,7 +49,6 @@ func New(conf model.Config, logger log.Logger) (Client, error) {
 		if err != nil {
 			return nil, errors.Wrap(err, "app: unable to initialize backend")
 		}
-		fmt.Println("doneeee")
 
 	case model.BackendRemoteGRPC:
 		logger.Debugf("grpc client: initializing remote client, server address: %s", conf.RemoteGRPC.ServerAddr)

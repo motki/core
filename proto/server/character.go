@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"github.com/motki/motkid/model"
-	"github.com/motki/motkid/model/proto"
+	"github.com/motki/motkid/proto"
 	"github.com/pkg/errors"
 )
 

@@ -43,6 +43,7 @@ type Bloodline struct {
 	Perception             int
 	Willpower              int
 	Charisma               int
+	Memory                 int
 	Intelligence           int
 	ShortDescription       string
 	ShortMaleDescription   string

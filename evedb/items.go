@@ -58,6 +58,20 @@ func (e *EveDB) GetItemType(typeID int) (*ItemType, error) {
 	return it, nil
 }
 
+// InterestingItemCategories contains a list of category IDs generally considered interesting.
+//
+// It doesn't contain the Blueprints category ID.
+var InterestingItemCategories = []int{
+	2, 4, 5, 6, 7, 8, 16, 17, 18,
+	20, 22, 23, 24, 25, 30, 32, 34, 35, 39,
+	40, 41, 42, 43, 46, 63, 65, 66, 87}
+
+// InterestingItemCategoriesAndBlueprints contains a list of all published category IDs.
+var InterestingItemCategoriesAndBlueprints = []int{
+	2, 4, 5, 6, 7, 8, 9, 16, 17, 18,
+	20, 22, 23, 24, 25, 30, 32, 34, 35, 39,
+	40, 41, 42, 43, 46, 63, 65, 66, 87}
+
 // QueryItemTypes returns a list of matching items given the query.
 func (e *EveDB) QueryItemTypes(query string, catIDs ...int) ([]*ItemType, error) {
 	c, err := e.pool.Open()
@@ -67,7 +81,7 @@ func (e *EveDB) QueryItemTypes(query string, catIDs ...int) ([]*ItemType, error)
 	defer c.Close()
 	if len(catIDs) == 0 {
 		// Default to Modules, Ships, Drones, and Charges
-		catIDs = []int{6, 7, 8, 18}
+		catIDs = InterestingItemCategories
 	}
 	cats := []string{}
 	for _, id := range catIDs {
@@ -156,7 +170,7 @@ func (e *EveDB) QueryItemTypeDetails(query string, catIDs ...int) ([]*ItemTypeDe
 	defer c.Close()
 	if len(catIDs) == 0 {
 		// Default to Modules, Ships, Drones, and Charges
-		catIDs = []int{6, 7, 8, 18}
+		catIDs = InterestingItemCategories
 	}
 	cats := []string{}
 	for _, id := range catIDs {

@@ -10,10 +10,9 @@ import (
 	"github.com/motki/motkid/cli/auth"
 	"github.com/motki/motkid/cli/text"
 	"github.com/motki/motkid/eveapi"
-	"github.com/motki/motkid/evedb"
 	"github.com/motki/motkid/log"
 	"github.com/motki/motkid/model"
-	"github.com/motki/motkid/model/client"
+	"github.com/motki/motkid/proto/client"
 	"github.com/shopspring/decimal"
 )
 
@@ -25,14 +24,12 @@ type ProductCommand struct {
 	corpID    int
 
 	env    *cli.Prompter
-	model  *model.Manager
-	evedb  *evedb.EveDB
 	eveapi *eveapi.EveAPI
 	logger log.Logger
 	client client.Client
 }
 
-func NewProductCommand(cl client.Client, s *auth.Session, p *cli.Prompter, api *eveapi.EveAPI, evedb *evedb.EveDB, mdl *model.Manager, logger log.Logger) ProductCommand {
+func NewProductCommand(cl client.Client, p *cli.Prompter, api *eveapi.EveAPI, logger log.Logger) ProductCommand {
 	var corp *model.Corporation
 	var char *model.Character
 	var corpID int
@@ -53,8 +50,6 @@ func NewProductCommand(cl client.Client, s *auth.Session, p *cli.Prompter, api *
 		context.Background(), // TODO: replace with client
 		corpID,
 		p,
-		mdl,
-		evedb,
 		api,
 		logger,
 		cl}
@@ -131,7 +126,7 @@ func (c ProductCommand) PrintHelp() {
 
 // getProductName returns the given product's name.
 func (c ProductCommand) getProductName(p *model.Product) string {
-	t, err := c.evedb.GetItemType(p.TypeID)
+	t, err := c.client.GetItemType(p.TypeID)
 	if err != nil {
 		c.logger.Debugf("unable to get item name: %s", err.Error())
 		return "[Error]"
@@ -141,7 +136,7 @@ func (c ProductCommand) getProductName(p *model.Product) string {
 
 // getRegionName returns the given region's name.
 func (c ProductCommand) getRegionName(regionID int) string {
-	r, err := c.evedb.GetRegion(regionID)
+	r, err := c.client.GetRegion(regionID)
 	if err != nil {
 		c.logger.Debugf("unable to get region name: %s", err.Error())
 		return "[Error]"
@@ -157,7 +152,7 @@ func (c ProductCommand) getBlueprintIndex(p *model.Product) (map[*model.Product]
 	var fillNeeded func(p *model.Product)
 	fillNeeded = func(p *model.Product) {
 		if p.Kind == model.ProductBuild {
-			item, err := c.evedb.GetItemTypeDetail(p.TypeID)
+			item, err := c.client.GetItemTypeDetail(p.TypeID)
 			if err != nil {
 				c.logger.Warnf("unable to get product item type detail: %s", err.Error())
 				return
@@ -205,7 +200,7 @@ func (c ProductCommand) getBlueprintIndex(p *model.Product) (map[*model.Product]
 func (c ProductCommand) printProductInfo(p *model.Product) {
 	batchSize := decimal.NewFromFloat(float64(p.BatchSize))
 	costEach := p.Cost().Mul(batchSize) // Cost has quantity baked in.
-	bp, err := c.evedb.GetBlueprint(p.TypeID)
+	bp, err := c.client.GetBlueprint(p.TypeID)
 	if err != nil {
 		fmt.Println("Unable to print production chain detail:", err.Error())
 		return
@@ -422,15 +417,13 @@ func (c ProductCommand) editProduct(args ...string) {
 	c.productEditor(product)
 }
 
-const defaultMarketRegionID = 10000043 // Domain, so Amarr.
-
 // previewProduct displays a default view for a given typeID.
 func (c ProductCommand) previewProduct(args ...string) *model.Product {
 	item, ok := c.env.PromptItemTypeDetail("Specify Item Type", strings.Join(args, " "))
 	if !ok {
 		return nil
 	}
-	product, err := c.model.NewProduct(c.corpID, item.ID)
+	product, err := c.client.NewProduct(item.ID)
 	if err != nil {
 		c.logger.Warnf("unable to create product: %s", err.Error())
 		fmt.Println("Error creating production chain, try again.")
@@ -441,7 +434,7 @@ func (c ProductCommand) previewProduct(args ...string) *model.Product {
 			mat.Kind = model.ProductBuild
 		}
 	}
-	if err = c.model.UpdateProductMarketPrices(product, defaultMarketRegionID); err != nil {
+	if _, err = c.client.UpdateProductPrices(product); err != nil {
 		c.logger.Warnf("unable to populate production chain prices: %s", err.Error())
 		fmt.Println("Error loading production chain market prices, prices may be incorrect.")
 	}

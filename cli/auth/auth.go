@@ -7,9 +7,9 @@ import (
 	"github.com/pkg/errors"
 
 	"github.com/motki/motkid/eveapi"
-	"github.com/motki/motkid/log"
 	"github.com/motki/motkid/model"
-	"github.com/motki/motkid/model/client"
+	"github.com/motki/motkid/proto/client"
+	"github.com/motki/motkid/log"
 )
 
 var ErrBadCredentials = errors.New("cli/auth: invalid username or password")

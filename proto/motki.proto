@@ -1,0 +1,43 @@
+syntax = "proto3";
+
+package motki;
+option go_package = "proto";
+
+// A Status indicates success or failure.
+enum Status {
+    FAILURE = 0;
+    SUCCESS = 1;
+}
+
+// A Result contains a status and an optional description.
+message Result {
+    Status status = 1;
+    // Description contains some text about a failure in most cases.
+    string description = 2;
+}
+
+// A Role describes a user's authorization for certain resources within the system.
+enum Role {
+    ANON = 0;
+    USER = 1;
+    LOGISTICS = 2;
+}
+
+// A Token contains a session identifier representing a valid user session.
+message Token {
+    string identifier = 1;
+}
+
+message AuthenticateRequest {
+    string username = 1;
+    string password = 2;
+}
+
+message AuthenticateResponse {
+    Result result = 1;
+    Token token = 2;
+}
+
+service AuthenticationService {
+    rpc Authenticate (AuthenticateRequest) returns (AuthenticateResponse);
+}

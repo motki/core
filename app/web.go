@@ -84,15 +84,18 @@ func NewWebEnv(conf *Config) (*WebEnv, error) {
 //
 // See BlockUntilAbortWith for more details.
 func (webEnv *WebEnv) BlockUntilAbort(abort chan os.Signal) {
-	webEnv.BlockUntilAbortWith(abort, webEnv.Env.abortFunc(), webEnv.abortFunc())
+	abortFuncs := append(
+		append([]abortFunc{}, webEnv.Env.abortFuncs()...),
+		webEnv.abortFuncs()...)
+	webEnv.BlockUntilAbortWith(abort, abortFuncs...)
 }
 
 // abortFunc returns a function to be called when the application is
 // shutting down.
-func (webEnv *WebEnv) abortFunc() abortFunc {
-	return func() {
+func (webEnv *WebEnv) abortFuncs() []abortFunc {
+	return []abortFunc{func() {
 		if err := webEnv.Web.Shutdown(); err != nil {
 			webEnv.Logger.Warnf("app: error shutting down web server: %s", err.Error())
 		}
-	}
+	}}
 }

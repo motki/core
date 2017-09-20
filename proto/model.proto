@@ -1,43 +1,9 @@
 syntax = "proto3";
-import "google/protobuf/timestamp.proto";
+import "timestamp.proto";
+import "motki.proto";
 
-package proto;
-
-
-enum Status {
-    FAILURE = 0;
-    SUCCESS = 1;
-}
-
-message Result {
-    Status status = 1;
-    string description = 2;
-}
-
-message Token {
-    string identifier = 1;
-}
-
-message AuthenticateRequest {
-    string username = 1;
-    string password = 2;
-}
-
-message AuthenticateResponse {
-    Result result = 1;
-    Token token = 2;
-}
-
-service AuthenticationService {
-    rpc Authenticate (AuthenticateRequest) returns (AuthenticateResponse);
-}
-
-
-enum Role {
-    ANON = 0;
-    USER = 1;
-    LOGISTICS = 2;
-}
+package motki.model;
+option go_package = "proto";
 
 message Character {
     int64 id = 1;

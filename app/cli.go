@@ -80,7 +80,7 @@ func NewCLIEnv(conf CLIConfig, historyPath string) (*CLIEnv, error) {
 	}
 	srv.SetCommands(
 		command.NewEVETypesCommand(prompter),
-		command.NewProductCommand(appEnv.Client, sess, prompter, appEnv.EveAPI, appEnv.EveDB, appEnv.Model, appEnv.Logger))
+		command.NewProductCommand(appEnv.Client, prompter, appEnv.EveAPI, appEnv.Logger))
 	if f, err := os.Open(historyPath); err == nil {
 		srv.ReadHistory(f)
 		f.Close()
@@ -113,19 +113,8 @@ func (env *CLIEnv) BlockUntilAbort(abort chan os.Signal) {
 	if abort == nil {
 		abort = env.abort
 	}
-	env.BlockUntilAbortWith(
-		abort,
-		func() {
-			fmt.Println("Exiting.")
-			if err := env.Scheduler.Shutdown(); err != nil {
-				env.Logger.Warnf("app: error shutting down scheduler: %s", err.Error())
-			}
-		},
-		func() {
-			if err := env.Server.Shutdown(); err != nil {
-				env.Logger.Warnf("app: error shutting down grpc server: %s", err.Error())
-			}
-		},
+	abortFuncs := append(
+		append([]abortFunc{}, env.Env.abortFuncs()...),
 		func() {
 			if f, err := os.Create(env.historyPath); err == nil {
 				env.CLI.WriteHistory(f)
@@ -135,4 +124,5 @@ func (env *CLIEnv) BlockUntilAbort(abort chan os.Signal) {
 			}
 			env.CLI.Close()
 		})
+	env.BlockUntilAbortWith(abort, abortFuncs...)
 }

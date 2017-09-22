@@ -4,8 +4,8 @@ import (
 	"context"
 
 	"github.com/antihax/goesi"
-	"github.com/motki/motkid/model"
-	"github.com/motki/motkid/proto"
+	"github.com/motki/motki/model"
+	"github.com/motki/motki/proto"
 	"github.com/pkg/errors"
 )
 

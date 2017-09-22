@@ -23,36 +23,21 @@ import (
 	"github.com/pkg/errors"
 	"google.golang.org/grpc/test/bufconn"
 
-	"github.com/motki/motkid/db"
-	"github.com/motki/motkid/eveapi"
-	"github.com/motki/motkid/evecentral"
-	"github.com/motki/motkid/evedb"
-	"github.com/motki/motkid/http"
-	_ "github.com/motki/motkid/http/auth"
-	_ "github.com/motki/motkid/http/middleware"
-	_ "github.com/motki/motkid/http/module/account"
-	_ "github.com/motki/motkid/http/module/assets"
-	_ "github.com/motki/motkid/http/module/auth"
-	_ "github.com/motki/motkid/http/module/home"
-	_ "github.com/motki/motkid/http/module/industry"
-	_ "github.com/motki/motkid/http/module/market"
-	_ "github.com/motki/motkid/http/route"
-	_ "github.com/motki/motkid/http/session"
-	_ "github.com/motki/motkid/http/template"
-	"github.com/motki/motkid/log"
-	"github.com/motki/motkid/mail"
-	"github.com/motki/motkid/model"
-	"github.com/motki/motkid/proto/client"
-	"github.com/motki/motkid/proto/server"
-	"github.com/motki/motkid/worker"
+	"github.com/motki/motki/db"
+	"github.com/motki/motki/eveapi"
+	"github.com/motki/motki/evecentral"
+	"github.com/motki/motki/evedb"
+	"github.com/motki/motki/log"
+	"github.com/motki/motki/model"
+	"github.com/motki/motki/proto/client"
+	"github.com/motki/motki/proto/server"
+	"github.com/motki/motki/worker"
 )
 
 // Config represents a fully configured motkid installation.
 type Config struct {
 	Logging  log.Config    `toml:"logging"`
 	Database db.Config     `toml:"db"`
-	HTTP     http.Config   `toml:"http"`
-	Mail     mail.Config   `toml:"mail"`
 	EVEAPI   eveapi.Config `toml:"eveapi"`
 	Backend  model.Config  `toml:"backend"`
 }

@@ -8,7 +8,7 @@ import (
 
 	"github.com/antihax/goesi"
 	"github.com/gregjones/httpcache"
-	"github.com/motki/motkid/log"
+	"github.com/motki/motki/log"
 )
 
 var ErrNoToken = errors.New("unable to get token from context")

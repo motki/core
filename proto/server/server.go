@@ -5,11 +5,11 @@ import (
 	"crypto/tls"
 	"net"
 
-	"github.com/motki/motkid/eveapi"
-	"github.com/motki/motkid/evedb"
-	"github.com/motki/motkid/log"
-	"github.com/motki/motkid/model"
-	"github.com/motki/motkid/proto"
+	"github.com/motki/motki/eveapi"
+	"github.com/motki/motki/evedb"
+	"github.com/motki/motki/log"
+	"github.com/motki/motki/model"
+	"github.com/motki/motki/proto"
 	"github.com/pkg/errors"
 	"google.golang.org/grpc"
 )

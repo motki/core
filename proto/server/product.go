@@ -4,8 +4,8 @@ import (
 	"context"
 	"errors"
 
-	"github.com/motki/motkid/model"
-	"github.com/motki/motkid/proto"
+	"github.com/motki/motki/model"
+	"github.com/motki/motki/proto"
 )
 
 func productResponse(product *model.Product) *proto.ProductResponse {

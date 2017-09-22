@@ -3,7 +3,7 @@ package server
 import (
 	"context"
 
-	"github.com/motki/motkid/proto"
+	"github.com/motki/motki/proto"
 )
 
 func (srv *GRPCServer) GetRegion(ctx context.Context, req *proto.GetRegionRequest) (resp *proto.GetRegionResponse, err error) {

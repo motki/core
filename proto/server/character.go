@@ -3,8 +3,8 @@ package server
 import (
 	"context"
 
-	"github.com/motki/motkid/model"
-	"github.com/motki/motkid/proto"
+	"github.com/motki/motki/model"
+	"github.com/motki/motki/proto"
 	"github.com/pkg/errors"
 )
 

@@ -10,7 +10,7 @@ import (
 
 	"github.com/jackc/pgx"
 	"github.com/jackc/pgx/stdlib"
-	"github.com/motki/motkid/log"
+	"github.com/motki/motki/log"
 )
 
 // Config represents configuration details for creating a connection pool.

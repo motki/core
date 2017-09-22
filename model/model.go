@@ -2,10 +2,10 @@
 package model
 
 import (
-	"github.com/motki/motkid/db"
-	"github.com/motki/motkid/eveapi"
-	"github.com/motki/motkid/evecentral"
-	"github.com/motki/motkid/evedb"
+	"github.com/motki/motki/db"
+	"github.com/motki/motki/eveapi"
+	"github.com/motki/motki/evecentral"
+	"github.com/motki/motki/evedb"
 )
 
 // A Manager is used to retrieve and save data.

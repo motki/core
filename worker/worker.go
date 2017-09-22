@@ -5,7 +5,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/motki/motkid/log"
+	"github.com/motki/motki/log"
 )
 
 // Job defines the interface for performing asynchronous work.

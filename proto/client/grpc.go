@@ -6,15 +6,15 @@ import (
 	"net"
 	"time"
 
-	"github.com/motki/motkid/log"
-	"github.com/motki/motkid/model"
-	"github.com/motki/motkid/proto"
+	"github.com/motki/motki/log"
+	"github.com/motki/motki/model"
+	"github.com/motki/motki/proto"
 
 	"github.com/pkg/errors"
 	"github.com/shopspring/decimal"
 
-	"github.com/motki/motkid/evedb"
-	"github.com/motki/motkid/proto/server"
+	"github.com/motki/motki/evedb"
+	"github.com/motki/motki/proto/server"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
 	"google.golang.org/grpc/test/bufconn"

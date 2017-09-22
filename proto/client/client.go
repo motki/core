@@ -3,9 +3,9 @@ package client
 import (
 	"github.com/pkg/errors"
 
-	"github.com/motki/motkid/evedb"
-	"github.com/motki/motkid/log"
-	"github.com/motki/motkid/model"
+	"github.com/motki/motki/evedb"
+	"github.com/motki/motki/log"
+	"github.com/motki/motki/model"
 )
 
 var ErrNotAuthenticated = errors.New("not authenticated")

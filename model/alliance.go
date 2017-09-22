@@ -4,7 +4,7 @@ import (
 	"database/sql"
 	"time"
 
-	"github.com/motki/motkid/eveapi"
+	"github.com/motki/motki/eveapi"
 )
 
 type Alliance struct {

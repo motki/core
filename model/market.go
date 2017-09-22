@@ -5,7 +5,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/motki/motkid/evecentral"
+	"github.com/motki/motki/evecentral"
 	"github.com/pkg/errors"
 	"github.com/shopspring/decimal"
 )

@@ -4,8 +4,8 @@ import (
 	"time"
 
 	"github.com/golang/protobuf/ptypes/timestamp"
-	"github.com/motki/motkid/evedb"
-	"github.com/motki/motkid/model"
+	"github.com/motki/motki/evedb"
+	"github.com/motki/motki/model"
 	"github.com/shopspring/decimal"
 )
 

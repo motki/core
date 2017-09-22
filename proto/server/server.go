@@ -14,6 +14,8 @@ import (
 	"google.golang.org/grpc"
 )
 
+var ErrBadCredentials = errors.New("username or password is incorrect")
+
 type Server interface {
 	proto.AuthenticationServiceServer
 	proto.ProductServiceServer
@@ -115,7 +117,7 @@ func (srv *GRPCServer) Authenticate(ctx context.Context, req *proto.Authenticate
 	defer func() {
 		if err != nil {
 			resp = &proto.AuthenticateResponse{
-				Result: errorResult(err),
+				Result: errorResult(ErrBadCredentials),
 			}
 			err = nil
 		}

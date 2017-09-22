@@ -14,6 +14,7 @@ import (
 	"github.com/shopspring/decimal"
 
 	"github.com/motki/motkid/evedb"
+	"github.com/motki/motkid/proto/server"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
 	"google.golang.org/grpc/test/bufconn"
@@ -60,6 +61,9 @@ func (c *grpcClient) Authenticate(username, password string) (string, error) {
 		return "", err
 	}
 	if res.Result.Status == proto.Status_FAILURE {
+		if res.Result.Description == server.ErrBadCredentials.Error() {
+			return "", ErrBadCredentials
+		}
 		return "", errors.New(res.Result.Description)
 	}
 	if res.Token == nil || res.Token.Identifier == "" {

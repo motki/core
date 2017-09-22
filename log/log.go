@@ -37,7 +37,7 @@ func New(c Config) Logger {
 		logger.Out = os.Stderr
 	}
 	logger.Level = l
-	logger.Formatter = &logrus.TextFormatter{ForceColors: true}
+	logger.Formatter = &logrus.TextFormatter{}
 	// Re-check for the above error and log it as a warning if it exist
 	if err != nil {
 		logger.Warnf("invalid log level '%s', defaulting to '%s'", c.Level, l.String())

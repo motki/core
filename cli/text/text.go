@@ -3,22 +3,14 @@ package text
 import (
 	"bytes"
 	"fmt"
-	"os"
 	"strconv"
 	"strings"
 
 	"github.com/fatih/color"
-	"github.com/mattn/go-isatty"
 	"github.com/shopspring/decimal"
 )
 
 var stdOutIsColorTerm = false
-
-func init() {
-	if isatty.IsTerminal(os.Stdout.Fd()) {
-		stdOutIsColorTerm = true
-	}
-}
 
 // StandardTerminalWidthInChars describes the width of a standard terminal window.
 const StandardTerminalWidthInChars = 80

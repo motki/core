@@ -101,8 +101,8 @@ message ItemTypeDetail {
     repeated int64 derivative_type_id = 15;
 }
 
-// A Blueprint describes what is necessary to build an item.
-message Blueprint {
+// A MaterialSheet describes what is necessary to build an item.
+message MaterialSheet {
     ItemType type = 1;
     repeated Material materials = 2;
     int64 produces_qty = 3;
@@ -222,13 +222,13 @@ message QueryItemTypeDetailsResponse {
     repeated ItemTypeDetail types = 2;
 }
 
-message GetBlueprintRequest {
+message GetMaterialSheetRequest {
     int64 type_id = 1;
 }
 
-message GetBlueprintResponse {
+message GetMaterialSheetResponse {
     Result result = 1;
-    Blueprint blueprint = 2;
+    MaterialSheet mat_sheet = 2;
 }
 
 service EveDBService {
@@ -244,5 +244,5 @@ service EveDBService {
     rpc GetItemTypeDetail (GetItemTypeDetailRequest) returns (GetItemTypeDetailResponse);
     rpc QueryItemTypes (QueryItemTypesRequest) returns (QueryItemTypesResponse);
     rpc QueryItemTypeDetails (QueryItemTypeDetailsRequest) returns (QueryItemTypeDetailsResponse);
-    rpc GetBlueprint (GetBlueprintRequest) returns (GetBlueprintResponse);
+    rpc GetMaterialSheet (GetMaterialSheetRequest) returns (GetMaterialSheetResponse);
 }

@@ -258,10 +258,10 @@ func (srv *GRPCServer) QueryItemTypeDetails(ctx context.Context, req *proto.Quer
 	}, nil
 }
 
-func (srv *GRPCServer) GetBlueprint(ctx context.Context, req *proto.GetBlueprintRequest) (resp *proto.GetBlueprintResponse, err error) {
+func (srv *GRPCServer) GetMaterialSheet(ctx context.Context, req *proto.GetMaterialSheetRequest) (resp *proto.GetMaterialSheetResponse, err error) {
 	defer func() {
 		if err != nil {
-			resp = &proto.GetBlueprintResponse{
+			resp = &proto.GetMaterialSheetResponse{
 				Result: errorResult(err),
 			}
 			err = nil
@@ -271,8 +271,8 @@ func (srv *GRPCServer) GetBlueprint(ctx context.Context, req *proto.GetBlueprint
 	if err != nil {
 		return nil, err
 	}
-	return &proto.GetBlueprintResponse{
-		Result:    successResult,
-		Blueprint: proto.BlueprintToProto(res),
+	return &proto.GetMaterialSheetResponse{
+		Result:   successResult,
+		MatSheet: proto.MatSheetToProto(res),
 	}, nil
 }

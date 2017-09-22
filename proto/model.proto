@@ -5,6 +5,13 @@ import "motki.proto";
 package motki.model;
 option go_package = "proto";
 
+// A Role describes a user's authorization for certain resources within the system.
+enum Role {
+    ANON = 0;
+    USER = 1;
+    LOGISTICS = 2;
+}
+
 message Character {
     int64 id = 1;
     int64 corporation_id = 2;
@@ -143,4 +150,34 @@ message GetMarketPriceResponse {
 
 service MarketPriceService {
     rpc GetMarketPrice (GetMarketPriceRequest) returns (GetMarketPriceResponse);
+}
+
+message Blueprint {
+    enum Kind {
+        ORIGINAL = 0;
+        COPY = 1;
+    }
+	int64 item_id = 1;
+	int64 location_id = 2;
+	int64 type_id = 3;
+	string type_name = 4;
+	int64 flag_id = 5;
+	int64 time_eff = 6;
+	int64 material_eff = 7;
+    Kind kind = 8;
+	int64 quantity = 9;
+	int64 runs = 10;
+}
+
+message GetCorpBlueprintsRequest {
+    Token token = 1;
+}
+
+message GetCorpBlueprintsResponse {
+    Result result = 1;
+    repeated Blueprint blueprint = 2;
+}
+
+service CorporationService {
+    rpc GetCorpBlueprints (GetCorpBlueprintsRequest) returns (GetCorpBlueprintsResponse);
 }

@@ -9,6 +9,7 @@ import (
 )
 
 var ErrNotAuthenticated = errors.New("not authenticated")
+var ErrBadCredentials = errors.New("username or password is incorrect")
 
 type Client interface {
 	Authenticate(username, password string) (string, error)
@@ -23,6 +24,7 @@ type Client interface {
 	SaveProduct(product *model.Product) error
 	GetProducts() ([]*model.Product, error)
 	UpdateProductPrices(*model.Product) (*model.Product, error)
+	GetCorpBlueprints() ([]*model.Blueprint, error)
 
 	GetRace(raceID int) (*evedb.Race, error)
 	GetRaces() ([]*evedb.Race, error)
@@ -36,7 +38,7 @@ type Client interface {
 	GetSystem(systemID int) (*evedb.System, error)
 	QueryItemTypes(query string, catIDs ...int) ([]*evedb.ItemType, error)
 	QueryItemTypeDetails(query string, catIDs ...int) ([]*evedb.ItemTypeDetail, error)
-	GetBlueprint(typeID int) (*evedb.Blueprint, error)
+	GetMaterialSheet(typeID int) (*evedb.MaterialSheet, error)
 }
 
 func New(conf model.Config, logger log.Logger) (Client, error) {

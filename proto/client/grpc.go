@@ -62,8 +62,8 @@ func (c *grpcClient) Authenticate(username, password string) (string, error) {
 	if res.Result.Status == proto.Status_FAILURE {
 		return "", errors.New(res.Result.Description)
 	}
-	if res.Token == nil {
-		return "", errors.New("expected token to be not empty, got nil")
+	if res.Token == nil || res.Token.Identifier == "" {
+		return "", errors.New("expected token to be not empty, got nothing")
 	}
 	c.token = res.Token.Identifier
 	return res.Token.Identifier, nil
@@ -257,6 +257,31 @@ func (c *grpcClient) GetCharacter(charID int) (*model.Character, error) {
 		return nil, errors.New("expected grpc response to contain character, got nil")
 	}
 	return proto.ProtoToCharacter(res.Character), nil
+}
+
+func (c *grpcClient) GetCorpBlueprints() ([]*model.Blueprint, error) {
+	conn, err := grpc.Dial(c.serverAddr, c.dialOpts...)
+	if err != nil {
+		return nil, err
+	}
+	defer conn.Close()
+	service := proto.NewCorporationServiceClient(conn)
+	res, err := service.GetCorpBlueprints(
+		context.Background(),
+		&proto.GetCorpBlueprintsRequest{
+			Token: &proto.Token{Identifier: c.token},
+		})
+	if err != nil {
+		return nil, err
+	}
+	if res.Result.Status == proto.Status_FAILURE {
+		return nil, errors.New(res.Result.Description)
+	}
+	var bps []*model.Blueprint
+	for _, bp := range res.Blueprint {
+		bps = append(bps, proto.ProtoToBlueprint(bp))
+	}
+	return bps, nil
 }
 
 func (c *grpcClient) GetCorporation(corpID int) (*model.Corporation, error) {
@@ -542,9 +567,16 @@ func (c *grpcClient) QueryItemTypes(query string, catIDs ...int) ([]*evedb.ItemT
 	}
 	defer conn.Close()
 	service := proto.NewEveDBServiceClient(conn)
+	var cats []int64
+	for _, cat := range catIDs {
+		cats = append(cats, int64(cat))
+	}
 	res, err := service.QueryItemTypes(
 		context.Background(),
-		&proto.QueryItemTypesRequest{})
+		&proto.QueryItemTypesRequest{
+			Query:      query,
+			CategoryId: cats,
+		})
 	if err != nil {
 		return nil, err
 	}
@@ -565,9 +597,16 @@ func (c *grpcClient) QueryItemTypeDetails(query string, catIDs ...int) ([]*evedb
 	}
 	defer conn.Close()
 	service := proto.NewEveDBServiceClient(conn)
+	var cats []int64
+	for _, cat := range catIDs {
+		cats = append(cats, int64(cat))
+	}
 	res, err := service.QueryItemTypeDetails(
 		context.Background(),
-		&proto.QueryItemTypeDetailsRequest{})
+		&proto.QueryItemTypeDetailsRequest{
+			Query:      query,
+			CategoryId: cats,
+		})
 	if err != nil {
 		return nil, err
 	}
@@ -581,25 +620,25 @@ func (c *grpcClient) QueryItemTypeDetails(query string, catIDs ...int) ([]*evedb
 	return results, nil
 }
 
-func (c *grpcClient) GetBlueprint(typeID int) (*evedb.Blueprint, error) {
+func (c *grpcClient) GetMaterialSheet(typeID int) (*evedb.MaterialSheet, error) {
 	conn, err := grpc.Dial(c.serverAddr, c.dialOpts...)
 	if err != nil {
 		return nil, err
 	}
 	defer conn.Close()
 	service := proto.NewEveDBServiceClient(conn)
-	res, err := service.GetBlueprint(
+	res, err := service.GetMaterialSheet(
 		context.Background(),
-		&proto.GetBlueprintRequest{TypeId: int64(typeID)})
+		&proto.GetMaterialSheetRequest{TypeId: int64(typeID)})
 	if err != nil {
 		return nil, err
 	}
 	if res.Result.Status == proto.Status_FAILURE {
 		return nil, errors.New(res.Result.Description)
 	}
-	pres := res.Blueprint
+	pres := res.MatSheet
 	if pres == nil {
-		return nil, errors.New("expected blueprint in grpc response, got nil")
+		return nil, errors.New("expected material sheet in grpc response, got nil")
 	}
-	return proto.ProtoToBlueprint(pres), nil
+	return proto.ProtoToMatSheet(pres), nil
 }

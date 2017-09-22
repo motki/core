@@ -16,13 +16,6 @@ message Result {
     string description = 2;
 }
 
-// A Role describes a user's authorization for certain resources within the system.
-enum Role {
-    ANON = 0;
-    USER = 1;
-    LOGISTICS = 2;
-}
-
 // A Token contains a session identifier representing a valid user session.
 message Token {
     string identifier = 1;

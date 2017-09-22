@@ -33,6 +33,9 @@ It has these top-level messages:
 	MarketPrice
 	GetMarketPriceRequest
 	GetMarketPriceResponse
+	Blueprint
+	GetCorpBlueprintsRequest
+	GetCorpBlueprintsResponse
 	Icon
 	Race
 	Ancestry
@@ -42,7 +45,7 @@ It has these top-level messages:
 	Region
 	ItemType
 	ItemTypeDetail
-	Blueprint
+	MaterialSheet
 	Material
 	GetRegionRequest
 	GetRegionResponse
@@ -68,8 +71,8 @@ It has these top-level messages:
 	QueryItemTypesResponse
 	QueryItemTypeDetailsRequest
 	QueryItemTypeDetailsResponse
-	GetBlueprintRequest
-	GetBlueprintResponse
+	GetMaterialSheetRequest
+	GetMaterialSheetResponse
 */
 package proto
 

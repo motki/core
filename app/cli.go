@@ -6,7 +6,6 @@ import (
 	"path/filepath"
 
 	"github.com/motki/motkid/cli"
-	"github.com/motki/motkid/cli/auth"
 	"github.com/motki/motkid/cli/command"
 	"github.com/motki/motkid/cli/text"
 )
@@ -53,7 +52,7 @@ func (c CLIConfig) WithCredentials(username, password string) CLIConfig {
 // If the given CLIConfig contains a username or password, authentication
 // will be attempted. If authentication fails, an error is returned.
 func NewCLIEnv(conf CLIConfig, historyPath string) (*CLIEnv, error) {
-	appEnv, err := NewEnv(conf.Config)
+	appEnv, err := NewClientOnlyEnv(conf.Config)
 	if err != nil {
 		return nil, err
 	}
@@ -65,10 +64,9 @@ func NewCLIEnv(conf CLIConfig, historyPath string) (*CLIEnv, error) {
 		historyPath = filepath.Join(cwd, historyPath)
 	}
 	srv := cli.NewServer(appEnv.Logger)
-	prompter := cli.NewPrompter(srv, appEnv.EveDB, appEnv.Logger)
-	sess := auth.NewSession(appEnv.Client, appEnv.Model, appEnv.EveAPI, appEnv.Logger)
+	prompter := cli.NewPrompter(srv, appEnv.Client, appEnv.Logger)
 	if conf.username != "" || conf.password != "" {
-		if _, err := sess.Authenticate(conf.username, conf.password); err != nil {
+		if _, err := appEnv.Client.Authenticate(conf.username, conf.password); err != nil {
 			return nil, err
 		} else {
 			fmt.Println("Welcome, " + text.Boldf(conf.username) + "!")
@@ -80,7 +78,7 @@ func NewCLIEnv(conf CLIConfig, historyPath string) (*CLIEnv, error) {
 	}
 	srv.SetCommands(
 		command.NewEVETypesCommand(prompter),
-		command.NewProductCommand(appEnv.Client, prompter, appEnv.EveAPI, appEnv.Logger))
+		command.NewProductCommand(appEnv.Client, prompter, appEnv.Logger))
 	if f, err := os.Open(historyPath); err == nil {
 		srv.ReadHistory(f)
 		f.Close()

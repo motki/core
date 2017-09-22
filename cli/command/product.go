@@ -7,9 +7,7 @@ import (
 	"strings"
 
 	"github.com/motki/motkid/cli"
-	"github.com/motki/motkid/cli/auth"
 	"github.com/motki/motkid/cli/text"
-	"github.com/motki/motkid/eveapi"
 	"github.com/motki/motkid/log"
 	"github.com/motki/motkid/model"
 	"github.com/motki/motkid/proto/client"
@@ -24,12 +22,11 @@ type ProductCommand struct {
 	corpID    int
 
 	env    *cli.Prompter
-	eveapi *eveapi.EveAPI
 	logger log.Logger
 	client client.Client
 }
 
-func NewProductCommand(cl client.Client, p *cli.Prompter, api *eveapi.EveAPI, logger log.Logger) ProductCommand {
+func NewProductCommand(cl client.Client, p *cli.Prompter, logger log.Logger) ProductCommand {
 	var corp *model.Corporation
 	var char *model.Character
 	var corpID int
@@ -41,7 +38,7 @@ func NewProductCommand(cl client.Client, p *cli.Prompter, api *eveapi.EveAPI, lo
 		}
 		corpID = corp.CorporationID
 	}
-	if err != nil && err != auth.ErrNotAuthenticated {
+	if err != nil && err != client.ErrNotAuthenticated {
 		logger.Debugf("command: unable to load auth details: %s", err.Error())
 	}
 	return ProductCommand{
@@ -50,7 +47,6 @@ func NewProductCommand(cl client.Client, p *cli.Prompter, api *eveapi.EveAPI, lo
 		context.Background(), // TODO: replace with client
 		corpID,
 		p,
-		api,
 		logger,
 		cl}
 }
@@ -144,7 +140,7 @@ func (c ProductCommand) getRegionName(regionID int) string {
 	return r.Name
 }
 
-func (c ProductCommand) getBlueprintIndex(p *model.Product) (map[*model.Product][]*eveapi.Blueprint, []*model.Product) {
+func (c ProductCommand) getBlueprintIndex(p *model.Product) (map[*model.Product][]*model.Blueprint, []*model.Product) {
 	if c.corpID == 0 {
 		return nil, nil
 	}
@@ -169,16 +165,15 @@ func (c ProductCommand) getBlueprintIndex(p *model.Product) (map[*model.Product]
 
 	}
 	fillNeeded(p)
-	index := map[*model.Product][]*eveapi.Blueprint{}
-	bps, err := c.eveapi.GetCorporationBlueprints(c.authCtx, c.corpID)
+	index := map[*model.Product][]*model.Blueprint{}
+	bps, err := c.client.GetCorpBlueprints()
 	if err != nil {
 		c.logger.Warnf("unable to get corporation blueprints: %s", err.Error())
 		return nil, nil
 	}
 	for need, prod := range needed {
 		for _, bp := range bps {
-			// Quantity of -2 indicates it is a BPC, ie. manufacture-able.
-			if bp.Quantity != -2 {
+			if bp.Kind != model.BlueprintCopy {
 				continue
 			}
 			if int(bp.TypeID) == need {
@@ -200,7 +195,7 @@ func (c ProductCommand) getBlueprintIndex(p *model.Product) (map[*model.Product]
 func (c ProductCommand) printProductInfo(p *model.Product) {
 	batchSize := decimal.NewFromFloat(float64(p.BatchSize))
 	costEach := p.Cost().Mul(batchSize) // Cost has quantity baked in.
-	bp, err := c.client.GetBlueprint(p.TypeID)
+	bp, err := c.client.GetMaterialSheet(p.TypeID)
 	if err != nil {
 		fmt.Println("Unable to print production chain detail:", err.Error())
 		return
@@ -288,8 +283,8 @@ func (c ProductCommand) printChildProductInfo(p *model.Product, parentBatchSize 
 
 // efficiencyValue is a Material or Time Efficiency value.
 type efficiencyValue struct {
-	best     int64
-	worst    int64
+	best     int
+	worst    int
 	nonEmpty bool // If false, any value is worse.
 }
 
@@ -301,7 +296,7 @@ func (e *efficiencyValue) String() string {
 	return fmt.Sprintf("%d/%s", e.best, worst)
 }
 
-func (e *efficiencyValue) track(val int64) {
+func (e *efficiencyValue) track(val int) {
 	if e.nonEmpty || val < e.worst {
 		e.worst = val
 	}

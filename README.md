@@ -16,6 +16,7 @@ This repository contains all the motkid source code, including dependency source
   go get -u github.com/jteeuwen/go-bindata/...
   ```
 * postgres9 client (psql and pg_restore)
+* protoc and proto-gen-go
 * cat, awk, sed, grep, curl, bunzip2, unzip, git
 
 ##### Requirements for running

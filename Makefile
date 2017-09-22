@@ -2,7 +2,7 @@
 
 # This file acts as the heavy lifter for setting up an installation of motkid.
 #
-# Build both motki and motkid binaries:
+# Build the motkid binary:
 #   make
 #
 # Download any necessary static data:
@@ -111,7 +111,7 @@ release_cmd    = $(subst build -ldflags, build -tags release -ldflags,$(call bui
 # These define the programs that get built. Adding more targets is
 # automatic as long as the source code for the target exists in
 # ./cmd/<target>/*.go.
-binaries        := motki motkid
+binaries        := motkid
 binary_targets  := $(foreach bin,$(binaries),$(call build_name,$(bin)))
 release_targets := $(foreach bin,$(binaries),$(call release_name,$(bin)))
 

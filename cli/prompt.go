@@ -10,6 +10,7 @@ import (
 	"github.com/motki/motkid/cli/text"
 	"github.com/motki/motkid/evedb"
 	"github.com/motki/motkid/log"
+	"github.com/motki/motkid/proto/client"
 	"github.com/peterh/liner"
 	"github.com/shopspring/decimal"
 )
@@ -17,14 +18,14 @@ import (
 type Prompter struct {
 	logger log.Logger
 	cli    *Server
-	evedb  *evedb.EveDB
+	client client.Client
 }
 
-func NewPrompter(cli *Server, edb *evedb.EveDB, logger log.Logger) *Prompter {
+func NewPrompter(cli *Server, cl client.Client, logger log.Logger) *Prompter {
 	return &Prompter{
 		logger: logger,
 		cli:    cli,
-		evedb:  edb,
+		client: cl,
 	}
 }
 
@@ -238,7 +239,7 @@ func (p *Prompter) PromptRegion(prompt string, initialInput string) (*evedb.Regi
 	var regions []*evedb.Region
 	valStr := initialInput
 	prompt = fmt.Sprintf("%s: ", prompt)
-	regions, err = p.evedb.GetAllRegions()
+	regions, err = p.client.GetRegions()
 	if err != nil {
 		p.logger.Warnf("error loading regions: %s", err.Error())
 		fmt.Println("Error loading regions, try again.")
@@ -270,7 +271,7 @@ func (p *Prompter) PromptRegion(prompt string, initialInput string) (*evedb.Regi
 			}
 			goto prompt
 		}
-		val, err = p.evedb.GetRegion(id)
+		val, err = p.client.GetRegion(id)
 		if err != nil {
 			fmt.Printf("No region exists with ID %d.\n", id)
 			goto prompt
@@ -319,7 +320,7 @@ func (p *Prompter) PromptItemTypeDetail(prompt string, initialInput string) (*ev
 		}
 		id, err = strconv.Atoi(valStr)
 		if err != nil {
-			its, err := p.evedb.QueryItemTypes(valStr)
+			its, err := p.client.QueryItemTypes(valStr)
 			if err != nil || len(its) == 0 {
 				if err != nil {
 					p.logger.Debugf("error querying item types: %s", err.Error())
@@ -333,7 +334,7 @@ func (p *Prompter) PromptItemTypeDetail(prompt string, initialInput string) (*ev
 			}
 			goto prompt
 		}
-		val, err = p.evedb.GetItemTypeDetail(id)
+		val, err = p.client.GetItemTypeDetail(id)
 		if err != nil {
 			fmt.Printf("No item exists with ID %d.\n", id)
 			p.logger.Warnf("error fetching item type detail: %s", err.Error())

@@ -6,7 +6,50 @@ import (
 	"github.com/motki/motkid/eveapi"
 )
 
-func (m *Manager) GetCorporationBlueprints(ctx context.Context, corpID int) (jobs []*eveapi.Blueprint, err error) {
+type BlueprintKind string
+
+var (
+	BlueprintOriginal BlueprintKind = "bpo"
+	BlueprintCopy     BlueprintKind = "bpc"
+)
+
+type Blueprint struct {
+	ItemID             int
+	LocationID         int
+	TypeID             int
+	TypeName           string
+	FlagID             int
+	TimeEfficiency     int
+	MaterialEfficiency int
+	Kind               BlueprintKind
+	Quantity           int
+
+	// -1 = infinite runs (a BPO)
+	Runs int
+}
+
+func blueprintFromEveAPI(bp *eveapi.Blueprint) *Blueprint {
+	kind := BlueprintOriginal
+	qty := bp.Quantity
+	if qty == -2 {
+		kind = BlueprintCopy
+		qty = 1
+	}
+	return &Blueprint{
+		ItemID:             int(bp.ItemID),
+		LocationID:         int(bp.LocationID),
+		TypeID:             int(bp.TypeID),
+		TypeName:           bp.TypeName,
+		FlagID:             int(bp.FlagID),
+		TimeEfficiency:     int(bp.TimeEfficiency),
+		MaterialEfficiency: int(bp.MaterialEfficiency),
+		Kind:               kind,
+		Quantity:           int(qty),
+		Runs:               int(bp.Runs),
+	}
+}
+
+func (m *Manager) GetCorporationBlueprints(ctx context.Context, corpID int) (jobs []*Blueprint, err error) {
 	jobs, err = m.getCorporationBlueprintsFromDB(corpID)
 	if err != nil {
 		return nil, err
@@ -17,7 +60,7 @@ func (m *Manager) GetCorporationBlueprints(ctx context.Context, corpID int) (job
 	return m.getCorporationBlueprintsFromAPI(ctx, corpID)
 }
 
-func (m *Manager) getCorporationBlueprintsFromDB(corpID int) ([]*eveapi.Blueprint, error) {
+func (m *Manager) getCorporationBlueprintsFromDB(corpID int) ([]*Blueprint, error) {
 	c, err := m.pool.Open()
 	if err != nil {
 		return nil, err
@@ -30,6 +73,7 @@ func (m *Manager) getCorporationBlueprintsFromDB(corpID int) ([]*eveapi.Blueprin
 			, c.type_id
 			, c.type_name
 			, c.quantity
+			, c.kind
 			, c.flag_id
 			, c.time_efficiency
 			, c.material_efficiency
@@ -41,15 +85,16 @@ func (m *Manager) getCorporationBlueprintsFromDB(corpID int) ([]*eveapi.Blueprin
 		return nil, err
 	}
 	defer rs.Close()
-	res := []*eveapi.Blueprint{}
+	res := []*Blueprint{}
 	for rs.Next() {
-		r := &eveapi.Blueprint{}
+		r := &Blueprint{}
 		err := rs.Scan(
 			&r.ItemID,
 			&r.LocationID,
 			&r.TypeID,
 			&r.TypeName,
 			&r.Quantity,
+			&r.Kind,
 			&r.FlagID,
 			&r.TimeEfficiency,
 			&r.MaterialEfficiency,
@@ -66,15 +111,19 @@ func (m *Manager) getCorporationBlueprintsFromDB(corpID int) ([]*eveapi.Blueprin
 	return res, nil
 }
 
-func (m *Manager) getCorporationBlueprintsFromAPI(ctx context.Context, corpID int) ([]*eveapi.Blueprint, error) {
+func (m *Manager) getCorporationBlueprintsFromAPI(ctx context.Context, corpID int) ([]*Blueprint, error) {
 	bps, err := m.eveapi.GetCorporationBlueprints(ctx, corpID)
 	if err != nil {
 		return nil, err
 	}
-	return m.apiCorporationBlueprintsToDB(corpID, bps)
+	var res []*Blueprint
+	for _, bp := range bps {
+		res = append(res, blueprintFromEveAPI(bp))
+	}
+	return m.apiCorporationBlueprintsToDB(corpID, res)
 }
 
-func (m *Manager) apiCorporationBlueprintsToDB(corpID int, bps []*eveapi.Blueprint) ([]*eveapi.Blueprint, error) {
+func (m *Manager) apiCorporationBlueprintsToDB(corpID int, bps []*Blueprint) ([]*Blueprint, error) {
 	db, err := m.pool.Open()
 	if err != nil {
 		return nil, err
@@ -83,7 +132,7 @@ func (m *Manager) apiCorporationBlueprintsToDB(corpID int, bps []*eveapi.Bluepri
 	for _, bp := range bps {
 		_, err = db.Exec(
 			`INSERT INTO app.blueprints
-					VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, DEFAULT)`,
+					VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, DEFAULT)`,
 			corpID,
 			0,
 			bp.ItemID,
@@ -91,6 +140,7 @@ func (m *Manager) apiCorporationBlueprintsToDB(corpID int, bps []*eveapi.Bluepri
 			bp.TypeID,
 			bp.TypeName,
 			bp.Quantity,
+			bp.Kind,
 			bp.FlagID,
 			bp.TimeEfficiency,
 			bp.MaterialEfficiency,

@@ -24,7 +24,6 @@ import (
 	"google.golang.org/grpc/test/bufconn"
 
 	_ "github.com/motki/motkid/cli"
-	_ "github.com/motki/motkid/cli/auth"
 	_ "github.com/motki/motkid/cli/command"
 	_ "github.com/motki/motkid/cli/text"
 	"github.com/motki/motkid/db"
@@ -102,6 +101,30 @@ type Env struct {
 	Server server.Server
 }
 
+// NewClientOnlyEnv creates an Env using the given configuration.
+// An Env created this way will not have an associated gRPC server, nor any
+// database, or eveapi, etc.
+func NewClientOnlyEnv(conf *Config) (*Env, error) {
+	if conf.Backend.Kind == model.BackendLocalGRPC {
+		return nil, errors.New("app: cannot create client-only env with local grpc backend")
+	}
+	logger := log.New(conf.Logging)
+	work := worker.New(logger)
+	cl, err := client.New(conf.Backend, logger)
+	if err != nil {
+		return nil, errors.Wrap(err, "app: unable to init grpc client")
+	}
+
+	return &Env{
+		conf: conf,
+
+		Logger:    logger,
+		Scheduler: work,
+
+		Client: cl,
+	}, nil
+}
+
 // NewEnv creates an Env using the given configuration.
 func NewEnv(conf *Config) (*Env, error) {
 	logger := log.New(conf.Logging)
@@ -123,7 +146,7 @@ func NewEnv(conf *Config) (*Env, error) {
 	if err != nil {
 		return nil, errors.Wrap(err, "app: unable to init grpc client")
 	}
-	srv, err := server.New(conf.Backend, mdl, edb, logger)
+	srv, err := server.New(conf.Backend, mdl, edb, api, logger)
 	if err != nil {
 		return nil, errors.Wrap(err, "app: unable to init grpc server")
 	}
@@ -214,6 +237,9 @@ func (env *Env) abortFuncs() []abortFunc {
 			}
 		},
 		func() {
+			if env.Server == nil {
+				return
+			}
 			if err := env.Server.Shutdown(); err != nil {
 				env.Logger.Warnf("app: error shutting down grpc server: %s", err.Error())
 			}

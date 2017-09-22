@@ -365,24 +365,24 @@ func ItemTypeDetailToProto(m *evedb.ItemTypeDetail) *ItemTypeDetail {
 	}
 }
 
-func ProtoToBlueprint(p *Blueprint) *evedb.Blueprint {
+func ProtoToMatSheet(p *MaterialSheet) *evedb.MaterialSheet {
 	var mats []*evedb.Material
 	for _, mat := range p.Materials {
 		mats = append(mats, ProtoToMaterial(mat))
 	}
-	return &evedb.Blueprint{
+	return &evedb.MaterialSheet{
 		ItemType:    ProtoToItemType(p.Type),
 		Materials:   mats,
 		ProducesQty: int(p.ProducesQty),
 	}
 }
 
-func BlueprintToProto(m *evedb.Blueprint) *Blueprint {
+func MatSheetToProto(m *evedb.MaterialSheet) *MaterialSheet {
 	var mats []*Material
 	for _, mat := range m.Materials {
 		mats = append(mats, MaterialToProto(mat))
 	}
-	return &Blueprint{
+	return &MaterialSheet{
 		Type:        ItemTypeToProto(m.ItemType),
 		Materials:   mats,
 		ProducesQty: int64(m.ProducesQty),
@@ -400,5 +400,43 @@ func MaterialToProto(m *evedb.Material) *Material {
 	return &Material{
 		Type:     ItemTypeToProto(m.ItemType),
 		Quantity: int64(m.Quantity),
+	}
+}
+
+func ProtoToBlueprint(p *Blueprint) *model.Blueprint {
+	kind := model.BlueprintOriginal
+	if p.Kind == Blueprint_COPY {
+		kind = model.BlueprintCopy
+	}
+	return &model.Blueprint{
+		ItemID:             int(p.ItemId),
+		LocationID:         int(p.LocationId),
+		TypeID:             int(p.TypeId),
+		TypeName:           p.TypeName,
+		FlagID:             int(p.FlagId),
+		TimeEfficiency:     int(p.TimeEff),
+		MaterialEfficiency: int(p.MaterialEff),
+		Kind:               kind,
+		Quantity:           int(p.Quantity),
+		Runs:               int(p.Runs),
+	}
+}
+
+func BlueprintToProto(m *model.Blueprint) *Blueprint {
+	kind := Blueprint_ORIGINAL
+	if m.Kind == model.BlueprintCopy {
+		kind = Blueprint_COPY
+	}
+	return &Blueprint{
+		ItemId:      int64(m.ItemID),
+		LocationId:  int64(m.LocationID),
+		TypeId:      int64(m.TypeID),
+		TypeName:    m.TypeName,
+		FlagId:      int64(m.FlagID),
+		TimeEff:     int64(m.TimeEfficiency),
+		MaterialEff: int64(m.MaterialEfficiency),
+		Kind:        kind,
+		Quantity:    int64(m.Quantity),
+		Runs:        int64(m.Runs),
 	}
 }

@@ -207,8 +207,8 @@ func (e *EveDB) QueryItemTypeDetails(query string, catIDs ...int) ([]*ItemTypeDe
 	return res, nil
 }
 
-// A Blueprint describes what is necessary to build an item.
-type Blueprint struct {
+// A MaterialSheet describes what is necessary to build an item.
+type MaterialSheet struct {
 	*ItemType
 	Materials   []*Material
 	ProducesQty int
@@ -220,8 +220,8 @@ type Material struct {
 	Quantity int
 }
 
-// GetBlueprint fetches a Blueprint from the database.
-func (e *EveDB) GetBlueprint(typeID int) (*Blueprint, error) {
+// GetBlueprint fetches a MaterialSheet from the database.
+func (e *EveDB) GetBlueprint(typeID int) (*MaterialSheet, error) {
 	it, err := e.GetItemTypeDetail(typeID)
 	if err != nil {
 		return nil, err
@@ -255,12 +255,12 @@ func (e *EveDB) GetBlueprint(typeID int) (*Blueprint, error) {
 	if err = rs.Err(); err != nil {
 		return nil, err
 	}
-	return &Blueprint{ItemType: it.ItemType, ProducesQty: it.PortionSize, Materials: res}, nil
+	return &MaterialSheet{ItemType: it.ItemType, ProducesQty: it.PortionSize, Materials: res}, nil
 }
 
 // GetBlueprints is a utility function to retrieve multiple Blueprints.
-func (e *EveDB) GetBlueprints(typeIDs ...int) ([]*Blueprint, error) {
-	res := []*Blueprint{}
+func (e *EveDB) GetBlueprints(typeIDs ...int) ([]*MaterialSheet, error) {
+	res := []*MaterialSheet{}
 	for _, id := range typeIDs {
 		bp, err := e.GetBlueprint(id)
 		if err != nil {

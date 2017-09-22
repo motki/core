@@ -77,23 +77,24 @@ func NewWebEnv(conf *Config) (*WebEnv, error) {
 	}, nil
 }
 
-// BlockUntilAbort will block until it receives the abort signal.
+// BlockUntilSignal will block until it receives the signals signal.
 //
 // This function performs the default shutdown procedure when it receives
-// an abort signal.
+// an signals signal.
 //
-// See BlockUntilAbortWith for more details.
-func (webEnv *WebEnv) BlockUntilAbort(abort chan os.Signal) {
-	abortFuncs := append(
-		append([]abortFunc{}, webEnv.Env.abortFuncs()...),
-		webEnv.abortFuncs()...)
-	webEnv.BlockUntilAbortWith(abort, abortFuncs...)
+// See BlockUntilSignalWith for more details.
+func (webEnv *WebEnv) BlockUntilSignal(abort chan os.Signal) {
+	webEnv.Env.signals = abort
+	shutdownFuncs := append(
+		append([]ShutdownFunc{}, webEnv.Env.shutdownFuncs()...),
+		webEnv.shutdownFuncs()...)
+	webEnv.BlockUntilSignalWith(abort, shutdownFuncs...)
 }
 
-// abortFunc returns a function to be called when the application is
-// shutting down.
-func (webEnv *WebEnv) abortFuncs() []abortFunc {
-	return []abortFunc{func() {
+// shutdownFuncs returns a list of functions to be called when the application
+// is shutting down.
+func (webEnv *WebEnv) shutdownFuncs() []ShutdownFunc {
+	return []ShutdownFunc{func() {
 		if err := webEnv.Web.Shutdown(); err != nil {
 			webEnv.Logger.Warnf("app: error shutting down web server: %s", err.Error())
 		}

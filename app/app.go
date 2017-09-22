@@ -6,7 +6,7 @@
 //
 // This package imports every other motkid package. As such, it cannot be
 // imported from the "library" portion of the project. It is intended to be
-// used from an external package, such as is done in the motkid and motki
+// used from an external package, such as is signals in the motkid and motki
 // commands.
 package app
 
@@ -23,9 +23,6 @@ import (
 	"github.com/pkg/errors"
 	"google.golang.org/grpc/test/bufconn"
 
-	_ "github.com/motki/motkid/cli"
-	_ "github.com/motki/motkid/cli/command"
-	_ "github.com/motki/motkid/cli/text"
 	"github.com/motki/motkid/db"
 	"github.com/motki/motkid/eveapi"
 	"github.com/motki/motkid/evecentral"
@@ -81,30 +78,38 @@ func NewConfigFromTOMLFile(tomlPath string) (*Config, error) {
 	return conf, nil
 }
 
+// A ClientEnv is an environment without any server-side components.
+type ClientEnv struct {
+	conf *Config
+
+	Logger    log.Logger
+	Scheduler *worker.Scheduler
+	Client    client.Client
+
+	signals chan os.Signal
+}
+
 // An Env is a fully integrated environment.
 //
 // This struct contains all the core services needed by motkid, but
 // does not contain any web or mail server related services.
 type Env struct {
-	conf *Config
+	*ClientEnv
 
-	Logger    log.Logger
-	DB        *db.ConnPool
-	Scheduler *worker.Scheduler
-	Model     *model.Manager
+	DB    *db.ConnPool
+	Model *model.Manager
 
 	EveCentral *evecentral.EveCentral
 	EveDB      *evedb.EveDB
 	EveAPI     *eveapi.EveAPI
 
-	Client client.Client
 	Server server.Server
 }
 
-// NewClientOnlyEnv creates an Env using the given configuration.
-// An Env created this way will not have an associated gRPC server, nor any
-// database, or eveapi, etc.
-func NewClientOnlyEnv(conf *Config) (*Env, error) {
+// NewClientEnv creates a ClientEnv using the given configuration.
+// A ClientEnv will not have an associated gRPC server, nor any database,
+// or eveapi, etc.
+func NewClientEnv(conf *Config) (*ClientEnv, error) {
 	if conf.Backend.Kind == model.BackendLocalGRPC {
 		return nil, errors.New("app: cannot create client-only env with local grpc backend")
 	}
@@ -114,8 +119,7 @@ func NewClientOnlyEnv(conf *Config) (*Env, error) {
 	if err != nil {
 		return nil, errors.Wrap(err, "app: unable to init grpc client")
 	}
-
-	return &Env{
+	return &ClientEnv{
 		conf: conf,
 
 		Logger:    logger,
@@ -158,84 +162,102 @@ func NewEnv(conf *Config) (*Env, error) {
 	}
 
 	return &Env{
-		conf: conf,
+		ClientEnv: &ClientEnv{
+			conf: conf,
 
-		Logger:    logger,
-		DB:        pool,
-		Scheduler: work,
-		Model:     mdl,
+			Logger:    logger,
+			Scheduler: work,
+
+			Client: cl,
+		},
+
+		DB:     pool,
+		Model:  mdl,
+		Server: srv,
 
 		EveCentral: ec,
 		EveDB:      edb,
 		EveAPI:     api,
-
-		Client: cl,
-		Server: srv,
 	}, nil
 }
 
-// abortFunc is a simple function intended to be called prior to application exit.
-type abortFunc func()
+// ShutdownFunc is a simple function intended to be called prior to application exit.
+type ShutdownFunc func()
 
-// BlockUntilAbortWith will block until it receives the abort signal.
+// BlockUntilSignalWith will block until it receives the signals signal.
 //
 // This function attempts to perform a graceful shutdown, shutting
 // down all services and doing whatever clean up processes are necessary.
 //
-// Each pre-exit task exists in the form of an abortFunc.
+// Each pre-exit task exists in the form of a ShutdownFunc.
 //
-// Note that each abortFunc is run concurrently and there is a finite amount
+// Note that each ShutdownFunc is run concurrently and there is a finite amount
 // of time for them to return before the application exits anyway.
-func (env *Env) BlockUntilAbortWith(abort chan os.Signal, fns ...abortFunc) {
-	signal.Notify(abort, syscall.SIGINT, syscall.SIGTERM)
+func (env *ClientEnv) BlockUntilSignalWith(signals chan os.Signal, fns ...ShutdownFunc) {
+	signal.Notify(signals, os.Interrupt, syscall.SIGTERM)
+	s := <-signals
+	env.Logger.Warnf("app: signal %+v received, shutting down...", s)
+	ct := make(chan struct{}, 0)
+	wg := &sync.WaitGroup{}
+	for _, fn := range fns {
+		wg.Add(1)
+		go func(fn ShutdownFunc) {
+			fn()
+			wg.Done()
+		}(fn)
+	}
+	go func() {
+		wg.Wait()
+		close(ct)
+	}()
+	t := time.NewTimer(5 * time.Second)
 	select {
-	case s := <-abort:
-		env.Logger.Warnf("app: signal %+v received, shutting down...", s)
-		ct := make(chan struct{}, 0)
-		wg := &sync.WaitGroup{}
-		for _, fn := range fns {
-			wg.Add(1)
-			go func(fn abortFunc) {
-				fn()
-				wg.Done()
-			}(fn)
-		}
-		go func() {
-			wg.Wait()
-			close(ct)
-		}()
-		t := time.NewTimer(5 * time.Second)
-		select {
-		case <-t.C:
-			env.Logger.Warnf("app: timeout waiting for services to shutdown")
-			os.Exit(1)
+	case <-t.C:
+		env.Logger.Warnf("app: timeout waiting for services to shutdown")
+		os.Exit(1)
 
-		case <-ct:
-			env.Logger.Debugf("app: graceful shutdown complete; exiting")
-			os.Exit(0)
-		}
+	case <-ct:
+		env.Logger.Debugf("app: graceful shutdown complete; exiting")
+		os.Exit(0)
 	}
 }
 
-// BlockUntilAbort will block until it receives the abort signal.
+// BlockUntilSignal will block until it receives a signal.
 //
 // This function performs the default shutdown procedure when it receives
-// an abort signal.
+// a signal.
 //
-// See BlockUntilAbortWith for more details.
-func (env *Env) BlockUntilAbort(abort chan os.Signal) {
-	env.BlockUntilAbortWith(abort, env.abortFuncs()...)
+// See BlockUntilSignalWith for more details.
+func (env *ClientEnv) BlockUntilSignal(abort chan os.Signal) {
+	env.signals = abort
+	env.BlockUntilSignalWith(abort, env.shutdownFuncs()...)
 }
 
-// abortFunc returns a function to be called when the application is
-// shutting down.
-func (env *Env) abortFuncs() []abortFunc {
-	return []abortFunc{
+// Shutdown begins a graceful shutdown process.
+func (env *ClientEnv) Shutdown() {
+	env.signals <- os.Interrupt
+}
+
+// shutdownFuncs returns a list of functions to be called when the application
+// is shutting down.
+func (env *ClientEnv) shutdownFuncs() []ShutdownFunc {
+	return []ShutdownFunc{
 		func() {
 			if err := env.Scheduler.Shutdown(); err != nil {
 				env.Logger.Warnf("app: error shutting down scheduler: %s", err.Error())
 			}
-		},
+		}}
+}
+
+// BlockUntilSignal will block until it receives a signal.
+//
+// This function performs the default shutdown procedure when it receives
+// a signal.
+//
+// See BlockUntilSignalWith for more details.
+func (env *Env) BlockUntilSignal(abort chan os.Signal) {
+	env.signals = abort
+	env.BlockUntilSignalWith(abort, append([]ShutdownFunc{
 		func() {
 			if env.Server == nil {
 				return
@@ -243,5 +265,6 @@ func (env *Env) abortFuncs() []abortFunc {
 			if err := env.Server.Shutdown(); err != nil {
 				env.Logger.Warnf("app: error shutting down grpc server: %s", err.Error())
 			}
-		}}
+		}},
+		env.shutdownFuncs()...)...)
 }

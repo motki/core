@@ -186,12 +186,25 @@ func (c *grpcClient) UpdateProductPrices(product *model.Product) (*model.Product
 		return nil, err
 	}
 	defer conn.Close()
+	idMap := map[int64]struct{}{}
+	var addTypeID func(*model.Product)
+	addTypeID = func(p *model.Product) {
+		idMap[int64(p.TypeID)] = struct{}{}
+		for _, sp := range p.Materials {
+			addTypeID(sp)
+		}
+	}
+	addTypeID(product)
+	var typeIDs []int64
+	for k := range idMap {
+		typeIDs = append(typeIDs, k)
+	}
 	service := proto.NewMarketPriceServiceClient(conn)
 	res, err := service.GetMarketPrice(
 		context.Background(),
 		&proto.GetMarketPriceRequest{
 			Token:  &proto.Token{Identifier: c.token},
-			TypeId: []int64{int64(product.TypeID)},
+			TypeId: typeIDs,
 		})
 	if err != nil {
 		return nil, err
@@ -199,11 +212,24 @@ func (c *grpcClient) UpdateProductPrices(product *model.Product) (*model.Product
 	if res.Result.Status == proto.Status_FAILURE {
 		return nil, errors.New(res.Result.Description)
 	}
-	price, ok := res.Prices[int64(product.TypeID)]
-	if !ok {
-		return nil, errors.Errorf("expected prices to contain price for typeID %d, got nil", product.TypeID)
+	var updatePrice func(*model.Product) error
+	updatePrice = func(p *model.Product) error {
+		price, ok := res.Prices[int64(p.TypeID)]
+		if !ok {
+			return errors.Errorf("expected prices to contain price for typeID %d, got nil", product.TypeID)
+		}
+		p.MarketPrice = decimal.NewFromFloat(price.Average)
+		for _, m := range p.Materials {
+			if err := updatePrice(m); err != nil {
+				return err
+			}
+		}
+		return nil
 	}
-	product.MarketPrice = decimal.NewFromFloat(price.Average)
+	err = updatePrice(product)
+	if err != nil {
+		return nil, err
+	}
 	return product, nil
 }
 

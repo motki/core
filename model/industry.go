@@ -22,7 +22,7 @@ func (m *Manager) getCorporationIndustryJobsFromDB(corpID int) ([]*eveapi.Indust
 	if err != nil {
 		return nil, err
 	}
-	defer c.Close()
+	defer m.pool.Release(c)
 	rs, err := c.Query(
 		`SELECT
 			  c.job_id
@@ -120,7 +120,7 @@ func (m *Manager) apiCorporationIndustryJobsToDB(corpID int, jobs []*eveapi.Indu
 	if err != nil {
 		return nil, err
 	}
-	defer db.Close()
+	defer m.pool.Release(db)
 	for _, j := range jobs {
 		_, err = db.Exec(
 			`INSERT INTO app.industry_jobs

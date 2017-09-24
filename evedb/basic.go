@@ -57,7 +57,7 @@ func (e *EveDB) GetRace(id int) (*Race, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer c.Close()
+	defer e.pool.Release(c)
 	row := c.QueryRow(
 		`SELECT
 			  race."raceID"
@@ -82,7 +82,7 @@ func (e *EveDB) GetRaces() ([]*Race, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer c.Close()
+	defer e.pool.Release(c)
 	rs, err := c.Query(
 		`SELECT
 			  race."raceID"
@@ -116,7 +116,7 @@ func (e *EveDB) GetAncestry(id int) (*Ancestry, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer c.Close()
+	defer e.pool.Release(c)
 	row := c.QueryRow(
 		`SELECT
 			  ancestry."ancestryID"
@@ -140,7 +140,7 @@ func (e *EveDB) GetBloodline(id int) (*Bloodline, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer c.Close()
+	defer e.pool.Release(c)
 	row := c.QueryRow(
 		`SELECT
 			  bloodline."bloodlineID"

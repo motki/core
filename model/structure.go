@@ -20,7 +20,7 @@ func (m *Manager) getCorporationStructuresFromDB(corpID int) ([]*eveapi.Structur
 	if err != nil {
 		return nil, err
 	}
-	defer c.Close()
+	defer m.pool.Release(c)
 	rs, err := c.Query(
 		`SELECT
 			  c.structure_id
@@ -71,7 +71,7 @@ func (m *Manager) apiCorporationStructuresToDB(corpID int, strucs []*eveapi.Stru
 	if err != nil {
 		return nil, err
 	}
-	defer db.Close()
+	defer m.pool.Release(db)
 	for _, struc := range strucs {
 		_, err = db.Exec(
 			`INSERT INTO app.structures

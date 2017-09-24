@@ -5,6 +5,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/jackc/pgx"
 	"github.com/pkg/errors"
 	"github.com/shopspring/decimal"
 )
@@ -130,7 +131,7 @@ func (m *Manager) UpdateProductMarketPrices(product *Product, regionID int) erro
 // This method does not commit or roll-back the transaction.
 //
 // If a product is inserted, its ProductID field is updated.
-func (m *Manager) saveProductWithTx(tx *sql.Tx, product *Product) error {
+func (m *Manager) saveProductWithTx(tx *pgx.Tx, product *Product) error {
 	prodID := "DEFAULT"
 	if n := product.ProductID; n > 0 {
 		prodID = strconv.Itoa(n)
@@ -231,7 +232,7 @@ func (m *Manager) getProducts(corpID int, productIDs ...int) ([]*Product, error)
 	if err != nil {
 		return nil, err
 	}
-	defer c.Close()
+	defer m.pool.Release(c)
 	var ids []string
 	for _, id := range productIDs {
 		ids = append(ids, strconv.Itoa(id))

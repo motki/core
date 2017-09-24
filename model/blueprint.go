@@ -65,7 +65,7 @@ func (m *Manager) getCorporationBlueprintsFromDB(corpID int) ([]*Blueprint, erro
 	if err != nil {
 		return nil, err
 	}
-	defer c.Close()
+	defer m.pool.Release(c)
 	rs, err := c.Query(
 		`SELECT
 			  c.item_id
@@ -128,7 +128,7 @@ func (m *Manager) apiCorporationBlueprintsToDB(corpID int, bps []*Blueprint) ([]
 	if err != nil {
 		return nil, err
 	}
-	defer db.Close()
+	defer m.pool.Release(db)
 	for _, bp := range bps {
 		_, err = db.Exec(
 			`INSERT INTO app.blueprints

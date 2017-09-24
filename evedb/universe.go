@@ -24,7 +24,7 @@ func (e *EveDB) GetSystem(id int) (*System, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer c.Close()
+	defer e.pool.Release(c)
 	row := c.QueryRow(
 		`SELECT
 			  s."solarSystemID"
@@ -47,7 +47,7 @@ func (e *EveDB) GetConstellation(id int) (*Constellation, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer c.Close()
+	defer e.pool.Release(c)
 	row := c.QueryRow(
 		`SELECT
 			, s."constellationID"
@@ -68,7 +68,7 @@ func (e *EveDB) GetRegion(id int) (*Region, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer c.Close()
+	defer e.pool.Release(c)
 	row := c.QueryRow(
 		`SELECT
 			  s."regionID"
@@ -88,7 +88,7 @@ func (e *EveDB) GetAllRegions() ([]*Region, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer c.Close()
+	defer e.pool.Release(c)
 	rs, err := c.Query(
 		`SELECT
 			  s."regionID"

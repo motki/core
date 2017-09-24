@@ -1,9 +1,9 @@
 package model
 
 import (
-	"database/sql"
 	"time"
 
+	"github.com/jackc/pgx"
 	"github.com/motki/motki/eveapi"
 )
 
@@ -30,7 +30,7 @@ func (m *Manager) getAllianceFromDB(allianceID int) (*Alliance, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer c.Close()
+	defer m.pool.Release(c)
 	r := c.QueryRow(
 		`SELECT
 			  c.alliance_id
@@ -47,7 +47,7 @@ func (m *Manager) getAllianceFromDB(allianceID int) (*Alliance, error) {
 		&char.Ticker,
 	)
 	if err != nil {
-		if err == sql.ErrNoRows {
+		if err == pgx.ErrNoRows {
 			return nil, nil
 		}
 		return nil, err
@@ -68,7 +68,7 @@ func (m *Manager) apiAllianceToDB(alliance *eveapi.Alliance) (*Alliance, error) 
 	if err != nil {
 		return nil, err
 	}
-	defer db.Close()
+	defer m.pool.Release(db)
 	c := &Alliance{
 		AllianceID:  alliance.AllianceID,
 		Name:        alliance.Name,

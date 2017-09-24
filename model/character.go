@@ -1,9 +1,9 @@
 package model
 
 import (
-	"database/sql"
 	"time"
 
+	"github.com/jackc/pgx"
 	"github.com/motki/motki/eveapi"
 )
 
@@ -35,7 +35,7 @@ func (m *Manager) getCharacterFromDB(characterID int) (*Character, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer c.Close()
+	defer m.pool.Release(c)
 	r := c.QueryRow(
 		`SELECT
 			  c.character_id
@@ -63,7 +63,7 @@ func (m *Manager) getCharacterFromDB(characterID int) (*Character, error) {
 		&char.Description,
 	)
 	if err != nil {
-		if err == sql.ErrNoRows {
+		if err == pgx.ErrNoRows {
 			return nil, nil
 		}
 		return nil, err
@@ -84,7 +84,7 @@ func (m *Manager) apiCharacterToDB(char *eveapi.Character) (*Character, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer db.Close()
+	defer m.pool.Release(db)
 	c := &Character{
 		CharacterID:   char.CharacterID,
 		Name:          char.Name,

@@ -47,7 +47,7 @@ func (e *EveDB) GetItemType(typeID int) (*ItemType, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer c.Close()
+	defer e.pool.Release(c)
 	r := c.QueryRow(
 		baseQueryItemType+`WHERE type."typeID" = $1 AND type."published" = TRUE`, typeID)
 	it := &ItemType{}
@@ -78,7 +78,7 @@ func (e *EveDB) QueryItemTypes(query string, catIDs ...int) ([]*ItemType, error)
 	if err != nil {
 		return nil, err
 	}
-	defer c.Close()
+	defer e.pool.Release(c)
 	if len(catIDs) == 0 {
 		// Default to Modules, Ships, Drones, and Charges
 		catIDs = InterestingItemCategories
@@ -141,7 +141,7 @@ func (e *EveDB) GetItemTypeDetail(typeID int) (*ItemTypeDetail, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer c.Close()
+	defer e.pool.Release(c)
 	var derivs string
 	r := c.QueryRow(
 		baseQueryItemTypeDetail+`WHERE type."typeID" = $1 AND type."published" = TRUE`, typeID)
@@ -167,7 +167,7 @@ func (e *EveDB) QueryItemTypeDetails(query string, catIDs ...int) ([]*ItemTypeDe
 	if err != nil {
 		return nil, err
 	}
-	defer c.Close()
+	defer e.pool.Release(c)
 	if len(catIDs) == 0 {
 		// Default to Modules, Ships, Drones, and Charges
 		catIDs = InterestingItemCategories
@@ -230,7 +230,7 @@ func (e *EveDB) GetBlueprint(typeID int) (*MaterialSheet, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer c.Close()
+	defer e.pool.Release(c)
 	rs, err := c.Query(
 		`SELECT
 			  typ."typeName" as typeName

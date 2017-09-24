@@ -6,10 +6,7 @@
 package db
 
 import (
-	"database/sql"
-
 	"github.com/jackc/pgx"
-	"github.com/jackc/pgx/stdlib"
 	"github.com/motki/motki/log"
 )
 
@@ -44,12 +41,18 @@ type ConnPool struct {
 
 // Open acquires a connection for the caller.
 //
-// This method is designed to allow compatibility with the database/sql
-// package.
-//
-// Remember to Close the DB when you're done with it! Otherwise the connection
+// Remember to Release the DB when you're done with it! Otherwise the connection
 // will not be released back to the pool, and eventually you will run out of
 // available connections.
-func (p *ConnPool) Open() (*sql.DB, error) {
-	return stdlib.OpenFromConnPool(p.pool)
+func (p *ConnPool) Open() (*pgx.Conn, error) {
+	return p.pool.Acquire()
+}
+
+// Release returns the given connection back to the connection pool.
+//
+// This method should be called, probably in a defer statement, before the end
+// of any function that Opens a connection. If a connection is not released,
+// eventually the application will run out of available connections and fail.
+func (p *ConnPool) Release(c *pgx.Conn) {
+	p.pool.Release(c)
 }

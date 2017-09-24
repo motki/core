@@ -95,7 +95,7 @@ func (m *Manager) getMarketStatFromDB(regionID, systemID int, typeIDs ...int) ([
 	if err != nil {
 		return nil, err
 	}
-	defer c.Close()
+	defer m.pool.Release(c)
 	ids := []string{}
 	for _, id := range typeIDs {
 		ids = append(ids, fmt.Sprintf("%d", id))
@@ -192,7 +192,7 @@ func (m *Manager) apiMarketStatToDB(regionID, systemID int, stats []*evecentral.
 	if err != nil {
 		return nil, err
 	}
-	defer db.Close()
+	defer m.pool.Release(db)
 	res := []*MarketStat{}
 	for _, stat := range stats {
 		s := &MarketStat{
@@ -261,7 +261,7 @@ func (m *Manager) getMarketPricesFromDB(typeIDs ...int) ([]*MarketPrice, error) 
 	if err != nil {
 		return nil, err
 	}
-	defer c.Close()
+	defer m.pool.Release(c)
 	ids := []string{}
 	for _, id := range typeIDs {
 		ids = append(ids, fmt.Sprintf("%d", id))
@@ -348,7 +348,7 @@ func (m *Manager) apiMarketPricesToDB(prices []*MarketPrice) error {
 	if err != nil {
 		return err
 	}
-	defer db.Close()
+	defer m.pool.Release(db)
 	res := []*MarketPrice{}
 	for _, stat := range prices {
 		s := &MarketPrice{

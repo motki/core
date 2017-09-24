@@ -1,9 +1,9 @@
 package model
 
 import (
-	"database/sql"
 	"time"
 
+	"github.com/jackc/pgx"
 	"github.com/motki/motki/eveapi"
 )
 
@@ -32,7 +32,7 @@ func (m *Manager) getCorporationFromDB(corporationID int) (*Corporation, error) 
 	if err != nil {
 		return nil, err
 	}
-	defer c.Close()
+	defer m.pool.Release(c)
 	r := c.QueryRow(
 		`SELECT
 			  c.corporation_id
@@ -54,7 +54,7 @@ func (m *Manager) getCorporationFromDB(corporationID int) (*Corporation, error) 
 		&char.Description,
 	)
 	if err != nil {
-		if err == sql.ErrNoRows {
+		if err == pgx.ErrNoRows {
 			return nil, nil
 		}
 		return nil, err
@@ -75,7 +75,7 @@ func (m *Manager) apiCorporationToDB(corp *eveapi.Corporation) (*Corporation, er
 	if err != nil {
 		return nil, err
 	}
-	defer db.Close()
+	defer m.pool.Release(db)
 	c := &Corporation{
 		CorporationID: corp.CorporationID,
 		Name:          corp.Name,

@@ -15,7 +15,7 @@ func (m *Manager) GetMailingList(key string) ([]*MailingListSubscriber, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer db.Close()
+	defer m.pool.Release(db)
 	res := []*MailingListSubscriber{}
 	rows, err := db.Query("SELECT name, email FROM app.mailing_lists WHERE key = $1", key)
 	if err != nil {
@@ -41,7 +41,7 @@ func (m *Manager) AddToMailingList(key string, rec MailingListSubscriber) error 
 	if err != nil {
 		return err
 	}
-	defer db.Close()
+	defer m.pool.Release(db)
 	_, err = db.Exec(`INSERT INTO app.mailing_lists (key, name, email) VALUES($1, $2, $3) ON CONFLICT ON CONSTRAINT "mailing_lists_pkey" DO NOTHING`, key, rec.Name, rec.Email)
 	if err != nil {
 		return err

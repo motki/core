@@ -31,16 +31,6 @@ func (r Role) Value() (driver.Value, error) {
 	return int64(r), nil
 }
 
-func (r *Role) ScanPgx(vr *pgx.ValueReader) error {
-	switch vr.Type().DataTypeName {
-	case "int4":
-		*r = Role(vr.ReadInt32())
-	default:
-		return errors.Errorf("unexpected type %s", vr.Type().DataTypeName)
-	}
-	return nil
-}
-
 func (r *Role) Scan(src interface{}) error {
 	i, ok := src.(int32)
 	if !ok {
@@ -240,7 +230,7 @@ func (m *Manager) SaveAuthorization(u *User, r Role, characterID int, tok *oauth
 				  token = EXCLUDED.token`,
 		u.UserID,
 		characterID,
-		r,
+		int(r),
 		b,
 	)
 	if err != nil {
@@ -258,11 +248,13 @@ func (m *Manager) GetAuthorization(user *User, role Role) (*Authorization, error
 	a := &Authorization{}
 	token := &oAuth2Token{}
 	b := []byte{}
+	ri := 0
 	row := db.QueryRow(`SELECT user_id, character_id, "role", token
 					    FROM app.user_authorizations
 					    WHERE user_id = $1
 						AND "role" = $2`, user.UserID, role)
-	err = row.Scan(&a.UserID, &a.CharacterID, &a.Role, &b)
+	err = row.Scan(&a.UserID, &a.CharacterID, &ri, &b)
+	a.Role = Role(ri)
 	if err != nil {
 		if err == pgx.ErrNoRows {
 			return nil, errors.New("not authorized")
@@ -283,7 +275,7 @@ func (m *Manager) RemoveAuthorization(user *User, role Role) error {
 		return err
 	}
 	defer m.pool.Release(db)
-	_, err = db.Exec(`DELETE FROM app.user_authorizations WHERE user_id = $1 AND "role" = $2`, user.UserID, role)
+	_, err = db.Exec(`DELETE FROM app.user_authorizations WHERE user_id = $1 AND "role" = $2`, user.UserID, int(role))
 	return err
 }
 

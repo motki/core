@@ -32,8 +32,13 @@ type Scheduler struct {
 
 // New creates a new scheduler, ready to use.
 func New(logger log.Logger) *Scheduler {
+	return NewWithTick(logger, 5*time.Second)
+
+}
+
+func NewWithTick(logger log.Logger, delay time.Duration) *Scheduler {
 	s := &Scheduler{
-		tick:    time.NewTicker(5 * time.Second),
+		tick:    time.NewTicker(delay),
 		waiting: make(chan Job, 5),
 		quit:    make(chan struct{}, 0),
 		wg:      sync.WaitGroup{},

@@ -1,10 +1,11 @@
 package client
 
 import (
-	"context"
 	"crypto/tls"
 	"net"
 	"time"
+
+	"golang.org/x/net/context"
 
 	"github.com/motki/motki/log"
 	"github.com/motki/motki/model"

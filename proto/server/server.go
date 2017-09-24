@@ -1,9 +1,10 @@
 package server
 
 import (
-	"context"
 	"crypto/tls"
 	"net"
+
+	"golang.org/x/net/context"
 
 	"github.com/motki/motki/eveapi"
 	"github.com/motki/motki/evedb"

@@ -1,8 +1,9 @@
 package server
 
 import (
-	"context"
 	"errors"
+
+	"golang.org/x/net/context"
 
 	"github.com/motki/motki/model"
 	"github.com/motki/motki/proto"

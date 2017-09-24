@@ -19,6 +19,9 @@ matrix:
   fast_finish: true
   allow_failures:
     - go: tip
+  exclude:
+    - os: osx
+      env: GIMME_ARCH=x86
 
 before_install:
   - if [ "$TRAVIS_OS_NAME" = "osx" ]; then ulimit -n 1024; fi

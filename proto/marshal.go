@@ -86,6 +86,24 @@ func AllianceToProto(alliance *model.Alliance) *Alliance {
 	}
 }
 
+func ProtoToMarketPrice(p *MarketPrice) *model.MarketPrice {
+	return &model.MarketPrice{
+		TypeID: int(p.TypeId),
+		Avg:    decimal.NewFromFloat(p.Average),
+		Base:   decimal.NewFromFloat(p.Base),
+	}
+}
+
+func MarketPriceToProto(m *model.MarketPrice) *MarketPrice {
+	avg, _ := m.Avg.Float64()
+	base, _ := m.Base.Float64()
+	return &MarketPrice{
+		TypeId:  int64(m.TypeID),
+		Average: avg,
+		Base:    base,
+	}
+}
+
 func ProtoToProduct(m *Product) *model.Product {
 	kind := model.ProductBuild
 	if m.Kind == Product_BUY {

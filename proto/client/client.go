@@ -25,6 +25,8 @@ type Client interface {
 	GetProducts() ([]*model.Product, error)
 	UpdateProductPrices(*model.Product) (*model.Product, error)
 	GetCorpBlueprints() ([]*model.Blueprint, error)
+	GetMarketPrice(typeID int) (*model.MarketPrice, error)
+	GetMarketPrices(typeID int, typeIDs ...int) ([]*model.MarketPrice, error)
 
 	GetRace(raceID int) (*evedb.Race, error)
 	GetRaces() ([]*evedb.Race, error)

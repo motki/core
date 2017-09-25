@@ -194,6 +194,7 @@ func (m *Manager) SaveProduct(product *Product) error {
 	if err != nil {
 		return err
 	}
+	defer m.pool.Release(c)
 	tx, err := c.Begin()
 	if err != nil {
 		return err

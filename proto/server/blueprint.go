@@ -1,12 +1,12 @@
 package server
 
 import (
+	"github.com/antihax/goesi"
+	"github.com/pkg/errors"
 	"golang.org/x/net/context"
 
-	"github.com/antihax/goesi"
 	"github.com/motki/motki/model"
 	"github.com/motki/motki/proto"
-	"github.com/pkg/errors"
 )
 
 func (srv *GRPCServer) getAuthorizedContext(tok *proto.Token, role model.Role) (context.Context, int, error) {

@@ -157,9 +157,9 @@ func TestMarshalAlliance(t *testing.T) {
 		t.Errorf("expected proto character name to be 'Toast', got %s", palliance.Name)
 	}
 	if palliance.DateFounded.Seconds != 15000000 {
-		t.Errorf("expected proto birth date to be 15000000, got %d", palliance.DateFounded.Seconds)
+		t.Errorf("expected proto date founded to be 15000000, got %d", palliance.DateFounded.Seconds)
 	}
 	if palliance.Ticker != "TRST" {
-		t.Errorf("expected proto description to be 'TRST', got %s", palliance.Ticker)
+		t.Errorf("expected proto ticker to be 'TRST', got %s", palliance.Ticker)
 	}
 }

@@ -200,13 +200,7 @@ func (srv *GRPCServer) GetMarketPrice(ctx context.Context, req *proto.GetMarketP
 	}
 	res := map[int64]*proto.MarketPrice{}
 	for _, p := range prices {
-		avg, _ := p.Avg.Float64()
-		base, _ := p.Base.Float64()
-		res[int64(p.TypeID)] = &proto.MarketPrice{
-			TypeId:  int64(p.TypeID),
-			Average: avg,
-			Base:    base,
-		}
+		res[int64(p.TypeID)] = proto.MarketPriceToProto(p)
 	}
 	return &proto.GetMarketPriceResponse{Result: successResult, Prices: res}, nil
 }

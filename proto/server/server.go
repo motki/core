@@ -4,15 +4,15 @@ import (
 	"crypto/tls"
 	"net"
 
+	"github.com/pkg/errors"
 	"golang.org/x/net/context"
+	"google.golang.org/grpc"
 
 	"github.com/motki/motki/eveapi"
 	"github.com/motki/motki/evedb"
 	"github.com/motki/motki/log"
 	"github.com/motki/motki/model"
 	"github.com/motki/motki/proto"
-	"github.com/pkg/errors"
-	"google.golang.org/grpc"
 )
 
 var ErrBadCredentials = errors.New("username or password is incorrect")

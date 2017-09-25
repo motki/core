@@ -1,11 +1,11 @@
 package server
 
 import (
+	"github.com/pkg/errors"
 	"golang.org/x/net/context"
 
 	"github.com/motki/motki/model"
 	"github.com/motki/motki/proto"
-	"github.com/pkg/errors"
 )
 
 func (srv *GRPCServer) GetCharacter(ctx context.Context, req *proto.GetCharacterRequest) (resp *proto.CharacterResponse, err error) {

@@ -54,7 +54,7 @@ type Config struct {
 	Backend  model.Config  `toml:"backend"`
 }
 
-// NewConfig loads a TOML configuration from the given path.
+// NewConfigFromTOMLFile loads a TOML configuration from the given path.
 func NewConfigFromTOMLFile(tomlPath string) (*Config, error) {
 	if !filepath.IsAbs(tomlPath) {
 		cwd, err := os.Getwd()

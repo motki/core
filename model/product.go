@@ -60,6 +60,25 @@ func (p Product) Cost() decimal.Decimal {
 	return cost.Div(batchSize)
 }
 
+// Clone copies the Product and all materials, omitting the ProductIDs.
+func (p Product) Clone() *Product {
+	mats := make([]*Product, len(p.Materials))
+	for k, m := range p.Materials {
+		mats[k] = m.Clone()
+	}
+	return &Product{
+		TypeID:             p.TypeID,
+		Materials:          mats,
+		Quantity:           p.Quantity,
+		MarketPrice:        p.MarketPrice,
+		MarketRegionID:     p.MarketRegionID,
+		MaterialEfficiency: p.MaterialEfficiency,
+		BatchSize:          p.BatchSize,
+		Kind:               p.Kind,
+		CorporationID:      p.CorporationID,
+	}
+}
+
 // NewProduct creates a new production chain for the given corporation and type.
 func (m *Manager) NewProduct(corpID int, typeID int) (*Product, error) {
 	bp, err := m.evedb.GetBlueprint(typeID)

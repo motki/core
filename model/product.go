@@ -47,12 +47,13 @@ func (p Product) Cost() decimal.Decimal {
 	// product scale.
 	cost := decimal.NewFromFloat(0)
 	for _, m := range p.Materials {
-		// cost = cost + (m.Cost * round(m.Quantity / (1 + p.MaterialEfficiency) * p.BatchSize)
-		cost = cost.Add(m.Cost().
-			Mul(decimal.NewFromFloat(float64(m.Quantity)).
-				Div(p.MaterialEfficiency.Add(decimal.NewFromFloat(1))).
-				Mul(batchSize).
-				Round(0)))
+		// qtyAfterMEMulBatchSize = ceil(m.Quantity / (1 + p.MaterialEfficiency) * p.BatchSize)
+		qtyAfterMEMulBatchSize := decimal.NewFromFloat(float64(m.Quantity)).
+			Div(p.MaterialEfficiency.Add(decimal.NewFromFloat(1))).
+			Mul(batchSize).
+			Ceil()
+		// cost = cost + (m.Cost * qtyAfterMEMulBatchSize)
+		cost = cost.Add(m.Cost().Mul(qtyAfterMEMulBatchSize))
 	}
 	// Bring the final cost back to a single-product scale by dividing by the
 	// total component cost by the batch size at the end.

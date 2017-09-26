@@ -2,12 +2,20 @@
 // environment with all the necessary dependencies.
 //
 // The goal with this package is to provide a single, reusable base for
-// interacting with a given motkid installation.
+// interacting with the various functions provided by the motki library.
 //
-// This package imports every other motkid package. As such, it cannot be
-// imported from the "library" portion of the project. It is intended to be
-// used from an external package, such as is signals in the motkid and motki
-// commands.
+// This package imports every other motki library package. As such, it cannot
+// be imported from the "library" portion of the project. It is intended to be
+// used from an external package.
+//
+// This package provides two types of environments: client-only, and
+// client/server.
+//
+// Client-only environments, represented by ClientEnv, only contain client-
+// side logic and require a remote motki grpc server to provide data.
+//
+// Client/server environments, represented by Env, contain both the client-
+// side services and server-side services, including a grpc server.
 package app
 
 import (
@@ -29,12 +37,16 @@ import (
 	"github.com/motki/motki/evedb"
 	"github.com/motki/motki/log"
 	"github.com/motki/motki/model"
+	_ "github.com/motki/motki/proto"
 	"github.com/motki/motki/proto/client"
 	"github.com/motki/motki/proto/server"
 	"github.com/motki/motki/worker"
 )
 
-// Config represents a fully configured motkid installation.
+// Config represents the configuration of an Env or ClientEnv.
+//
+// Note that the Database and EVEAPI Config structs may not be populated
+// if the intent is to use the Config for creating a ClientEnv.
 type Config struct {
 	Logging  log.Config    `toml:"logging"`
 	Database db.Config     `toml:"db"`
@@ -64,6 +76,8 @@ func NewConfigFromTOMLFile(tomlPath string) (*Config, error) {
 }
 
 // A ClientEnv is an environment without any server-side components.
+//
+// For a ClientEnv to function, it must connect to a remote motki grpc server.
 type ClientEnv struct {
 	conf *Config
 
@@ -72,23 +86,6 @@ type ClientEnv struct {
 	Client    client.Client
 
 	signals chan os.Signal
-}
-
-// An Env is a fully integrated environment.
-//
-// This struct contains all the core services needed by motkid, but
-// does not contain any web or mail server related services.
-type Env struct {
-	*ClientEnv
-
-	DB    *db.ConnPool
-	Model *model.Manager
-
-	EveCentral *evecentral.EveCentral
-	EveDB      *evedb.EveDB
-	EveAPI     *eveapi.EveAPI
-
-	Server server.Server
 }
 
 // NewClientEnv creates a ClientEnv using the given configuration.
@@ -114,59 +111,8 @@ func NewClientEnv(conf *Config) (*ClientEnv, error) {
 	}, nil
 }
 
-// NewEnv creates an Env using the given configuration.
-func NewEnv(conf *Config) (*Env, error) {
-	logger := log.New(conf.Logging)
-	pool, err := db.New(conf.Database, logger)
-	if err != nil {
-		return nil, errors.Wrap(err, "app: unable to initialize db connection pool")
-	}
-	work := worker.New(logger)
-
-	ec := evecentral.New()
-	edb := evedb.New(pool)
-	api := eveapi.New(conf.EVEAPI, logger)
-	mdl := model.NewManager(pool, edb, api, ec)
-
-	if conf.Backend.Kind == model.BackendLocalGRPC {
-		conf.Backend.LocalGRPC.Listener = bufconn.Listen(1024)
-	}
-	cl, err := client.New(conf.Backend, logger)
-	if err != nil {
-		return nil, errors.Wrap(err, "app: unable to init grpc client")
-	}
-	srv, err := server.New(conf.Backend, mdl, edb, api, logger)
-	if err != nil {
-		return nil, errors.Wrap(err, "app: unable to init grpc server")
-	}
-
-	// Start serving gRPC immediately.
-	err = srv.Serve()
-	if err != nil {
-		return nil, errors.Wrap(err, "app: unable to start grpc server")
-	}
-
-	return &Env{
-		ClientEnv: &ClientEnv{
-			conf: conf,
-
-			Logger:    logger,
-			Scheduler: work,
-
-			Client: cl,
-		},
-
-		DB:     pool,
-		Model:  mdl,
-		Server: srv,
-
-		EveCentral: ec,
-		EveDB:      edb,
-		EveAPI:     api,
-	}, nil
-}
-
-// ShutdownFunc is a simple function intended to be called prior to application exit.
+// ShutdownFunc is a simple function intended to be called prior to application
+// exit.
 type ShutdownFunc func()
 
 // BlockUntilSignalWith will block until it receives the signals signal.
@@ -174,10 +120,9 @@ type ShutdownFunc func()
 // This function attempts to perform a graceful shutdown, shutting
 // down all services and doing whatever clean up processes are necessary.
 //
-// Each pre-exit task exists in the form of a ShutdownFunc.
-//
-// Note that each ShutdownFunc is run concurrently and there is a finite amount
-// of time for them to return before the application exits anyway.
+// Each pre-exit task exists in the form of a ShutdownFunc. Each ShutdownFunc
+// is run concurrently and there is a finite amount of time for them to return
+// before the application exits anyway.
 func (env *ClientEnv) BlockUntilSignalWith(signals chan os.Signal, fns ...ShutdownFunc) {
 	signal.Notify(signals, os.Interrupt, syscall.SIGTERM)
 	s := <-signals
@@ -234,15 +179,84 @@ func (env *ClientEnv) shutdownFuncs() []ShutdownFunc {
 		}}
 }
 
+// An Env is a fully integrated environment.
+//
+// This struct contains all the client and server services provided by the
+// motki library. It does not contain any web or mail server related services.
+type Env struct {
+	*ClientEnv
+
+	DB    *db.ConnPool
+	Model *model.Manager
+
+	EveCentral *evecentral.EveCentral
+	EveDB      *evedb.EveDB
+	EveAPI     *eveapi.EveAPI
+
+	Server server.Server
+}
+
+// NewEnv creates an Env using the given configuration.
+func NewEnv(conf *Config) (*Env, error) {
+	logger := log.New(conf.Logging)
+	pool, err := db.New(conf.Database, logger)
+	if err != nil {
+		return nil, errors.Wrap(err, "app: unable to initialize db connection pool")
+	}
+	work := worker.New(logger)
+
+	ec := evecentral.New()
+	edb := evedb.New(pool)
+	api := eveapi.New(conf.EVEAPI, logger)
+	mdl := model.NewManager(pool, edb, api, ec)
+
+	if conf.Backend.Kind == model.BackendLocalGRPC {
+		conf.Backend.LocalGRPC.Listener = bufconn.Listen(1024)
+	}
+	cl, err := client.New(conf.Backend, logger)
+	if err != nil {
+		return nil, errors.Wrap(err, "app: unable to init grpc client")
+	}
+	srv, err := server.New(conf.Backend, mdl, edb, api, logger)
+	if err != nil {
+		return nil, errors.Wrap(err, "app: unable to init grpc server")
+	}
+
+	// Start serving gRPC immediately.
+	err = srv.Serve()
+	if err != nil {
+		return nil, errors.Wrap(err, "app: unable to start grpc server")
+	}
+
+	return &Env{
+		ClientEnv: &ClientEnv{
+			conf: conf,
+
+			Logger:    logger,
+			Scheduler: work,
+
+			Client: cl,
+		},
+
+		DB:     pool,
+		Model:  mdl,
+		Server: srv,
+
+		EveCentral: ec,
+		EveDB:      edb,
+		EveAPI:     api,
+	}, nil
+}
+
 // BlockUntilSignal will block until it receives a signal.
 //
 // This function performs the default shutdown procedure when it receives
 // a signal.
 //
 // See BlockUntilSignalWith for more details.
-func (env *Env) BlockUntilSignal(abort chan os.Signal) {
-	env.signals = abort
-	env.BlockUntilSignalWith(abort, append([]ShutdownFunc{
+func (env *Env) BlockUntilSignal(signals chan os.Signal) {
+	env.signals = signals
+	env.BlockUntilSignalWith(signals, append([]ShutdownFunc{
 		func() {
 			if env.Server == nil {
 				return

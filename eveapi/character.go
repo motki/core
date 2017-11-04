@@ -1,6 +1,7 @@
 package eveapi
 
 import (
+	"context"
 	"time"
 )
 
@@ -17,7 +18,7 @@ type Character struct {
 }
 
 func (api *EveAPI) GetCharacter(characterID int) (char *Character, err error) {
-	dat, _, err := api.client.ESI.CharacterApi.GetCharactersCharacterId(int32(characterID), nil)
+	dat, _, err := api.client.ESI.CharacterApi.GetCharactersCharacterId(context.Background(), int32(characterID), nil)
 	if err != nil {
 		return char, err
 	}

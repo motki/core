@@ -1,32 +1,13 @@
 package eveapi
 
 import (
+	"context"
 	"sort"
 	"time"
 
 	"github.com/pkg/errors"
 	"github.com/shopspring/decimal"
 )
-
-type MarketOrderKind int
-
-const (
-	MarketOrderKindAll MarketOrderKind = iota
-	MarketOrderKindSell
-	MarketOrderKindBuy
-)
-
-type MarketOrder struct {
-	Kind         MarketOrderKind
-	LocationID   int
-	Range        string
-	Price        decimal.Decimal
-	MinVolume    int // Minimum quantity for buy orders.
-	VolumeRemain int
-	VolumeTotal  int
-	Duration     time.Duration
-	DateIssued   time.Time
-}
 
 type MarketPrice struct {
 	TypeID       int
@@ -35,12 +16,12 @@ type MarketPrice struct {
 }
 
 func (api *EveAPI) GetMarketPrices() (prices chan MarketPrice, cancelFn func(), err error) {
-	res, _, err := api.client.ESI.MarketApi.GetMarketsPrices(nil)
+	res, _, err := api.client.ESI.MarketApi.GetMarketsPrices(context.Background(), nil)
 	if err != nil {
 		return nil, nil, err
 	}
 	if len(res) == 0 {
-		return nil, nil, errors.New("no results.")
+		return nil, nil, errors.New("no results")
 	}
 	prices = make(chan MarketPrice, 16)
 	abort := make(chan struct{})
@@ -118,7 +99,7 @@ func (s marketStatSlice) Swap(i, j int) {
 }
 
 func (api *EveAPI) GetMarketHistoryRegionTypeID(regionID, typeID int) ([]*MarketStat, error) {
-	his, _, err := api.client.ESI.MarketApi.GetMarketsRegionIdHistory(int32(regionID), int32(typeID), nil)
+	his, _, err := api.client.ESI.MarketApi.GetMarketsRegionIdHistory(context.Background(), int32(regionID), int32(typeID), nil)
 	if err != nil {
 		return nil, err
 	}

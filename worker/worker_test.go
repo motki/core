@@ -19,6 +19,7 @@ import (
 
 var delay = 100 * time.Microsecond
 
+// TestScheduler tests basic functionality
 func TestScheduler(t *testing.T) {
 	sched := worker.NewWithTick(log.New(log.Config{Level: "fatal"}), delay)
 	defer sched.Shutdown()
@@ -41,11 +42,30 @@ func TestScheduler(t *testing.T) {
 	}
 }
 
+// TestSchedulerDoesntPanic tests that the scheduler doesn't panic when immediately shutdown.
 func TestSchedulerDoesntPanic(t *testing.T) {
 	sched := worker.NewWithTick(log.New(log.Config{Level: "fatal"}), delay)
-	sched.Shutdown()
+	if err := sched.Shutdown(); err != nil {
+		t.Errorf("unexpected error: %s", err.Error())
+	}
 }
 
+// TestSchedulerShutdownTimeout tests the shutdown timeout.
+func TestSchedulerShutdownTimeout(t *testing.T) {
+	sched := worker.NewWithTick(log.New(log.Config{Level: "fatal"}), delay)
+	sched.ShutdownTimeout = 10 * time.Millisecond
+	sched.ScheduleFunc(func() error {
+		time.Sleep(1 * time.Second)
+		return nil
+	})
+	time.Sleep(10 * time.Millisecond)
+	err := sched.Shutdown()
+	if err == nil || !strings.Contains(err.Error(), "shutdown timed out") {
+		t.Errorf("expected error, got %s", err)
+	}
+}
+
+// testBuf is a locking "buffer" to ensure the test does not race.
 type testBuf struct {
 	sync.Mutex
 	out [][]byte
@@ -71,6 +91,7 @@ func (t *testBuf) Len() int {
 	return len(t.out)
 }
 
+// TestSchedulerError tests that errors are returned and logged.
 func TestSchedulerError(t *testing.T) {
 	logger := logrus.New()
 	buf := &testBuf{}
@@ -117,6 +138,7 @@ func TestSchedulerError(t *testing.T) {
 	}
 }
 
+// TestScheduleAt tests scheduling a job at a specific time in the future.
 func TestScheduleAt(t *testing.T) {
 	sched := worker.NewWithTick(log.New(log.Config{Level: "fatal"}), delay)
 	defer sched.Shutdown()
@@ -141,6 +163,7 @@ func TestScheduleAt(t *testing.T) {
 	}
 }
 
+// TestRepeatEvery tests repeating jobs.
 func TestRepeatEvery(t *testing.T) {
 	sched := worker.NewWithTick(log.New(log.Config{Level: "fatal"}), delay)
 	defer sched.Shutdown()

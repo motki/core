@@ -44,6 +44,8 @@ type Scheduler struct {
 	countMutex sync.Mutex // Guards workers.
 
 	logger log.Logger
+
+	ShutdownTimeout time.Duration
 }
 
 // New creates a new scheduler, ready to use.
@@ -51,6 +53,7 @@ func New(logger log.Logger) *Scheduler {
 	return NewWithTick(logger, 5*time.Second)
 }
 
+// NewWithTick creates a new scheduler with a tick duration of delay.
 func NewWithTick(logger log.Logger, delay time.Duration) *Scheduler {
 	s := &Scheduler{
 		delay: delay,
@@ -68,6 +71,8 @@ func NewWithTick(logger log.Logger, delay time.Duration) *Scheduler {
 		countMutex: sync.Mutex{},
 
 		logger: logger,
+
+		ShutdownTimeout: 1 * time.Second,
 	}
 	go s.Loop()
 	go s.loopSchedule()
@@ -141,6 +146,7 @@ func (s *Scheduler) dec() {
 	if s.workers == 0 {
 		select {
 		case <-s.done:
+			// Select on s.done to guard from closing the channel twice.
 			return
 		default:
 			close(s.done)
@@ -150,49 +156,55 @@ func (s *Scheduler) dec() {
 
 // loopSchedule moves jobs to the waiting channel as their scheduled time is reached.
 func (s *Scheduler) loopSchedule() {
-	tick := time.Tick(s.delay)
 	s.inc()
 	defer s.dec()
+	tick := time.Tick(s.delay)
 	for {
 		select {
 		case <-s.quit:
+			// Quit signal received, return.
 			return
-
 		case t := <-tick:
+			// Chunk the time into intervals separated by s.delay.
 			t = t.Truncate(s.delay)
+			// Iterate over each step previous to t.
 			for s.step.Before(t) {
-
 				s.schedMutex.Lock()
+				// Read any jobs for the current time step, if any.
 				jobs := s.scheduled[s.step]
+				// Delete the index in the map. If it didn't exist, it's a no-op.
 				delete(s.scheduled, s.step)
 				s.schedMutex.Unlock()
 
+				// Move any jobs to the waiting channel.
 				for _, j := range jobs {
 					s.waiting <- j
 				}
 
 				s.schedMutex.Lock()
+				// Increment the current step.
 				s.step = s.step.Add(s.delay)
 				s.schedMutex.Unlock()
 			}
-
 		}
 	}
 }
 
 // Loop begins a worker goroutine that takes care of running any jobs.
 func (s *Scheduler) Loop() {
-	tick := time.Tick(s.delay)
 	s.inc()
 	defer s.dec()
+	tick := time.Tick(s.delay)
 	for {
 		select {
 		case <-s.quit:
+			// Quit signal received, return.
 			return
 
 		case <-tick:
 			select {
 			case j := <-s.waiting:
+				// Received a waiting job, perform the work.
 				if err := j.Perform(); err != nil {
 					s.logger.Warnf("scheduler: job returned error: %s", err.Error())
 				}
@@ -205,12 +217,16 @@ func (s *Scheduler) Loop() {
 
 // Shutdown performs a graceful shutdown of the scheduler.
 func (s *Scheduler) Shutdown() error {
+	// Signal workers to shutdown.
 	close(s.quit)
 	select {
 	case <-s.done:
+		// Block until workers decrements to 0 and the done channel is closed;
+		// the scheduler is done shutting down, and can return.
 		break
 
-	case <-time.Tick(1 * time.Second):
+	case <-time.Tick(s.ShutdownTimeout):
+		// Or until ^ duration elapses, in which case, return an error.
 		return errors.New("scheduler shutdown timed out")
 	}
 	return nil

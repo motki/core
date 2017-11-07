@@ -5,6 +5,8 @@ import (
 	"sync"
 	"time"
 
+	"github.com/pkg/errors"
+
 	"github.com/motki/motki/log"
 )
 
@@ -23,28 +25,52 @@ func (j JobFunc) Perform() error {
 
 // Scheduler is the entry-point for scheduling jobs to run asynchronously.
 type Scheduler struct {
-	tick    *time.Ticker
-	waiting chan Job
-	quit    chan struct{}
-	wg      sync.WaitGroup
-	logger  log.Logger
+	delay time.Duration
+
+	waiting chan Job // Jobs ready to be performed.
+
+	// Scheduled jobs are stored as slices truncated to "delay" intervals.
+	//
+	// For example, if delay is 5 * time.Millisecond, the scheduled map will
+	// contain a slice of jobs for every 5 milliseconds, rounded down.
+	scheduled  map[time.Time][]Job
+	step       time.Time  // The current step in time.
+	schedMutex sync.Mutex // Guards scheduled and step.
+
+	quit chan struct{} // Closed when shutting down.
+	done chan struct{} // Closed when finished shutting down.
+
+	workers    int64      // Number of active worker goroutines.
+	countMutex sync.Mutex // Guards workers.
+
+	logger log.Logger
 }
 
 // New creates a new scheduler, ready to use.
 func New(logger log.Logger) *Scheduler {
 	return NewWithTick(logger, 5*time.Second)
-
 }
 
 func NewWithTick(logger log.Logger, delay time.Duration) *Scheduler {
 	s := &Scheduler{
-		tick:    time.NewTicker(delay),
+		delay: delay,
+
 		waiting: make(chan Job, 5),
-		quit:    make(chan struct{}, 0),
-		wg:      sync.WaitGroup{},
-		logger:  logger,
+
+		scheduled:  make(map[time.Time][]Job),
+		step:       time.Now().Truncate(delay),
+		schedMutex: sync.Mutex{},
+
+		quit: make(chan struct{}, 0),
+		done: make(chan struct{}, 0),
+
+		workers:    0,
+		countMutex: sync.Mutex{},
+
+		logger: logger,
 	}
 	go s.Loop()
+	go s.loopSchedule()
 	return s
 }
 
@@ -60,20 +86,114 @@ func (s *Scheduler) ScheduleFunc(j func() error) error {
 	return nil
 }
 
-// Loop starts the scheduler.
-func (s *Scheduler) Loop() {
-	s.wg.Add(1)
+// ScheduleAt adds a job to be performed at a specific time.
+func (s *Scheduler) ScheduleAt(j Job, t time.Time) error {
+	s.schedMutex.Lock()
+	defer s.schedMutex.Unlock()
+
+	t = t.Truncate(s.delay)
+	if !t.After(s.step) {
+		return errors.New("cannot schedule a job in the past")
+	}
+	s.scheduled[t] = append(s.scheduled[t], j)
+
+	return nil
+}
+
+// ScheduleFuncAt is a convenience method for adding a bare func as a job.
+func (s *Scheduler) ScheduleFuncAt(j func() error, t time.Time) error {
+	return s.ScheduleAt(JobFunc(j), t)
+}
+
+// RepeatEvery wraps a job, rescheduling it after each successful run.
+func (s *Scheduler) RepeatEvery(j Job, d time.Duration) Job {
+	var res Job
+	res = JobFunc(func() error {
+		err := j.Perform()
+		if err != nil {
+			return err
+		}
+		return s.ScheduleAt(res, time.Now().Add(d))
+	})
+	return res
+}
+
+// RepeatFuncEvery is a convenience method for wrapping a bare func as a repeated job.
+func (s *Scheduler) RepeatFuncEvery(j func() error, d time.Duration) Job {
+	return s.RepeatEvery(JobFunc(j), d)
+}
+
+// inc atomically increments the number of workers.
+func (s *Scheduler) inc() {
+	s.countMutex.Lock()
+	defer s.countMutex.Unlock()
+	s.workers += 1
+}
+
+// dec atomically decrements the number of workers.
+//
+// The first time workers is reduced to 0, the done channel is closed, allowing
+// the scheduler to shut down gracefully.
+func (s *Scheduler) dec() {
+	s.countMutex.Lock()
+	defer s.countMutex.Unlock()
+	s.workers -= 1
+	if s.workers == 0 {
+		select {
+		case <-s.done:
+			return
+		default:
+			close(s.done)
+		}
+	}
+}
+
+// loopSchedule moves jobs to the waiting channel as their scheduled time is reached.
+func (s *Scheduler) loopSchedule() {
+	tick := time.Tick(s.delay)
+	s.inc()
+	defer s.dec()
 	for {
 		select {
 		case <-s.quit:
-			s.wg.Done()
 			return
 
-		case <-s.tick.C:
+		case t := <-tick:
+			t = t.Truncate(s.delay)
+			for s.step.Before(t) {
+
+				s.schedMutex.Lock()
+				jobs := s.scheduled[s.step]
+				delete(s.scheduled, s.step)
+				s.schedMutex.Unlock()
+
+				for _, j := range jobs {
+					s.waiting <- j
+				}
+
+				s.schedMutex.Lock()
+				s.step = s.step.Add(s.delay)
+				s.schedMutex.Unlock()
+			}
+
+		}
+	}
+}
+
+// Loop begins a worker goroutine that takes care of running any jobs.
+func (s *Scheduler) Loop() {
+	tick := time.Tick(s.delay)
+	s.inc()
+	defer s.dec()
+	for {
+		select {
+		case <-s.quit:
+			return
+
+		case <-tick:
 			select {
 			case j := <-s.waiting:
-				err := j.Perform()
-				if err != nil {
+				if err := j.Perform(); err != nil {
 					s.logger.Warnf("scheduler: job returned error: %s", err.Error())
 				}
 			default:
@@ -86,6 +206,12 @@ func (s *Scheduler) Loop() {
 // Shutdown performs a graceful shutdown of the scheduler.
 func (s *Scheduler) Shutdown() error {
 	close(s.quit)
-	s.wg.Wait()
+	select {
+	case <-s.done:
+		break
+
+	case <-time.Tick(1 * time.Second):
+		return errors.New("scheduler shutdown timed out")
+	}
 	return nil
 }

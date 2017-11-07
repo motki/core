@@ -3,14 +3,11 @@ package worker_test
 
 import (
 	"errors"
+	"strings"
+	"sync"
+	"sync/atomic"
 	"testing"
 	"time"
-
-	"strings"
-
-	"sync/atomic"
-
-	"sync"
 
 	"github.com/motki/motki/log"
 	"github.com/motki/motki/worker"

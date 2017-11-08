@@ -25,12 +25,11 @@ func (j JobFunc) Perform() error {
 
 // Scheduler is the entry-point for scheduling jobs to run asynchronously.
 type Scheduler struct {
-	delay time.Duration
+	delay time.Duration // Delay between ticks.
 
 	waiting chan Job // Jobs ready to be performed.
 
 	// Scheduled jobs are stored as slices truncated to "delay" intervals.
-	//
 	// For example, if delay is 5 * time.Millisecond, the scheduled map will
 	// contain a slice of jobs for every 5 milliseconds, rounded down.
 	scheduled  map[time.Time][]Job
@@ -45,6 +44,8 @@ type Scheduler struct {
 
 	logger log.Logger
 
+	// Acceptable time to wait before forcefully quitting when shutting down
+	// gracefully.
 	ShutdownTimeout time.Duration
 }
 

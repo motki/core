@@ -100,7 +100,7 @@ func (m *Manager) getCorporationAssetFromDB(corpID int, itemID int) (*Asset, err
 			, a.raw_quantity
 			, a.flag_id
 			, (a.fetched_at > (NOW() - INTERVAL '12 hours')) status
-			, (a.valid = 1) validity
+			, (a.valid = TRUE) validity
 			, a.corporation_id
 			FROM app.assets a
 			WHERE a.corporation_id = $1
@@ -111,7 +111,6 @@ func (m *Manager) getCorporationAssetFromDB(corpID int, itemID int) (*Asset, err
 		return nil, err
 	}
 	r := &Asset{}
-	singleton := 0
 	var status bool
 	var valid bool
 	err = rs.Scan(
@@ -119,7 +118,7 @@ func (m *Manager) getCorporationAssetFromDB(corpID int, itemID int) (*Asset, err
 		&r.LocationID,
 		&r.TypeID,
 		&r.Quantity,
-		&singleton,
+		&r.Singleton,
 		&r.RawQuantity,
 		&r.FlagID,
 		&status,
@@ -134,9 +133,6 @@ func (m *Manager) getCorporationAssetFromDB(corpID int, itemID int) (*Asset, err
 	}
 	if !valid {
 		return nil, errors.New("invalid database entry")
-	}
-	if singleton > 0 {
-		r.Singleton = true
 	}
 	return r, nil
 }
@@ -159,31 +155,27 @@ func (m *Manager) getCorporationAssetsFromDB(corpID int) ([]*Asset, error) {
 			, a.corporation_id
 			FROM app.assets a
 			WHERE a.corporation_id = $1
-			  AND a.valid = 1
-			  AND a.fetched_at > (NOW() - INTERVAL '12 hours')`, corpID)
+			  AND a.valid = TRUE
+			  AND a.fetched_at > (NOW() - INTERVAL '7 hours')`, corpID)
 	if err != nil {
 		return nil, err
 	}
 	defer rs.Close()
-	res := []*Asset{}
+	var res []*Asset
 	for rs.Next() {
 		r := &Asset{}
-		singleton := 0
 		err := rs.Scan(
 			&r.ItemID,
 			&r.LocationID,
 			&r.TypeID,
 			&r.Quantity,
-			&singleton,
+			&r.Singleton,
 			&r.RawQuantity,
 			&r.FlagID,
 			&r.corpID,
 		)
 		if err != nil {
 			return nil, err
-		}
-		if singleton > 0 {
-			r.Singleton = true
 		}
 		res = append(res, r)
 	}
@@ -211,17 +203,14 @@ func (m *Manager) apiCorporationAssetsToDB(corpID int, bps []*Asset) ([]*Asset, 
 		return nil, err
 	}
 	defer m.pool.Release(db)
-	_, err = db.Exec(`UPDATE app.assets SET valid = 0 WHERE corporation_id = $1`, corpID)
+	_, err = db.Exec(`UPDATE app.assets SET valid = FALSE WHERE corporation_id = $1`, corpID)
 	if err != nil {
 		return nil, err
 	}
 	for _, bp := range bps {
-		s := 0
-		if bp.Singleton {
-			s = 1
-		}
 		_, err = db.Exec(
 			`INSERT INTO app.assets
+					(corporation_id, character_id, item_id, location_id, type_id, quantity, singleton, raw_quantity, flag_id, fetched_at, valid)
 					VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, DEFAULT, DEFAULT)`,
 			corpID,
 			0,
@@ -229,7 +218,7 @@ func (m *Manager) apiCorporationAssetsToDB(corpID int, bps []*Asset) ([]*Asset, 
 			bp.LocationID,
 			bp.TypeID,
 			bp.Quantity,
-			s,
+			bp.Singleton,
 			bp.RawQuantity,
 			bp.FlagID,
 		)

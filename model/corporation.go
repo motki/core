@@ -261,7 +261,6 @@ func (m *Manager) apiCorporationDetailToDB(detail *CorporationDetail) (*Corporat
 			     , faction_id = EXCLUDED.faction_id
 			     , member_count = EXCLUDED.member_count
 			     , shares = EXCLUDED.shares
-			     , opt_in = EXCLUDED.opt_in
 			     , hangars = EXCLUDED.hangars
 			     , divisions = EXCLUDED.divisions
 			     , fetched_at = DEFAULT`,
@@ -291,6 +290,32 @@ type CorporationConfig struct {
 	CreatedAt time.Time
 }
 
+func (m *Manager) GetCorporationsOptedIn() ([]int, error) {
+	c, err := m.pool.Open()
+	if err != nil {
+		return nil, err
+	}
+	defer m.pool.Release(c)
+	rs, err := c.Query(
+		`SELECT
+			  c.corporation_id
+			FROM app.corporation_settings c
+			WHERE c.opted_in = TRUE`)
+	if err != nil {
+		return nil, err
+	}
+	defer rs.Close()
+	var res []int
+	for rs.Next() {
+		i := 0
+		if err = rs.Scan(&i); err != nil {
+			return nil, err
+		}
+		res = append(res, i)
+	}
+	return res, nil
+}
+
 func (m *Manager) GetCorporationConfig(corpID int) (*CorporationConfig, error) {
 	c, err := m.pool.Open()
 	if err != nil {
@@ -307,9 +332,8 @@ func (m *Manager) GetCorporationConfig(corpID int) (*CorporationConfig, error) {
 			FROM app.corporation_settings c
 			WHERE c.corporation_id = $1`, corpID)
 	corp := &CorporationConfig{}
-	optIn := 0
 	err = r.Scan(
-		&optIn,
+		&corp.OptIn,
 		&corp.OptInBy,
 		&corp.OptInDate,
 		&corp.CreatedBy,
@@ -321,10 +345,19 @@ func (m *Manager) GetCorporationConfig(corpID int) (*CorporationConfig, error) {
 		}
 		return nil, err
 	}
-	if optIn > 0 {
-		corp.OptIn = true
-	}
 	return corp, nil
+}
+
+func (m *Manager) GetCorporationAuthorization(corpID int) (*Authorization, error) {
+	config, err := m.GetCorporationConfig(corpID)
+	if err != nil {
+		return nil, err
+	}
+	if !config.OptIn {
+		return nil, ErrCorpNotRegistered
+	}
+	user := &User{UserID: config.OptInBy}
+	return m.GetAuthorization(user, RoleDirector)
 }
 
 func (m *Manager) SaveCorporationConfig(corpID int, detail *CorporationConfig) error {
@@ -333,10 +366,6 @@ func (m *Manager) SaveCorporationConfig(corpID int, detail *CorporationConfig) e
 		return err
 	}
 	defer m.pool.Release(db)
-	optIn := 0
-	if detail.OptIn {
-		optIn = 1
-	}
 	_, err = db.Exec(
 		`INSERT INTO app.corporation_settings
 			 (
@@ -355,7 +384,7 @@ func (m *Manager) SaveCorporationConfig(corpID int, detail *CorporationConfig) e
 			     , opted_in_by = EXCLUDED.opted_in_by
 			     , opted_in_at = EXCLUDED.opted_in_at`,
 		corpID,
-		optIn,
+		detail.OptIn,
 		detail.OptInBy,
 		detail.OptInDate,
 		detail.CreatedBy,

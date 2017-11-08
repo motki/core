@@ -285,6 +285,18 @@ func (m *Manager) GetAuthorization(user *User, role Role) (*Authorization, error
 		return nil, err
 	}
 	a.Token = (*oauth2.Token)(token)
+	source, err := m.eveapi.TokenSource((*goesi.CRESTToken)(token))
+	if err != nil {
+		return nil, err
+	}
+	info, err := m.eveapi.Verify(source)
+	if err != nil {
+		return nil, err
+	}
+	if int(info.CharacterID) != a.CharacterID {
+		return nil, errors.New("expected character IDs to match!")
+	}
+	a.source = source
 	// Force retrieval of current char info from the API
 	char, err := m.getCharacterFromAPI(a.CharacterID)
 	if err != nil {
@@ -329,10 +341,11 @@ type Authorization struct {
 	CorporationID int
 	Role          Role
 	Token         *oauth2.Token
+	source        oauth2.TokenSource
 }
 
 func (a *Authorization) Context() context.Context {
-	return context.WithValue(context.Background(), goesi.ContextOAuth2, a.Token)
+	return context.WithValue(context.Background(), goesi.ContextOAuth2, a.source)
 }
 
 var (

@@ -30,13 +30,12 @@ CREATE TABLE app.corporation_details
 (
   corporation_id BIGINT PRIMARY KEY NOT NULL,
   ceo_id BIGINT NOT NULL,
-  ceo_name VARCHAR(255),
+  ceo_name VARCHAR(255) NOT NULL,
   hq_station_id BIGINT NOT NULL,
   hq_station_name VARCHAR(255) NOT NULL,
   faction_id INT NOT NULL,
   member_count INT NOT NULL,
   shares INT NOT NULL,
-  opt_in SMALLINT NOT NULL DEFAULT 0,
   hangars BYTEA NOT NULL,
   divisions BYTEA NOT NULL,
   fetched_at TIMESTAMP DEFAULT NOW()
@@ -46,7 +45,7 @@ DROP TABLE IF EXISTS app.corporation_settings;
 CREATE TABLE app.corporation_settings
 (
   corporation_id BIGINT PRIMARY KEY NOT NULL,
-  opted_in SMALLINT NOT NULL DEFAULT 0,
+  opted_in BOOLEAN NOT NULL DEFAULT 0,
   opted_in_by INT NOT NULL DEFAULT 0,
   opted_in_at TIMESTAMP DEFAULT NULL,
   created_by INT NOT NULL,

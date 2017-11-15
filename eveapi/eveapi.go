@@ -9,6 +9,7 @@ import (
 	"github.com/antihax/goesi"
 	"github.com/gregjones/httpcache"
 	"github.com/motki/motki/log"
+	"golang.org/x/oauth2"
 )
 
 var ErrNoToken = errors.New("unable to get token from context")
@@ -48,20 +49,20 @@ func (api *EveAPI) AuthorizeURL(state string, scopes ...string) string {
 	return api.ssoAuth.AuthorizeURL(state, true, scopes)
 }
 
-func (api *EveAPI) TokenExchange(code string) (*goesi.CRESTToken, error) {
+func (api *EveAPI) TokenExchange(code string) (*oauth2.Token, error) {
 	return api.ssoAuth.TokenExchange(code)
 }
 
-func (api *EveAPI) TokenSource(tok *goesi.CRESTToken) (goesi.CRESTTokenSource, error) {
+func (api *EveAPI) TokenSource(tok *oauth2.Token) (oauth2.TokenSource, error) {
 	return api.ssoAuth.TokenSource(tok)
 }
 
-func (api *EveAPI) Verify(source goesi.CRESTTokenSource) (*goesi.VerifyResponse, error) {
+func (api *EveAPI) Verify(source oauth2.TokenSource) (*goesi.VerifyResponse, error) {
 	return api.ssoAuth.Verify(source)
 }
 
-func TokenFromContext(ctx context.Context) (goesi.CRESTTokenSource, error) {
-	if v, ok := ctx.Value(goesi.ContextOAuth2).(goesi.CRESTTokenSource); ok {
+func TokenFromContext(ctx context.Context) (oauth2.TokenSource, error) {
+	if v, ok := ctx.Value(goesi.ContextOAuth2).(oauth2.TokenSource); ok {
 		return v, nil
 	}
 	return nil, ErrNoToken

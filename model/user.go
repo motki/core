@@ -285,7 +285,7 @@ func (m *Manager) GetAuthorization(user *User, role Role) (*Authorization, error
 		return nil, err
 	}
 	a.Token = (*oauth2.Token)(token)
-	source, err := m.eveapi.TokenSource((*goesi.CRESTToken)(token))
+	source, err := m.eveapi.TokenSource(a.Token)
 	if err != nil {
 		return nil, err
 	}

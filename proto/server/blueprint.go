@@ -21,7 +21,7 @@ func (srv *GRPCServer) getAuthorizedContext(tok *proto.Token, role model.Role) (
 	if err != nil {
 		return nil, 0, err
 	}
-	source, err := srv.eveapi.TokenSource((*goesi.CRESTToken)(a.Token))
+	source, err := srv.eveapi.TokenSource(a.Token)
 	if err != nil {
 		return nil, 0, err
 	}

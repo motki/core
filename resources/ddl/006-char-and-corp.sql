@@ -45,7 +45,7 @@ DROP TABLE IF EXISTS app.corporation_settings;
 CREATE TABLE app.corporation_settings
 (
   corporation_id BIGINT PRIMARY KEY NOT NULL,
-  opted_in BOOLEAN NOT NULL DEFAULT 0,
+  opted_in BOOLEAN NOT NULL DEFAULT TRUE,
   opted_in_by INT NOT NULL DEFAULT 0,
   opted_in_at TIMESTAMP DEFAULT NULL,
   created_by INT NOT NULL,

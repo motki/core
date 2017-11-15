@@ -54,4 +54,4 @@ CREATE TABLE app.market_orders
   issued TIMESTAMP NOT NULL,
   fetched_at TIMESTAMP NOT NULL DEFAULT NOW(),
   loner SMALLINT NOT NULL DEFAULT 0
-)
+);

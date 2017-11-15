@@ -12,6 +12,7 @@ import (
 
 	"github.com/jackc/pgx"
 	"github.com/motki/motki/eveapi"
+	"github.com/motki/motki/log"
 )
 
 var ErrCorpNotRegistered = errors.New("ceo or director is not registered for the given corporation")
@@ -390,4 +391,51 @@ func (m *Manager) SaveCorporationConfig(corpID int, detail *CorporationConfig) e
 		detail.CreatedBy,
 	)
 	return err
+}
+
+// UpdateCorporationData fetches updated data for all opted-in corporations.
+//
+// This method is intended to be invoked in regular intervals using the worker package.
+func (m *Manager) UpdateCorporationDataFunc(logger log.Logger) func() error {
+	return func() error {
+		corps, err := m.GetCorporationsOptedIn()
+		if err != nil {
+			return err
+		}
+		if len(corps) == 0 {
+			logger.Debugf("no corporations opted in, not updating corp data")
+			return nil
+		}
+		for _, corpID := range corps {
+			logger.Debugf("updating data for corp %d", corpID)
+			a, err := m.GetCorporationAuthorization(corpID)
+			if err != nil {
+				logger.Errorf("error getting corp auth: %s", err.Error())
+				continue
+			}
+
+			ctx := a.Context()
+			if _, err := m.FetchCorporationDetail(ctx); err != nil {
+				logger.Errorf("error fetching corp details: %s", err.Error())
+			}
+			if res, err := m.GetCorporationAssets(ctx, a.CorporationID); err != nil {
+				logger.Errorf("error fetching corp assets: %s", err.Error())
+			} else {
+				logger.Debugf("fetched %d assets for corporation %d", len(res), a.CorporationID)
+			}
+
+			if res, err := m.GetCorporationOrders(ctx, a.CorporationID); err != nil {
+				logger.Errorf("error fetching corp orders: %s", err.Error())
+			} else {
+				logger.Debugf("fetched %d orders for corporation %d", len(res), a.CorporationID)
+			}
+
+			if res, err := m.GetCorporationBlueprints(ctx, a.CorporationID); err != nil {
+				logger.Errorf("error fetching corp blueprints: %s", err.Error())
+			} else {
+				logger.Debugf("fetched %d blueprints for corporation %d", len(res), a.CorporationID)
+			}
+		}
+		return nil
+	}
 }

@@ -1,5 +1,5 @@
 syntax = "proto3";
-import "timestamp.proto";
+import "google/protobuf/timestamp.proto";
 import "motki.proto";
 
 package motki.model;
@@ -180,4 +180,25 @@ message GetCorpBlueprintsResponse {
 
 service CorporationService {
     rpc GetCorpBlueprints (GetCorpBlueprintsRequest) returns (GetCorpBlueprintsResponse);
+}
+
+message InventoryItem {
+    int64 type_id = 1;
+    int64 location_id = 2;
+    int64 current_level = 3;
+    int64 min_level = 4;
+    google.protobuf.Timestamp fetched_at = 5;
+}
+
+message GetCorpInventoryRequest {
+    Token token = 1;
+}
+
+message GetCorpInventoryResponse {
+    Result result = 1;
+    repeated InventoryItem item = 2;
+}
+
+service InventoryService {
+    rpc GetCorpInventory (GetCorpInventoryRequest) returns (GetCorpInventoryResponse);
 }

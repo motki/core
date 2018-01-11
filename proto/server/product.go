@@ -28,19 +28,19 @@ func (srv *GRPCServer) GetProduct(ctx context.Context, req *proto.GetProductRequ
 	if req.Token == nil {
 		return nil, errors.New("token cannot be empty")
 	}
-	user, err := srv.model.GetUserBySessionKey(req.Token.Identifier)
+	_, charID, err := srv.getAuthorizedContext(req.Token, model.RoleLogistics)
 	if err != nil {
 		return nil, err
 	}
-	a, err := srv.model.GetAuthorization(user, model.RoleLogistics)
-	if err != nil {
-		return nil, err
-	}
-	char, err := srv.model.GetCharacter(a.CharacterID)
+	char, err := srv.model.GetCharacter(charID)
 	if err != nil {
 		return nil, err
 	}
 	corp, err := srv.model.GetCorporation(char.CorporationID)
+	if err != nil {
+		return nil, err
+	}
+	_, err = srv.model.GetCorporationAuthorization(char.CorporationID)
 	if err != nil {
 		return nil, err
 	}

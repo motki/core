@@ -458,3 +458,25 @@ func BlueprintToProto(m *model.Blueprint) *Blueprint {
 		Runs:        int64(m.Runs),
 	}
 }
+
+func ProtoToInventoryItem(p *InventoryItem) *model.InventoryItem {
+	return &model.InventoryItem{
+		TypeID:       int(p.TypeId),
+		LocationID:   int(p.LocationId),
+		CurrentLevel: int(p.CurrentLevel),
+		MinimumLevel: int(p.MinLevel),
+		FetchedAt:    time.Unix(p.FetchedAt.Seconds, int64(p.FetchedAt.Nanos)),
+	}
+}
+
+func InventoryItemToProto(m *model.InventoryItem) *InventoryItem {
+	return &InventoryItem{
+		TypeId:       int64(m.TypeID),
+		LocationId:   int64(m.LocationID),
+		CurrentLevel: int64(m.CurrentLevel),
+		MinLevel:     int64(m.MinimumLevel),
+		FetchedAt: &timestamp.Timestamp{
+			int64(m.FetchedAt.Second()),
+			int32(m.FetchedAt.Nanosecond())},
+	}
+}

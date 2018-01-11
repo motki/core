@@ -4,6 +4,8 @@ import (
 	"context"
 	"errors"
 
+	"time"
+
 	"github.com/motki/motki/eveapi"
 	"github.com/motki/motki/evedb"
 )
@@ -17,7 +19,8 @@ type Asset struct {
 	Singleton   bool
 	RawQuantity int
 
-	corpID int
+	corpID    int
+	fetchedAt time.Time
 }
 
 func assetFromEveAPI(bp *eveapi.Asset) *Asset {
@@ -32,24 +35,37 @@ func assetFromEveAPI(bp *eveapi.Asset) *Asset {
 	}
 }
 
-func (m *Manager) GetCorporationAssets(ctx context.Context, corpID int) (jobs []*Asset, err error) {
-	jobs, err = m.getCorporationAssetsFromDB(corpID)
+func (m *Manager) GetCorporationAssets(ctx context.Context, corpID int) (res []*Asset, err error) {
+	res, err = m.getCorporationAssetsFromDB(corpID)
 	if err != nil {
 		return nil, err
 	}
-	if jobs != nil {
-		return jobs, nil
+	if res != nil {
+		return res, nil
 	}
 	return m.getCorporationAssetsFromAPI(ctx, corpID)
 }
 
-func (m *Manager) GetCorporationAsset(ctx context.Context, corpID int, itemID int) (job *Asset, err error) {
-	job, err = m.getCorporationAssetFromDB(corpID, itemID)
+func (m *Manager) GetCorporationAssetsByTypeAndLocationID(ctx context.Context, corpID, typeID, locationID int) (res []*Asset, err error) {
+	assets, err := m.GetCorporationAssets(ctx, corpID)
 	if err != nil {
 		return nil, err
 	}
-	if job != nil {
-		return job, nil
+	for _, a := range assets {
+		if a.TypeID == typeID && a.LocationID == locationID {
+			res = append(res, a)
+		}
+	}
+	return res, nil
+}
+
+func (m *Manager) GetCorporationAsset(ctx context.Context, corpID int, itemID int) (res *Asset, err error) {
+	res, err = m.getCorporationAssetFromDB(corpID, itemID)
+	if err != nil {
+		return nil, err
+	}
+	if res != nil {
+		return res, nil
 	}
 	assets, err := m.getCorporationAssetsFromAPI(ctx, corpID)
 	if err != nil {
@@ -57,7 +73,7 @@ func (m *Manager) GetCorporationAsset(ctx context.Context, corpID int, itemID in
 	}
 	for _, a := range assets {
 		if a.ItemID == itemID {
-			return job, nil
+			return res, nil
 		}
 	}
 	return nil, errors.New("unable to find asset")
@@ -99,6 +115,7 @@ func (m *Manager) getCorporationAssetFromDB(corpID int, itemID int) (*Asset, err
 			, a.singleton
 			, a.raw_quantity
 			, a.flag_id
+			, a.fetched_at
 			, (a.fetched_at > (NOW() - INTERVAL '12 hours')) status
 			, (a.valid = TRUE) validity
 			, a.corporation_id
@@ -121,6 +138,7 @@ func (m *Manager) getCorporationAssetFromDB(corpID int, itemID int) (*Asset, err
 		&r.Singleton,
 		&r.RawQuantity,
 		&r.FlagID,
+		&r.fetchedAt,
 		&status,
 		&valid,
 		&r.corpID,
@@ -153,6 +171,7 @@ func (m *Manager) getCorporationAssetsFromDB(corpID int) ([]*Asset, error) {
 			, a.raw_quantity
 			, a.flag_id
 			, a.corporation_id
+			, a.fetched_at
 			FROM app.assets a
 			WHERE a.corporation_id = $1
 			  AND a.valid = TRUE
@@ -173,6 +192,7 @@ func (m *Manager) getCorporationAssetsFromDB(corpID int) ([]*Asset, error) {
 			&r.RawQuantity,
 			&r.FlagID,
 			&r.corpID,
+			&r.fetchedAt,
 		)
 		if err != nil {
 			return nil, err

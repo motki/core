@@ -259,7 +259,7 @@ func (m *Manager) GetAuthorization(user *User, role Role) (*Authorization, error
 	defer m.pool.Release(db)
 	a := &Authorization{}
 	token := &oAuth2Token{}
-	b := []byte{}
+	var b []byte
 	ri := 0
 	row := db.QueryRow(
 		`SELECT

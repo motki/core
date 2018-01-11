@@ -24,6 +24,7 @@ type Server interface {
 	proto.InfoServiceServer
 	proto.EveDBServiceServer
 	proto.CorporationServiceServer
+	proto.InventoryServiceServer
 
 	Serve() error
 	Shutdown() error
@@ -55,6 +56,7 @@ func New(conf model.Config, m *model.Manager, edb *evedb.EveDB, api *eveapi.EveA
 	proto.RegisterInfoServiceServer(srv.grpc, srv)
 	proto.RegisterEveDBServiceServer(srv.grpc, srv)
 	proto.RegisterCorporationServiceServer(srv.grpc, srv)
+	proto.RegisterInventoryServiceServer(srv.grpc, srv)
 	return srv, nil
 }
 

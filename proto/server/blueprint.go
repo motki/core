@@ -51,7 +51,7 @@ func (srv *GRPCServer) GetCorpBlueprints(ctx context.Context, req *proto.GetCorp
 	if req.Token == nil {
 		return nil, errors.New("token cannot be empty")
 	}
-	ctx, charID, err := srv.getAuthorizedContext(req.Token, model.RoleLogistics)
+	_, charID, err := srv.getAuthorizedContext(req.Token, model.RoleLogistics)
 	if err != nil {
 		return nil, err
 	}
@@ -59,7 +59,11 @@ func (srv *GRPCServer) GetCorpBlueprints(ctx context.Context, req *proto.GetCorp
 	if err != nil {
 		return nil, err
 	}
-	bps, err := srv.model.GetCorporationBlueprints(ctx, char.CorporationID)
+	corpAuth, err := srv.model.GetCorporationAuthorization(char.CorporationID)
+	if err != nil {
+		return nil, err
+	}
+	bps, err := srv.model.GetCorporationBlueprints(corpAuth.Context(), char.CorporationID)
 	if err != nil {
 		return nil, err
 	}

@@ -154,6 +154,32 @@ func (c *grpcClient) GetProducts() ([]*model.Product, error) {
 	return prods, nil
 }
 
+func (c *grpcClient) GetInventory() ([]*model.InventoryItem, error) {
+	if c.token == "" {
+		return nil, ErrNotAuthenticated
+	}
+	conn, err := grpc.Dial(c.serverAddr, c.dialOpts...)
+	if err != nil {
+		return nil, err
+	}
+	defer conn.Close()
+	service := proto.NewInventoryServiceClient(conn)
+	res, err := service.GetCorpInventory(
+		context.Background(),
+		&proto.GetCorpInventoryRequest{Token: &proto.Token{Identifier: c.token}})
+	if err != nil {
+		return nil, err
+	}
+	if res.Result.Status == proto.Status_FAILURE {
+		return nil, errors.New(res.Result.Description)
+	}
+	var items []*model.InventoryItem
+	for _, pr := range res.Item {
+		items = append(items, proto.ProtoToInventoryItem(pr))
+	}
+	return items, nil
+}
+
 func (c *grpcClient) SaveProduct(product *model.Product) error {
 	if c.token == "" {
 		return ErrNotAuthenticated

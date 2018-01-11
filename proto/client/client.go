@@ -23,6 +23,7 @@ type Client interface {
 	GetProduct(productID int) (*model.Product, error)
 	SaveProduct(product *model.Product) error
 	GetProducts() ([]*model.Product, error)
+	GetInventory() ([]*model.InventoryItem, error)
 	UpdateProductPrices(*model.Product) (*model.Product, error)
 	GetCorpBlueprints() ([]*model.Blueprint, error)
 	GetMarketPrice(typeID int) (*model.MarketPrice, error)

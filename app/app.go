@@ -33,8 +33,8 @@ import (
 
 	"github.com/motki/motki/db"
 	"github.com/motki/motki/eveapi"
-	"github.com/motki/motki/evecentral"
 	"github.com/motki/motki/evedb"
+	"github.com/motki/motki/evemarketer"
 	"github.com/motki/motki/log"
 	"github.com/motki/motki/model"
 	_ "github.com/motki/motki/proto"
@@ -189,7 +189,7 @@ type Env struct {
 	DB    *db.ConnPool
 	Model *model.Manager
 
-	EveCentral *evecentral.EveCentral
+	EveCentral *evemarketer.EveMarketer
 	EveDB      *evedb.EveDB
 	EveAPI     *eveapi.EveAPI
 
@@ -205,7 +205,7 @@ func NewEnv(conf *Config) (*Env, error) {
 	}
 	work := worker.New(logger)
 
-	ec := evecentral.New()
+	ec := evemarketer.New()
 	edb := evedb.New(pool)
 	api := eveapi.New(conf.EVEAPI, logger)
 	mdl := model.NewManager(pool, edb, api, ec)

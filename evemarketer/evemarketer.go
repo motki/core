@@ -1,5 +1,8 @@
-// Package evecentral contains a client integration with the eve-central.com API.
-package evecentral
+// Package evemarketer contains a client integration with the evemarketer.com API.
+//
+// The EveMarketer API is largely compatible with the evecentral.com API. This package is
+// based on the now-removed evecentral package in the MOTKI library.
+package evemarketer
 
 import (
 	"encoding/json"
@@ -12,7 +15,7 @@ import (
 	"github.com/shopspring/decimal"
 )
 
-const baseURL = "https://api.eve-central.com/api/marketstat/json"
+const baseURL = "https://api.evemarketer.com/ec/marketstat/json"
 
 // StatKind describes the type of market prices in a MarketStat.
 type StatKind string
@@ -23,8 +26,8 @@ const (
 	StatAll           = "all"
 )
 
-// EveCentral is a client for retrieving market data from the eve-central.com API.
-type EveCentral struct {
+// EveMarketer is a client for retrieving market data from the eve-central.com API.
+type EveMarketer struct {
 	client *http.Client
 }
 
@@ -44,13 +47,13 @@ type MarketStat struct {
 	Timestamp   time.Time
 }
 
-// New creates a new EveCentral API client.
-func New() *EveCentral {
-	return &EveCentral{client: &http.Client{}}
+// New creates a new EveMarketer API client.
+func New() *EveMarketer {
+	return &EveMarketer{client: &http.Client{}}
 }
 
 // GetMarketStat gets market information for the given types.
-func (api *EveCentral) GetMarketStat(typeIDs ...int) ([]*MarketStat, error) {
+func (api *EveMarketer) GetMarketStat(typeIDs ...int) ([]*MarketStat, error) {
 	params := make([]string, 0)
 	for _, id := range typeIDs {
 		params = append(params, fmt.Sprintf("typeid=%d", id))
@@ -68,7 +71,7 @@ func (api *EveCentral) GetMarketStat(typeIDs ...int) ([]*MarketStat, error) {
 }
 
 // GetMarketStatRegion gets market information for the given region and types.
-func (api *EveCentral) GetMarketStatRegion(regionID int, typeIDs ...int) ([]*MarketStat, error) {
+func (api *EveMarketer) GetMarketStatRegion(regionID int, typeIDs ...int) ([]*MarketStat, error) {
 	params := make([]string, 0)
 	for _, id := range typeIDs {
 		params = append(params, fmt.Sprintf("typeid=%d", id))
@@ -86,7 +89,7 @@ func (api *EveCentral) GetMarketStatRegion(regionID int, typeIDs ...int) ([]*Mar
 }
 
 // GetMarketStatSystem gets market information for the given system and types.
-func (api *EveCentral) GetMarketStatSystem(systemID int, typeIDs ...int) ([]*MarketStat, error) {
+func (api *EveMarketer) GetMarketStatSystem(systemID int, typeIDs ...int) ([]*MarketStat, error) {
 	params := make([]string, 0)
 	for _, id := range typeIDs {
 		params = append(params, fmt.Sprintf("typeid=%d", id))
@@ -109,7 +112,7 @@ func parseBody(body []byte) ([]*MarketStat, error) {
 	if err != nil {
 		return nil, err
 	}
-	ret := []*MarketStat{}
+	var ret []*MarketStat
 	for _, report := range d {
 		for kind, info := range report {
 			stat := &MarketStat{

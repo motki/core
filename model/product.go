@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/jackc/pgx"
+	"github.com/motki/motki/evemarketer"
 	"github.com/pkg/errors"
 	"github.com/shopspring/decimal"
 )
@@ -110,39 +111,28 @@ func (m *Manager) NewProduct(corpID int, typeID int) (*Product, error) {
 
 // UpdateProductMarketPrices fetches the latest market data for the production chain.
 func (m *Manager) UpdateProductMarketPrices(product *Product, regionID int) error {
-	// TODO: EveCentral is down! :(
-	//stat, err := m.GetMarketStatRegion(regionID, product.TypeID)
-	//if err != nil {
-	//	return errors.Wrapf(err, "unable to update production chain market price for typeID %d", product.TypeID)
-	//}
-	//max := decimal.NewFromFloat(1000000000000)
-	//var bestSell = max
-	//for _, s := range stat {
-	//	if s.TypeID != product.TypeID {
-	//		continue
-	//	}
-	//	if s.Kind != evecentral.StatSell {
-	//		continue
-	//	}
-	//	if s.Min.LessThan(bestSell) {
-	//		bestSell = s.Min
-	//	}
-	//}
-	//if bestSell.Equals(max) {
-	//	return errors.Errorf("no sell orders found for typeID %d in regionID %d", product.TypeID, regionID)
-	//}
-	//product.MarketPrice = bestSell
-	price, err := m.GetMarketPrice(product.TypeID)
+	stat, err := m.GetMarketStatRegion(regionID, product.TypeID)
 	if err != nil {
 		return errors.Wrapf(err, "unable to update production chain market price for typeID %d", product.TypeID)
 	}
-	product.MarketPrice = price.Avg
-	product.MarketRegionID = regionID
-	for _, p := range product.Materials {
-		if err = m.UpdateProductMarketPrices(p, regionID); err != nil {
-			return errors.Wrapf(err, "unable to update production chain market price for typeID %d", product.TypeID)
+	max := decimal.NewFromFloat(1000000000000)
+	var bestSell = max
+	for _, s := range stat {
+		if s.TypeID != product.TypeID {
+			continue
+		}
+		if s.Kind != evemarketer.StatSell {
+			continue
+		}
+		if s.Min.LessThan(bestSell) {
+			bestSell = s.Min
 		}
 	}
+	if bestSell.Equals(max) {
+		return errors.Errorf("no sell orders found for typeID %d in regionID %d", product.TypeID, regionID)
+	}
+	product.MarketPrice = bestSell
+	product.MarketRegionID = regionID
 	return nil
 }
 

@@ -96,7 +96,7 @@ func (e *EveDB) GetRaces() ([]*Race, error) {
 		return nil, err
 	}
 	defer rs.Close()
-	res := []*Race{}
+	var res []*Race
 	for rs.Next() {
 		r := Race{Icon: Icon{}}
 		err := rs.Scan(&r.ID, &r.Name, &r.Description, &r.IconFile, &r.ShortDescription)

@@ -1,16 +1,16 @@
 package model
 
 import (
-	"context"
-	"errors"
-	"time"
-
 	"database/sql/driver"
 	"encoding/json"
 	"fmt"
 	"strconv"
+	"time"
 
 	"github.com/jackc/pgx"
+	"github.com/pkg/errors"
+	"golang.org/x/net/context"
+
 	"github.com/motki/motki/eveapi"
 	"github.com/motki/motki/log"
 )

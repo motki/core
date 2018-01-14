@@ -1,10 +1,10 @@
 package eveapi
 
 import (
-	"context"
 	"time"
 
 	"github.com/shopspring/decimal"
+	"golang.org/x/net/context"
 )
 
 type IndustryJob struct {

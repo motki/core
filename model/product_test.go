@@ -3,8 +3,9 @@ package model_test
 import (
 	"testing"
 
-	"github.com/motki/motki/model"
 	"github.com/shopspring/decimal"
+
+	"github.com/motki/motki/model"
 )
 
 // testProduct is designed to show the characteristics of the Cost algorithm.

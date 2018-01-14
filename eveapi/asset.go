@@ -1,6 +1,8 @@
 package eveapi
 
-import "context"
+import (
+	"golang.org/x/net/context"
+)
 
 type Asset struct {
 	ItemID      int
@@ -21,7 +23,7 @@ func (api *EveAPI) GetCorporationAssets(ctx context.Context, corpID int) ([]*Ass
 	if err != nil {
 		return nil, err
 	}
-	assets := []*Asset{}
+	var assets []*Asset
 	for _, a := range res.Entries {
 		assets = append(assets, &Asset{
 			ItemID:      int(a.ItemID),

@@ -1,11 +1,11 @@
 package eveapi
 
 import (
-	"context"
-	"errors"
 	"time"
 
+	"github.com/pkg/errors"
 	"github.com/shopspring/decimal"
+	"golang.org/x/net/context"
 )
 
 type MarketOrder struct {

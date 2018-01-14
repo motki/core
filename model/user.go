@@ -7,17 +7,16 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
-
 	"strings"
-
-	"context"
 
 	"github.com/antihax/goesi"
 	"github.com/jackc/pgx"
-	"github.com/motki/motki/eveapi"
 	"github.com/pkg/errors"
 	"golang.org/x/crypto/bcrypt"
+	"golang.org/x/net/context"
 	"golang.org/x/oauth2"
+
+	"github.com/motki/motki/eveapi"
 )
 
 type Role int
@@ -164,7 +163,7 @@ func (m *Manager) AuthenticateUser(name, password string) (*User, string, error)
 	}
 	defer m.pool.Release(db)
 	u := &User{}
-	p := []byte{}
+	var p []byte
 	row := db.QueryRow(`SELECT id, username, email, password FROM app.users WHERE username = $1 AND verified = 1 AND disabled <> 1`, name)
 	err = row.Scan(&u.UserID, &u.Name, &u.Email, &p)
 	if err != nil {

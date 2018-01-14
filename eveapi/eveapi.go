@@ -2,13 +2,14 @@
 package eveapi
 
 import (
-	"context"
-	"errors"
 	"net/http"
+
+	"github.com/motki/motki/log"
 
 	"github.com/antihax/goesi"
 	"github.com/gregjones/httpcache"
-	"github.com/motki/motki/log"
+	"github.com/pkg/errors"
+	"golang.org/x/net/context"
 	"golang.org/x/oauth2"
 )
 

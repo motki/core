@@ -1,7 +1,7 @@
 package model
 
 import (
-	"context"
+	"golang.org/x/net/context"
 
 	"github.com/motki/motki/eveapi"
 )
@@ -59,7 +59,7 @@ func (m *Manager) getCorporationIndustryJobsFromDB(corpID int) ([]*eveapi.Indust
 		return nil, err
 	}
 	defer rs.Close()
-	res := []*eveapi.IndustryJob{}
+	var res []*eveapi.IndustryJob
 	for rs.Next() {
 		r := &eveapi.IndustryJob{}
 		err := rs.Scan(

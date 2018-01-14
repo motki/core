@@ -1,7 +1,7 @@
 package eveapi
 
 import (
-	"context"
+	"golang.org/x/net/context"
 )
 
 type Blueprint struct {
@@ -29,7 +29,7 @@ func (api *EveAPI) GetCorporationBlueprints(ctx context.Context, corpID int) ([]
 	if err != nil {
 		return nil, err
 	}
-	bps := []*Blueprint{}
+	var bps []*Blueprint
 	for _, bp := range res.Entries {
 		bps = append(bps, &Blueprint{
 			ItemID:             bp.ItemID,

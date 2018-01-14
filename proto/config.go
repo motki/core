@@ -1,8 +1,7 @@
-package model
+package proto
 
 import (
 	"crypto/tls"
-
 	"net"
 
 	"golang.org/x/crypto/acme/autocert"

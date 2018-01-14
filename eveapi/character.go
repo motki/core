@@ -1,8 +1,9 @@
 package eveapi
 
 import (
-	"context"
 	"time"
+
+	"golang.org/x/net/context"
 )
 
 type Character struct {

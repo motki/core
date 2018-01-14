@@ -1,11 +1,11 @@
 package eveapi
 
 import (
-	"context"
 	"strconv"
 	"time"
 
 	"github.com/antihax/goesi/eveapi"
+	"golang.org/x/net/context"
 )
 
 type Corporation struct {

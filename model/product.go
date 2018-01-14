@@ -6,9 +6,10 @@ import (
 	"strings"
 
 	"github.com/jackc/pgx"
-	"github.com/motki/motki/evemarketer"
 	"github.com/pkg/errors"
 	"github.com/shopspring/decimal"
+
+	"github.com/motki/motki/evemarketer"
 )
 
 // ProductKind describes the way a product is acquired.

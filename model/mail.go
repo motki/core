@@ -1,8 +1,9 @@
 package model
 
 import (
-	"errors"
 	"strings"
+
+	"github.com/pkg/errors"
 )
 
 type MailingListSubscriber struct {
@@ -16,7 +17,7 @@ func (m *Manager) GetMailingList(key string) ([]*MailingListSubscriber, error) {
 		return nil, err
 	}
 	defer m.pool.Release(db)
-	res := []*MailingListSubscriber{}
+	var res []*MailingListSubscriber
 	rows, err := db.Query("SELECT name, email FROM app.mailing_lists WHERE key = $1", key)
 	if err != nil {
 		return nil, err

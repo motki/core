@@ -1,10 +1,10 @@
 package model
 
 import (
-	"context"
-	"errors"
-
 	"time"
+
+	"github.com/pkg/errors"
+	"golang.org/x/net/context"
 
 	"github.com/motki/motki/eveapi"
 	"github.com/motki/motki/evedb"

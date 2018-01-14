@@ -96,7 +96,7 @@ func (m *Manager) getMarketStatFromDB(regionID, systemID int, typeIDs ...int) ([
 		return nil, err
 	}
 	defer m.pool.Release(c)
-	ids := []string{}
+	var ids []string
 	for _, id := range typeIDs {
 		ids = append(ids, fmt.Sprintf("%d", id))
 	}
@@ -122,7 +122,7 @@ func (m *Manager) getMarketStatFromDB(regionID, systemID int, typeIDs ...int) ([
 		return nil, err
 	}
 	defer rs.Close()
-	res := []*MarketStat{}
+	var res []*MarketStat
 	for rs.Next() {
 		r := &MarketStat{}
 		kind := ""
@@ -193,7 +193,7 @@ func (m *Manager) apiMarketStatToDB(regionID, systemID int, stats []*evemarketer
 		return nil, err
 	}
 	defer m.pool.Release(db)
-	res := []*MarketStat{}
+	var res []*MarketStat
 	for _, stat := range stats {
 		s := &MarketStat{
 			TypeID:      stat.TypeID,
@@ -262,7 +262,7 @@ func (m *Manager) getMarketPricesFromDB(typeIDs ...int) ([]*MarketPrice, error) 
 		return nil, err
 	}
 	defer m.pool.Release(c)
-	ids := []string{}
+	var ids []string
 	for _, id := range typeIDs {
 		ids = append(ids, fmt.Sprintf("%d", id))
 	}
@@ -349,7 +349,7 @@ func (m *Manager) apiMarketPricesToDB(prices []*MarketPrice) error {
 		return err
 	}
 	defer m.pool.Release(db)
-	res := []*MarketPrice{}
+	var res []*MarketPrice
 	for _, stat := range prices {
 		s := &MarketPrice{
 			TypeID: stat.TypeID,

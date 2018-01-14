@@ -7,6 +7,7 @@ package db
 
 import (
 	"github.com/jackc/pgx"
+
 	"github.com/motki/motki/log"
 )
 

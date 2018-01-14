@@ -83,7 +83,7 @@ func (e *EveDB) QueryItemTypes(query string, catIDs ...int) ([]*ItemType, error)
 		// Default to Modules, Ships, Drones, and Charges
 		catIDs = InterestingItemCategories
 	}
-	cats := []string{}
+	var cats []string
 	for _, id := range catIDs {
 		cats = append(cats, strconv.Itoa(id))
 	}
@@ -98,7 +98,7 @@ func (e *EveDB) QueryItemTypes(query string, catIDs ...int) ([]*ItemType, error)
 		return nil, err
 	}
 	defer rs.Close()
-	res := []*ItemType{}
+	var res []*ItemType
 	for rs.Next() {
 		r := &ItemType{}
 		err := rs.Scan(&r.ID, &r.Name, &r.Description)
@@ -172,7 +172,7 @@ func (e *EveDB) QueryItemTypeDetails(query string, catIDs ...int) ([]*ItemTypeDe
 		// Default to Modules, Ships, Drones, and Charges
 		catIDs = InterestingItemCategories
 	}
-	cats := []string{}
+	var cats []string
 	for _, id := range catIDs {
 		cats = append(cats, strconv.Itoa(id))
 	}
@@ -186,7 +186,7 @@ func (e *EveDB) QueryItemTypeDetails(query string, catIDs ...int) ([]*ItemTypeDe
 		return nil, err
 	}
 	defer rs.Close()
-	res := []*ItemTypeDetail{}
+	var res []*ItemTypeDetail
 	for rs.Next() {
 		var derivs string
 		it := &ItemTypeDetail{ItemType: &ItemType{}}
@@ -243,7 +243,7 @@ func (e *EveDB) GetBlueprint(typeID int) (*MaterialSheet, error) {
 		return nil, err
 	}
 	defer rs.Close()
-	res := []*Material{}
+	var res []*Material
 	for rs.Next() {
 		r := &Material{ItemType: &ItemType{}}
 		err := rs.Scan(&r.Name, &r.ID, &r.Quantity)
@@ -260,7 +260,7 @@ func (e *EveDB) GetBlueprint(typeID int) (*MaterialSheet, error) {
 
 // GetBlueprints is a utility function to retrieve multiple Blueprints.
 func (e *EveDB) GetBlueprints(typeIDs ...int) ([]*MaterialSheet, error) {
-	res := []*MaterialSheet{}
+	var res []*MaterialSheet
 	for _, id := range typeIDs {
 		bp, err := e.GetBlueprint(id)
 		if err != nil {

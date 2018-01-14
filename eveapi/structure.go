@@ -1,13 +1,13 @@
 package eveapi
 
 import (
-	"context"
 	"database/sql/driver"
 	"encoding/json"
 	"fmt"
 	"strings"
 
 	"github.com/antihax/goesi/esi"
+	"golang.org/x/net/context"
 )
 
 type Structure struct {
@@ -33,7 +33,7 @@ func (s VulnSchedule) Value() (driver.Value, error) {
 }
 
 func (s VulnSchedule) String() string {
-	out := []string{}
+	var out []string
 	for day, hrs := range s {
 		var d string
 		switch day {
@@ -52,7 +52,7 @@ func (s VulnSchedule) String() string {
 		default:
 			d = "Saturday"
 		}
-		td := []string{}
+		var td []string
 		for _, hr := range hrs {
 			td = append(td, fmt.Sprintf("%02d00", hr))
 		}
@@ -68,7 +68,7 @@ func (api *EveAPI) GetCorporationStructures(ctx context.Context, corpID int) ([]
 	if err != nil {
 		return nil, err
 	}
-	structures := []*Structure{}
+	var structures []*Structure
 	for _, bp := range res {
 		sched := map[int][]int{}
 		for _, sch := range bp.CurrentVul {
@@ -99,7 +99,7 @@ func (api *EveAPI) GetCorporationStructures(ctx context.Context, corpID int) ([]
 }
 
 func (api *EveAPI) UpdateCorporationStructureVulnSchedule(ctx context.Context, corpID int, structureID int, sched VulnSchedule) error {
-	newSched := []esi.PutCorporationsCorporationIdStructuresStructureIdNewSchedule{}
+	var newSched []esi.PutCorporationsCorporationIdStructuresStructureIdNewSchedule
 	for day, hrs := range sched {
 		for _, hr := range hrs {
 			newSched = append(newSched, esi.PutCorporationsCorporationIdStructuresStructureIdNewSchedule{

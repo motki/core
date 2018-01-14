@@ -2,16 +2,17 @@
 package worker_test
 
 import (
-	"errors"
 	"strings"
 	"sync"
 	"sync/atomic"
 	"testing"
 	"time"
 
+	"github.com/pkg/errors"
+	"github.com/sirupsen/logrus"
+
 	"github.com/motki/motki/log"
 	"github.com/motki/motki/worker"
-	"github.com/sirupsen/logrus"
 )
 
 var delay = 100 * time.Microsecond

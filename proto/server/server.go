@@ -21,7 +21,7 @@ import (
 
 var ErrBadCredentials = errors.New("username or password is incorrect")
 
-// A Server represents the raw interface for a MOTKI GRPC server.
+// A Server represents the raw interface for a MOTKI protobuf server.
 type Server interface {
 	proto.AuthenticationServiceServer
 	proto.ProductServiceServer
@@ -37,12 +37,11 @@ type Server interface {
 	Shutdown() error
 }
 
-var (
-	_ Server = &grpcServer{}
-)
+// Ensure grpcServer implements the Server interface.
+var _ Server = &grpcServer{}
 
 type grpcServer struct {
-	config model.Config
+	config proto.Config
 
 	model  *model.Manager
 	evedb  *evedb.EveDB
@@ -55,7 +54,8 @@ type grpcServer struct {
 	local  net.Listener
 }
 
-func New(conf model.Config, m *model.Manager, edb *evedb.EveDB, api *eveapi.EveAPI, l log.Logger) (Server, error) {
+// New creates a new Server using the given configuration and dependencies.
+func New(conf proto.Config, m *model.Manager, edb *evedb.EveDB, api *eveapi.EveAPI, l log.Logger) (Server, error) {
 	srv := &grpcServer{config: conf, model: m, evedb: edb, eveapi: api, logger: l, grpc: grpc.NewServer()}
 	proto.RegisterAuthenticationServiceServer(srv.grpc, srv)
 	proto.RegisterProductServiceServer(srv.grpc, srv)
@@ -98,7 +98,7 @@ func (srv *grpcServer) Serve() error {
 			}
 		}()
 	}
-	if srv.config.Kind == model.BackendLocalGRPC {
+	if srv.config.Kind == proto.BackendLocalGRPC {
 		srv.logger.Debugf("grpc server: starting local listener")
 		lis := srv.config.LocalGRPC.Listener
 		if lis == nil {

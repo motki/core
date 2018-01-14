@@ -1,7 +1,7 @@
 package model
 
 import (
-	"context"
+	"golang.org/x/net/context"
 
 	"github.com/motki/motki/eveapi"
 )
@@ -36,7 +36,7 @@ func (m *Manager) getCorporationStructuresFromDB(corpID int) ([]*eveapi.Structur
 		return nil, err
 	}
 	defer rs.Close()
-	res := []*eveapi.Structure{}
+	var res []*eveapi.Structure
 	for rs.Next() {
 		r := &eveapi.Structure{}
 		err := rs.Scan(

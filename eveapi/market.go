@@ -1,12 +1,12 @@
 package eveapi
 
 import (
-	"context"
 	"sort"
 	"time"
 
 	"github.com/pkg/errors"
 	"github.com/shopspring/decimal"
+	"golang.org/x/net/context"
 )
 
 type MarketPrice struct {

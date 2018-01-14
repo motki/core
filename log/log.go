@@ -2,11 +2,12 @@
 package log
 
 import (
-	"errors"
 	"io"
+	"io/ioutil"
 	stdlog "log"
 	"os"
 
+	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 )
 
@@ -18,6 +19,7 @@ type outputType int
 const (
 	OutputStdout outputType = iota
 	OutputStderr
+	OutputNull
 )
 
 // Config contains information on how to configure a logger.
@@ -33,8 +35,13 @@ func New(c Config) Logger {
 		l = logrus.DebugLevel
 	}
 	logger := logrus.New()
-	if c.OutputType == OutputStderr {
+	switch c.OutputType {
+	case OutputStderr:
 		logger.Out = os.Stderr
+	case OutputNull:
+		logger.Out = ioutil.Discard
+	default:
+		// do nothing.
 	}
 	logger.Level = l
 	logger.Formatter = &logrus.TextFormatter{}

@@ -1,10 +1,10 @@
 package model
 
 import (
-	"context"
 	"time"
 
 	"github.com/jackc/pgx"
+	"golang.org/x/net/context"
 )
 
 type InventoryItem struct {

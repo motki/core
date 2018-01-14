@@ -1,11 +1,11 @@
 package model
 
 import (
-	"context"
 	"time"
 
 	"github.com/jackc/pgx"
 	"github.com/shopspring/decimal"
+	"golang.org/x/net/context"
 )
 
 type MarketOrder struct {

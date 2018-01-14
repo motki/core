@@ -1,7 +1,7 @@
 package model
 
 import (
-	"context"
+	"golang.org/x/net/context"
 
 	"github.com/motki/motki/eveapi"
 )
@@ -85,7 +85,7 @@ func (m *Manager) getCorporationBlueprintsFromDB(corpID int) ([]*Blueprint, erro
 		return nil, err
 	}
 	defer rs.Close()
-	res := []*Blueprint{}
+	var res []*Blueprint
 	for rs.Next() {
 		r := &Blueprint{}
 		err := rs.Scan(

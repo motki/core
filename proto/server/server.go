@@ -1,3 +1,7 @@
+// Package server contains an implementation of the MOTKI GRPC server.
+//
+// Much of the Server interface is generated using the protocol buffer definitions in
+// the proto package.
 package server
 
 import (
@@ -17,6 +21,7 @@ import (
 
 var ErrBadCredentials = errors.New("username or password is incorrect")
 
+// A Server represents the raw interface for a MOTKI GRPC server.
 type Server interface {
 	proto.AuthenticationServiceServer
 	proto.ProductServiceServer
@@ -26,15 +31,17 @@ type Server interface {
 	proto.CorporationServiceServer
 	proto.InventoryServiceServer
 
+	// Serve opens a listening socket for the GRPC server.
 	Serve() error
+	// Shutdown attempts to gracefully shutdown the GRPC server.
 	Shutdown() error
 }
 
 var (
-	_ Server = &GRPCServer{}
+	_ Server = &grpcServer{}
 )
 
-type GRPCServer struct {
+type grpcServer struct {
 	config model.Config
 
 	model  *model.Manager
@@ -49,7 +56,7 @@ type GRPCServer struct {
 }
 
 func New(conf model.Config, m *model.Manager, edb *evedb.EveDB, api *eveapi.EveAPI, l log.Logger) (Server, error) {
-	srv := &GRPCServer{config: conf, model: m, evedb: edb, eveapi: api, logger: l, grpc: grpc.NewServer()}
+	srv := &grpcServer{config: conf, model: m, evedb: edb, eveapi: api, logger: l, grpc: grpc.NewServer()}
 	proto.RegisterAuthenticationServiceServer(srv.grpc, srv)
 	proto.RegisterProductServiceServer(srv.grpc, srv)
 	proto.RegisterMarketPriceServiceServer(srv.grpc, srv)
@@ -60,14 +67,14 @@ func New(conf model.Config, m *model.Manager, edb *evedb.EveDB, api *eveapi.EveA
 	return srv, nil
 }
 
-func (srv *GRPCServer) Shutdown() error {
+func (srv *grpcServer) Shutdown() error {
 	srv.grpc.GracefulStop()
 	srv.server = nil
 	srv.local = nil
 	return nil
 }
 
-func (srv *GRPCServer) Serve() error {
+func (srv *grpcServer) Serve() error {
 	if srv.config.ServerEnabled {
 		srv.logger.Debugf("grpc server: listening on %s", srv.config.ServerGRPC.ServerAddr)
 		if srv.config.ServerGRPC.InsecureSkipVerify {
@@ -116,7 +123,7 @@ func errorResult(err error) *proto.Result {
 	return &proto.Result{Status: proto.Status_FAILURE, Description: err.Error()}
 }
 
-func (srv *GRPCServer) Authenticate(ctx context.Context, req *proto.AuthenticateRequest) (resp *proto.AuthenticateResponse, err error) {
+func (srv *grpcServer) Authenticate(ctx context.Context, req *proto.AuthenticateRequest) (resp *proto.AuthenticateResponse, err error) {
 	defer func() {
 		if err != nil {
 			resp = &proto.AuthenticateResponse{

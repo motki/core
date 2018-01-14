@@ -3,16 +3,17 @@ package model
 import (
 	"context"
 	"time"
+
+	"github.com/jackc/pgx"
 )
 
 type InventoryItem struct {
-	TypeID       int
-	LocationID   int
-	MinimumLevel int
-	CurrentLevel int
-	FetchedAt    time.Time
-
-	corpID int
+	TypeID        int
+	LocationID    int
+	MinimumLevel  int
+	CurrentLevel  int
+	CorporationID int
+	FetchedAt     time.Time
 }
 
 func (m *Manager) GetCorporationInventory(ctx context.Context, corpID int) (items []*InventoryItem, err error) {
@@ -65,7 +66,7 @@ func (m *Manager) GetCorporationInventory(ctx context.Context, corpID int) (item
 }
 
 func (m *Manager) updateInventoryItemLevel(ctx context.Context, item *InventoryItem) error {
-	assets, err := m.GetCorporationAssetsByTypeAndLocationID(ctx, item.corpID, item.TypeID, item.LocationID)
+	assets, err := m.GetCorporationAssetsByTypeAndLocationID(ctx, item.CorporationID, item.TypeID, item.LocationID)
 	if err != nil {
 		return err
 	}
@@ -82,13 +83,33 @@ func (m *Manager) updateInventoryItemLevel(ctx context.Context, item *InventoryI
 }
 
 func (m *Manager) NewInventoryItem(ctx context.Context, corpID, typeID, locationID int) (*InventoryItem, error) {
-	it := &InventoryItem{
-		TypeID:     typeID,
-		LocationID: locationID,
-
-		corpID: corpID,
+	c, err := m.pool.Open()
+	if err != nil {
+		return nil, err
 	}
-	if err := m.updateInventoryItemLevel(ctx, it); err != nil {
+	defer m.pool.Release(c)
+	it := &InventoryItem{CorporationID: corpID}
+	r := c.QueryRow(
+		`SELECT
+			  c.type_id
+			, c.location_id
+			, c.min_level
+			, c.curr_level
+			, c.fetched_at
+			FROM app.inventory_items c
+			WHERE c.corporation_id = $1 AND c.type_id = $2 AND c.location_id = $3`, corpID, typeID, locationID)
+	if err := r.Scan(&it); err != nil {
+		if err == pgx.ErrNoRows {
+			it = &InventoryItem{
+				TypeID:     typeID,
+				LocationID: locationID,
+
+				CorporationID: corpID,
+			}
+			if err = m.updateInventoryItemLevel(ctx, it); err != nil {
+				return nil, err
+			}
+		}
 		return nil, err
 	}
 	return it, nil
@@ -117,6 +138,6 @@ func (m *Manager) SaveInventoryItem(item *InventoryItem) error {
 		item.CurrentLevel,
 		item.MinimumLevel,
 		item.FetchedAt,
-		item.corpID)
+		item.CorporationID)
 	return err
 }

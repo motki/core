@@ -1,4 +1,4 @@
-// Package model encapsulates the persistence layer.
+// Package model encapsulates the persistence layer of the MOTKI application.
 package model
 
 import (

@@ -30,8 +30,7 @@ type grpcClient struct {
 	logger     log.Logger
 }
 
-type dialerFunc func() (net.Conn, error)
-
+// NewRemoteGRPC creates a new GRPC client intended for use with a remote GRPC server.
 func NewRemoteGRPC(serverAddr string, l log.Logger, tlsConf *tls.Config) (*grpcClient, error) {
 	return &grpcClient{
 		serverAddr: serverAddr,
@@ -40,6 +39,10 @@ func NewRemoteGRPC(serverAddr string, l log.Logger, tlsConf *tls.Config) (*grpcC
 	}, nil
 }
 
+// NewLocalGRPC creates a new GRPC client for use with a process-local GRPC server.
+//
+// The bufconn.Listener passed in should be shared between both client and server. By default,
+// this is handled by the model.LocalConfig type.
 func NewLocalGRPC(lis *bufconn.Listener, l log.Logger) (*grpcClient, error) {
 	cl := &grpcClient{logger: l}
 	cl.dialOpts = append(cl.dialOpts, grpc.WithDialer(func(string, time.Duration) (net.Conn, error) {
@@ -154,32 +157,6 @@ func (c *grpcClient) GetProducts() ([]*model.Product, error) {
 	return prods, nil
 }
 
-func (c *grpcClient) GetInventory() ([]*model.InventoryItem, error) {
-	if c.token == "" {
-		return nil, ErrNotAuthenticated
-	}
-	conn, err := grpc.Dial(c.serverAddr, c.dialOpts...)
-	if err != nil {
-		return nil, err
-	}
-	defer conn.Close()
-	service := proto.NewInventoryServiceClient(conn)
-	res, err := service.GetCorpInventory(
-		context.Background(),
-		&proto.GetCorpInventoryRequest{Token: &proto.Token{Identifier: c.token}})
-	if err != nil {
-		return nil, err
-	}
-	if res.Result.Status == proto.Status_FAILURE {
-		return nil, errors.New(res.Result.Description)
-	}
-	var items []*model.InventoryItem
-	for _, pr := range res.Item {
-		items = append(items, proto.ProtoToInventoryItem(pr))
-	}
-	return items, nil
-}
-
 func (c *grpcClient) SaveProduct(product *model.Product) error {
 	if c.token == "" {
 		return ErrNotAuthenticated
@@ -258,6 +235,87 @@ func (c *grpcClient) UpdateProductPrices(product *model.Product) (*model.Product
 		return nil, err
 	}
 	return product, nil
+}
+
+func (c *grpcClient) GetInventory() ([]*model.InventoryItem, error) {
+	if c.token == "" {
+		return nil, ErrNotAuthenticated
+	}
+	conn, err := grpc.Dial(c.serverAddr, c.dialOpts...)
+	if err != nil {
+		return nil, err
+	}
+	defer conn.Close()
+	service := proto.NewInventoryServiceClient(conn)
+	res, err := service.GetInventory(
+		context.Background(),
+		&proto.GetInventoryRequest{Token: &proto.Token{Identifier: c.token}})
+	if err != nil {
+		return nil, err
+	}
+	if res.Result.Status == proto.Status_FAILURE {
+		return nil, errors.New(res.Result.Description)
+	}
+	var items []*model.InventoryItem
+	for _, pr := range res.Item {
+		items = append(items, proto.ProtoToInventoryItem(pr))
+	}
+	return items, nil
+}
+
+func (c *grpcClient) NewInventoryItem(typeID, locationID int) (*model.InventoryItem, error) {
+	if c.token == "" {
+		return nil, ErrNotAuthenticated
+	}
+	conn, err := grpc.Dial(c.serverAddr, c.dialOpts...)
+	if err != nil {
+		return nil, err
+	}
+	defer conn.Close()
+	service := proto.NewInventoryServiceClient(conn)
+	res, err := service.NewInventoryItem(
+		context.Background(),
+		&proto.NewInventoryItemRequest{
+			Token:      &proto.Token{Identifier: c.token},
+			TypeId:     int64(typeID),
+			LocationId: int64(locationID)})
+	if err != nil {
+		return nil, err
+	}
+	if res.Result.Status == proto.Status_FAILURE {
+		return nil, errors.New(res.Result.Description)
+	}
+	if res.Item == nil {
+		return nil, errors.New("expected grpc response to contain product, got nil")
+	}
+	return proto.ProtoToInventoryItem(res.Item), nil
+}
+
+func (c *grpcClient) SaveInventoryItem(item *model.InventoryItem) error {
+	if c.token == "" {
+		return ErrNotAuthenticated
+	}
+	conn, err := grpc.Dial(c.serverAddr, c.dialOpts...)
+	if err != nil {
+		return err
+	}
+	defer conn.Close()
+	service := proto.NewInventoryServiceClient(conn)
+	res, err := service.SaveInventoryItem(
+		context.Background(),
+		&proto.SaveInventoryItemRequest{
+			Token: &proto.Token{Identifier: c.token},
+			Item:  proto.InventoryItemToProto(item)})
+	if err != nil {
+		return err
+	}
+	if res.Result.Status == proto.Status_FAILURE {
+		return errors.New(res.Result.Description)
+	}
+	if res.Item == nil {
+		return errors.New("expected grpc response to contain product, got nil")
+	}
+	return nil
 }
 
 func (c *grpcClient) GetMarketPrices(typeID int, typeIDs ...int) ([]*model.MarketPrice, error) {

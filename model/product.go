@@ -110,7 +110,7 @@ func (m *Manager) NewProduct(corpID int, typeID int) (*Product, error) {
 
 // UpdateProductMarketPrices fetches the latest market data for the production chain.
 func (m *Manager) UpdateProductMarketPrices(product *Product, regionID int) error {
-	// EveCentral is down! :(
+	// TODO: EveCentral is down! :(
 	//stat, err := m.GetMarketStatRegion(regionID, product.TypeID)
 	//if err != nil {
 	//	return errors.Wrapf(err, "unable to update production chain market price for typeID %d", product.TypeID)

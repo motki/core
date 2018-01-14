@@ -6,7 +6,7 @@ import (
 	"github.com/motki/motki/proto"
 )
 
-func (srv *GRPCServer) GetRegion(ctx context.Context, req *proto.GetRegionRequest) (resp *proto.GetRegionResponse, err error) {
+func (srv *grpcServer) GetRegion(ctx context.Context, req *proto.GetRegionRequest) (resp *proto.GetRegionResponse, err error) {
 	defer func() {
 		if err != nil {
 			resp = &proto.GetRegionResponse{
@@ -25,7 +25,7 @@ func (srv *GRPCServer) GetRegion(ctx context.Context, req *proto.GetRegionReques
 	}, nil
 }
 
-func (srv *GRPCServer) GetRegions(ctx context.Context, req *proto.GetRegionsRequest) (resp *proto.GetRegionsResponse, err error) {
+func (srv *grpcServer) GetRegions(ctx context.Context, req *proto.GetRegionsRequest) (resp *proto.GetRegionsResponse, err error) {
 	defer func() {
 		if err != nil {
 			resp = &proto.GetRegionsResponse{
@@ -48,7 +48,7 @@ func (srv *GRPCServer) GetRegions(ctx context.Context, req *proto.GetRegionsRequ
 	}, nil
 }
 
-func (srv *GRPCServer) GetConstellation(ctx context.Context, req *proto.GetConstellationRequest) (resp *proto.GetConstellationResponse, err error) {
+func (srv *grpcServer) GetConstellation(ctx context.Context, req *proto.GetConstellationRequest) (resp *proto.GetConstellationResponse, err error) {
 	defer func() {
 		if err != nil {
 			resp = &proto.GetConstellationResponse{
@@ -67,7 +67,7 @@ func (srv *GRPCServer) GetConstellation(ctx context.Context, req *proto.GetConst
 	}, nil
 }
 
-func (srv *GRPCServer) GetSystem(ctx context.Context, req *proto.GetSystemRequest) (resp *proto.GetSystemResponse, err error) {
+func (srv *grpcServer) GetSystem(ctx context.Context, req *proto.GetSystemRequest) (resp *proto.GetSystemResponse, err error) {
 	defer func() {
 		if err != nil {
 			resp = &proto.GetSystemResponse{
@@ -86,7 +86,7 @@ func (srv *GRPCServer) GetSystem(ctx context.Context, req *proto.GetSystemReques
 	}, nil
 }
 
-func (srv *GRPCServer) GetRace(ctx context.Context, req *proto.GetRaceRequest) (resp *proto.GetRaceResponse, err error) {
+func (srv *grpcServer) GetRace(ctx context.Context, req *proto.GetRaceRequest) (resp *proto.GetRaceResponse, err error) {
 	defer func() {
 		if err != nil {
 			resp = &proto.GetRaceResponse{
@@ -105,7 +105,7 @@ func (srv *GRPCServer) GetRace(ctx context.Context, req *proto.GetRaceRequest) (
 	}, nil
 }
 
-func (srv *GRPCServer) GetRaces(ctx context.Context, req *proto.GetRacesRequest) (resp *proto.GetRacesResponse, err error) {
+func (srv *grpcServer) GetRaces(ctx context.Context, req *proto.GetRacesRequest) (resp *proto.GetRacesResponse, err error) {
 	defer func() {
 		if err != nil {
 			resp = &proto.GetRacesResponse{
@@ -128,7 +128,7 @@ func (srv *GRPCServer) GetRaces(ctx context.Context, req *proto.GetRacesRequest)
 	}, nil
 }
 
-func (srv *GRPCServer) GetBloodline(ctx context.Context, req *proto.GetBloodlineRequest) (resp *proto.GetBloodlineResponse, err error) {
+func (srv *grpcServer) GetBloodline(ctx context.Context, req *proto.GetBloodlineRequest) (resp *proto.GetBloodlineResponse, err error) {
 	defer func() {
 		if err != nil {
 			resp = &proto.GetBloodlineResponse{
@@ -147,7 +147,7 @@ func (srv *GRPCServer) GetBloodline(ctx context.Context, req *proto.GetBloodline
 	}, nil
 }
 
-func (srv *GRPCServer) GetAncestry(ctx context.Context, req *proto.GetAncestryRequest) (resp *proto.GetAncestryResponse, err error) {
+func (srv *grpcServer) GetAncestry(ctx context.Context, req *proto.GetAncestryRequest) (resp *proto.GetAncestryResponse, err error) {
 	defer func() {
 		if err != nil {
 			resp = &proto.GetAncestryResponse{
@@ -166,7 +166,7 @@ func (srv *GRPCServer) GetAncestry(ctx context.Context, req *proto.GetAncestryRe
 	}, nil
 }
 
-func (srv *GRPCServer) GetItemType(ctx context.Context, req *proto.GetItemTypeRequest) (resp *proto.GetItemTypeResponse, err error) {
+func (srv *grpcServer) GetItemType(ctx context.Context, req *proto.GetItemTypeRequest) (resp *proto.GetItemTypeResponse, err error) {
 	defer func() {
 		if err != nil {
 			resp = &proto.GetItemTypeResponse{
@@ -185,7 +185,7 @@ func (srv *GRPCServer) GetItemType(ctx context.Context, req *proto.GetItemTypeRe
 	}, nil
 }
 
-func (srv *GRPCServer) GetItemTypeDetail(ctx context.Context, req *proto.GetItemTypeDetailRequest) (resp *proto.GetItemTypeDetailResponse, err error) {
+func (srv *grpcServer) GetItemTypeDetail(ctx context.Context, req *proto.GetItemTypeDetailRequest) (resp *proto.GetItemTypeDetailResponse, err error) {
 	defer func() {
 		if err != nil {
 			resp = &proto.GetItemTypeDetailResponse{
@@ -204,7 +204,7 @@ func (srv *GRPCServer) GetItemTypeDetail(ctx context.Context, req *proto.GetItem
 	}, nil
 }
 
-func (srv *GRPCServer) QueryItemTypes(ctx context.Context, req *proto.QueryItemTypesRequest) (resp *proto.QueryItemTypesResponse, err error) {
+func (srv *grpcServer) QueryItemTypes(ctx context.Context, req *proto.QueryItemTypesRequest) (resp *proto.QueryItemTypesResponse, err error) {
 	defer func() {
 		if err != nil {
 			resp = &proto.QueryItemTypesResponse{
@@ -231,7 +231,7 @@ func (srv *GRPCServer) QueryItemTypes(ctx context.Context, req *proto.QueryItemT
 	}, nil
 }
 
-func (srv *GRPCServer) QueryItemTypeDetails(ctx context.Context, req *proto.QueryItemTypeDetailsRequest) (resp *proto.QueryItemTypeDetailsResponse, err error) {
+func (srv *grpcServer) QueryItemTypeDetails(ctx context.Context, req *proto.QueryItemTypeDetailsRequest) (resp *proto.QueryItemTypeDetailsResponse, err error) {
 	defer func() {
 		if err != nil {
 			resp = &proto.QueryItemTypeDetailsResponse{
@@ -258,7 +258,7 @@ func (srv *GRPCServer) QueryItemTypeDetails(ctx context.Context, req *proto.Quer
 	}, nil
 }
 
-func (srv *GRPCServer) GetMaterialSheet(ctx context.Context, req *proto.GetMaterialSheetRequest) (resp *proto.GetMaterialSheetResponse, err error) {
+func (srv *grpcServer) GetMaterialSheet(ctx context.Context, req *proto.GetMaterialSheetRequest) (resp *proto.GetMaterialSheetResponse, err error) {
 	defer func() {
 		if err != nil {
 			resp = &proto.GetMaterialSheetResponse{

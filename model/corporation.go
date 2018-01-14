@@ -395,7 +395,7 @@ func (m *Manager) SaveCorporationConfig(corpID int, detail *CorporationConfig) e
 
 // UpdateCorporationData fetches updated data for all opted-in corporations.
 //
-// This method is intended to be invoked in regular intervals using the worker package.
+// The function returned by this method is intended to be invoke in regular intervals.
 func (m *Manager) UpdateCorporationDataFunc(logger log.Logger) func() error {
 	return func() error {
 		corps, err := m.GetCorporationsOptedIn()

@@ -278,7 +278,7 @@ func (m *Manager) getMarketPricesFromDB(typeIDs ...int) ([]*MarketPrice, error) 
 		return nil, err
 	}
 	defer rs.Close()
-	res := []*MarketPrice{}
+	var res []*MarketPrice
 	for rs.Next() {
 		r := &MarketPrice{}
 		err := rs.Scan(

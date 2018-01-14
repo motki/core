@@ -9,7 +9,7 @@ import (
 	"github.com/motki/motki/proto"
 )
 
-func (srv *GRPCServer) getAuthorizedContext(tok *proto.Token, role model.Role) (context.Context, int, error) {
+func (srv *grpcServer) getAuthorizedContext(tok *proto.Token, role model.Role) (context.Context, int, error) {
 	if tok == nil || tok.Identifier == "" {
 		return nil, 0, errors.New("token cannot be empty")
 	}
@@ -39,7 +39,7 @@ func (srv *GRPCServer) getAuthorizedContext(tok *proto.Token, role model.Role) (
 	return context.WithValue(context.Background(), goesi.ContextOAuth2, source), int(info.CharacterID), nil
 }
 
-func (srv *GRPCServer) GetCorpBlueprints(ctx context.Context, req *proto.GetCorpBlueprintsRequest) (resp *proto.GetCorpBlueprintsResponse, err error) {
+func (srv *grpcServer) GetCorpBlueprints(ctx context.Context, req *proto.GetCorpBlueprintsRequest) (resp *proto.GetCorpBlueprintsResponse, err error) {
 	defer func() {
 		if err != nil {
 			resp = &proto.GetCorpBlueprintsResponse{

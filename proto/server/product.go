@@ -16,7 +16,7 @@ func productResponse(product *model.Product) *proto.ProductResponse {
 	}
 }
 
-func (srv *GRPCServer) GetProduct(ctx context.Context, req *proto.GetProductRequest) (resp *proto.ProductResponse, err error) {
+func (srv *grpcServer) GetProduct(ctx context.Context, req *proto.GetProductRequest) (resp *proto.ProductResponse, err error) {
 	defer func() {
 		if err != nil {
 			resp = &proto.ProductResponse{
@@ -51,7 +51,7 @@ func (srv *GRPCServer) GetProduct(ctx context.Context, req *proto.GetProductRequ
 	return productResponse(prod), nil
 }
 
-func (srv *GRPCServer) GetProducts(ctx context.Context, req *proto.GetProductsRequest) (resp *proto.ProductsResponse, err error) {
+func (srv *grpcServer) GetProducts(ctx context.Context, req *proto.GetProductsRequest) (resp *proto.ProductsResponse, err error) {
 	defer func() {
 		if err != nil {
 			resp = &proto.ProductsResponse{
@@ -90,7 +90,7 @@ func (srv *GRPCServer) GetProducts(ctx context.Context, req *proto.GetProductsRe
 	return resp, nil
 }
 
-func (srv *GRPCServer) NewProduct(ctx context.Context, req *proto.NewProductRequest) (resp *proto.ProductResponse, err error) {
+func (srv *grpcServer) NewProduct(ctx context.Context, req *proto.NewProductRequest) (resp *proto.ProductResponse, err error) {
 	defer func() {
 		if err != nil {
 			resp = &proto.ProductResponse{
@@ -125,7 +125,7 @@ func (srv *GRPCServer) NewProduct(ctx context.Context, req *proto.NewProductRequ
 	return productResponse(prod), nil
 }
 
-func (srv *GRPCServer) SaveProduct(ctx context.Context, req *proto.SaveProductRequest) (resp *proto.ProductResponse, err error) {
+func (srv *grpcServer) SaveProduct(ctx context.Context, req *proto.SaveProductRequest) (resp *proto.ProductResponse, err error) {
 	defer func() {
 		if err != nil {
 			resp = &proto.ProductResponse{
@@ -175,7 +175,7 @@ func (srv *GRPCServer) SaveProduct(ctx context.Context, req *proto.SaveProductRe
 	return productResponse(prod), nil
 }
 
-func (srv *GRPCServer) GetMarketPrice(ctx context.Context, req *proto.GetMarketPriceRequest) (resp *proto.GetMarketPriceResponse, err error) {
+func (srv *grpcServer) GetMarketPrice(ctx context.Context, req *proto.GetMarketPriceRequest) (resp *proto.GetMarketPriceResponse, err error) {
 	defer func() {
 		if err != nil {
 			resp = &proto.GetMarketPriceResponse{

@@ -8,7 +8,7 @@ import (
 	"github.com/motki/motki/proto"
 )
 
-func (srv *GRPCServer) GetCharacter(ctx context.Context, req *proto.GetCharacterRequest) (resp *proto.CharacterResponse, err error) {
+func (srv *grpcServer) GetCharacter(ctx context.Context, req *proto.GetCharacterRequest) (resp *proto.CharacterResponse, err error) {
 	defer func() {
 		if err != nil {
 			resp = &proto.CharacterResponse{
@@ -55,7 +55,7 @@ func (srv *GRPCServer) GetCharacter(ctx context.Context, req *proto.GetCharacter
 	}, nil
 }
 
-func (srv *GRPCServer) GetCorporation(ctx context.Context, req *proto.GetCorporationRequest) (resp *proto.CorporationResponse, err error) {
+func (srv *grpcServer) GetCorporation(ctx context.Context, req *proto.GetCorporationRequest) (resp *proto.CorporationResponse, err error) {
 	defer func() {
 		if err != nil {
 			resp = &proto.CorporationResponse{
@@ -75,7 +75,7 @@ func (srv *GRPCServer) GetCorporation(ctx context.Context, req *proto.GetCorpora
 	}, nil
 }
 
-func (srv *GRPCServer) GetAlliance(ctx context.Context, req *proto.GetAllianceRequest) (resp *proto.AllianceResponse, err error) {
+func (srv *grpcServer) GetAlliance(ctx context.Context, req *proto.GetAllianceRequest) (resp *proto.AllianceResponse, err error) {
 	defer func() {
 		if err != nil {
 			resp = &proto.AllianceResponse{

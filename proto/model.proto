@@ -190,15 +190,33 @@ message InventoryItem {
     google.protobuf.Timestamp fetched_at = 5;
 }
 
-message GetCorpInventoryRequest {
+message GetInventoryRequest {
     Token token = 1;
 }
 
-message GetCorpInventoryResponse {
+message GetInventoryResponse {
     Result result = 1;
     repeated InventoryItem item = 2;
 }
 
+message NewInventoryItemRequest {
+    Token token = 1;
+    int64 type_id = 2;
+    int64 location_id = 3;
+}
+
+message SaveInventoryItemRequest {
+    Token token = 1;
+    InventoryItem item = 2;
+}
+
+message InventoryItemResponse {
+    Result result = 1;
+    InventoryItem item = 2;
+}
+
 service InventoryService {
-    rpc GetCorpInventory (GetCorpInventoryRequest) returns (GetCorpInventoryResponse);
+    rpc GetInventory (GetInventoryRequest) returns (GetInventoryResponse);
+    rpc NewInventoryItem (NewInventoryItemRequest) returns (InventoryItemResponse);
+    rpc SaveInventoryItem (SaveInventoryItemRequest) returns (InventoryItemResponse);
 }

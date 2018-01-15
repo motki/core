@@ -2,10 +2,10 @@
 //
 // This package is intended to abstract access to the various different
 // tables and assets provided in the EVE Static Dump.
-package evedb
+package evedb // import "github.com/motki/core/evedb"
 
 import (
-	"github.com/motki/motki/db"
+	"github.com/motki/core/db"
 )
 
 // EveDB is the central service for accessing all EVE Static Dump data.

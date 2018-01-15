@@ -4,8 +4,8 @@ import (
 	"github.com/pkg/errors"
 	"golang.org/x/net/context"
 
-	"github.com/motki/motki/model"
-	"github.com/motki/motki/proto"
+	"github.com/motki/core/model"
+	"github.com/motki/core/proto"
 )
 
 func (srv *grpcServer) GetInventory(ctx context.Context, req *proto.GetInventoryRequest) (resp *proto.GetInventoryResponse, err error) {

@@ -1,10 +1,10 @@
 // Package eveapi manages fetching and posting data to the EVE Swagger API.
-package eveapi
+package eveapi // import "github.com/motki/core/eveapi"
 
 import (
 	"net/http"
 
-	"github.com/motki/motki/log"
+	"github.com/motki/core/log"
 
 	"github.com/antihax/goesi"
 	"github.com/gregjones/httpcache"

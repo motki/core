@@ -2,7 +2,7 @@
 //
 // Much of the Server interface is generated using the protocol buffer definitions in
 // the proto package.
-package server
+package server // import "github.com/motki/core/proto/server"
 
 import (
 	"crypto/tls"
@@ -12,11 +12,11 @@ import (
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
 
-	"github.com/motki/motki/eveapi"
-	"github.com/motki/motki/evedb"
-	"github.com/motki/motki/log"
-	"github.com/motki/motki/model"
-	"github.com/motki/motki/proto"
+	"github.com/motki/core/eveapi"
+	"github.com/motki/core/evedb"
+	"github.com/motki/core/log"
+	"github.com/motki/core/model"
+	"github.com/motki/core/proto"
 )
 
 var ErrBadCredentials = errors.New("username or password is incorrect")

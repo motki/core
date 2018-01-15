@@ -4,7 +4,7 @@ import (
 	"time"
 
 	"github.com/jackc/pgx"
-	"github.com/motki/motki/eveapi"
+	"github.com/motki/core/eveapi"
 )
 
 type Character struct {

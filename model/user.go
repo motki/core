@@ -16,7 +16,7 @@ import (
 	"golang.org/x/net/context"
 	"golang.org/x/oauth2"
 
-	"github.com/motki/motki/eveapi"
+	"github.com/motki/core/eveapi"
 )
 
 type Role int

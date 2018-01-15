@@ -1,11 +1,11 @@
-package proto
+package proto // import "github.com/motki/core/proto"
 
 import (
 	"time"
 
 	"github.com/golang/protobuf/ptypes/timestamp"
-	"github.com/motki/motki/evedb"
-	"github.com/motki/motki/model"
+	"github.com/motki/core/evedb"
+	"github.com/motki/core/model"
 	"github.com/shopspring/decimal"
 )
 

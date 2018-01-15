@@ -3,7 +3,7 @@ package model
 import (
 	"golang.org/x/net/context"
 
-	"github.com/motki/motki/eveapi"
+	"github.com/motki/core/eveapi"
 )
 
 func (m *Manager) GetCorporationIndustryJobs(ctx context.Context, corpID int) (jobs []*eveapi.IndustryJob, err error) {

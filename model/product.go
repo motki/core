@@ -9,7 +9,7 @@ import (
 	"github.com/pkg/errors"
 	"github.com/shopspring/decimal"
 
-	"github.com/motki/motki/evemarketer"
+	"github.com/motki/core/evemarketer"
 )
 
 // ProductKind describes the way a product is acquired.

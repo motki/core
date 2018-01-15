@@ -5,8 +5,8 @@ import (
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
 
-	"github.com/motki/motki/model"
-	"github.com/motki/motki/proto"
+	"github.com/motki/core/model"
+	"github.com/motki/core/proto"
 )
 
 // GetInventory returns all inventory items for the current session's corporation.

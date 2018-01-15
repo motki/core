@@ -3,17 +3,17 @@ package app_test
 import (
 	"fmt"
 
-	"github.com/motki/motki/app"
-	"github.com/motki/motki/log"
-	"github.com/motki/motki/proto"
-	"github.com/motki/motki/proto/client"
+	"github.com/motki/core/app"
+	"github.com/motki/core/log"
+	"github.com/motki/core/proto"
+	"github.com/motki/core/proto/client"
 )
 
 // ExampleNewClientEnv shows the bare-minimum to connect to the public MOTKI
 // application and start an interactive CLI session.
 //
-// Under the gotest and godoc sandboxes this example will always fail to create
-// the ClientEnv because here is no network available.
+// Under go test and godoc sandboxes this example will always fail to create
+// the ClientEnv because there is no network available.
 func ExampleNewClientEnv() {
 	conf := &app.Config{
 		Backend: proto.Config{
@@ -41,5 +41,5 @@ func ExampleNewClientEnv() {
 	}
 
 	// Output:
-	// motki: error getting corporation: rpc error: code = Unavailable desc = grpc: the connection is unavailable
+	// motki: error getting corporation: rpc error: code = Unavailable desc = all SubConns are in TransientFailure
 }

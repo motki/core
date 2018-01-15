@@ -11,8 +11,8 @@ import (
 	"github.com/pkg/errors"
 	"golang.org/x/net/context"
 
-	"github.com/motki/motki/eveapi"
-	"github.com/motki/motki/log"
+	"github.com/motki/core/eveapi"
+	"github.com/motki/core/log"
 )
 
 var ErrCorpNotRegistered = errors.New("ceo or director is not registered for the given corporation")

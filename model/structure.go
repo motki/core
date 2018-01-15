@@ -3,7 +3,7 @@ package model
 import (
 	"golang.org/x/net/context"
 
-	"github.com/motki/motki/eveapi"
+	"github.com/motki/core/eveapi"
 )
 
 func (m *Manager) GetCorporationStructures(ctx context.Context, corpID int) ([]*eveapi.Structure, error) {

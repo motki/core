@@ -1,11 +1,11 @@
 // Package model encapsulates the persistence layer of the MOTKI application.
-package model
+package model // import "github.com/motki/core/model"
 
 import (
-	"github.com/motki/motki/db"
-	"github.com/motki/motki/eveapi"
-	"github.com/motki/motki/evedb"
-	"github.com/motki/motki/evemarketer"
+	"github.com/motki/core/db"
+	"github.com/motki/core/eveapi"
+	"github.com/motki/core/evedb"
+	"github.com/motki/core/evemarketer"
 )
 
 // A Manager is used to retrieve and save data.

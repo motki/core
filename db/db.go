@@ -3,12 +3,12 @@
 // This package is designed to abstract the actual library used for interacting
 // with the database. The exported API returns standard database/sql
 // structures.
-package db
+package db // import "github.com/motki/core/db"
 
 import (
 	"github.com/jackc/pgx"
 
-	"github.com/motki/motki/log"
+	"github.com/motki/core/log"
 )
 
 // Config represents configuration details for creating a connection pool.

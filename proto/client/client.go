@@ -6,15 +6,15 @@
 //
 // When used with a remote MOTKI application server, this package can operate without any additional
 // services installed on the local machine.
-package client
+package client // import "github.com/motki/core/proto/client"
 
 import (
 	"github.com/pkg/errors"
 
-	"github.com/motki/motki/evedb"
-	"github.com/motki/motki/log"
-	"github.com/motki/motki/model"
-	"github.com/motki/motki/proto"
+	"github.com/motki/core/evedb"
+	"github.com/motki/core/log"
+	"github.com/motki/core/model"
+	"github.com/motki/core/proto"
 )
 
 var ErrNotAuthenticated = errors.New("not authenticated")

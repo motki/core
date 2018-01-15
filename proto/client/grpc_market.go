@@ -5,8 +5,8 @@ import (
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
 
-	"github.com/motki/motki/model"
-	"github.com/motki/motki/proto"
+	"github.com/motki/core/model"
+	"github.com/motki/core/proto"
 )
 
 // GetMarketPrices returns a slice of market prices for each of the given type IDs.

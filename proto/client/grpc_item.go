@@ -5,8 +5,8 @@ import (
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
 
-	"github.com/motki/motki/evedb"
-	"github.com/motki/motki/proto"
+	"github.com/motki/core/evedb"
+	"github.com/motki/core/proto"
 )
 
 // GetItemType returns information about the given type ID.

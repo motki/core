@@ -1,5 +1,5 @@
 // Package log provides a normalized interface for logging.
-package log
+package log // import "github.com/motki/core/log"
 
 import (
 	"io"

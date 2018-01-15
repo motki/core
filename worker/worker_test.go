@@ -11,8 +11,8 @@ import (
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 
-	"github.com/motki/motki/log"
-	"github.com/motki/motki/worker"
+	"github.com/motki/core/log"
+	"github.com/motki/core/worker"
 )
 
 var delay = 100 * time.Microsecond

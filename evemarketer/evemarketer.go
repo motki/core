@@ -2,7 +2,7 @@
 //
 // The EveMarketer API is largely compatible with the evecentral.com API. This package is
 // based on the now-removed evecentral package in the MOTKI library.
-package evemarketer
+package evemarketer // import "github.com/motki/core/evemarketer"
 
 import (
 	"encoding/json"

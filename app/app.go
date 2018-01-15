@@ -16,7 +16,7 @@
 //
 // Client/server environments, represented by Env, contain both the client-
 // side services and server-side services, including a grpc server.
-package app
+package app // import "github.com/motki/core/app"
 
 import (
 	"io/ioutil"
@@ -31,16 +31,16 @@ import (
 	"github.com/pkg/errors"
 	"google.golang.org/grpc/test/bufconn"
 
-	"github.com/motki/motki/db"
-	"github.com/motki/motki/eveapi"
-	"github.com/motki/motki/evedb"
-	"github.com/motki/motki/evemarketer"
-	"github.com/motki/motki/log"
-	"github.com/motki/motki/model"
-	"github.com/motki/motki/proto"
-	"github.com/motki/motki/proto/client"
-	"github.com/motki/motki/proto/server"
-	"github.com/motki/motki/worker"
+	"github.com/motki/core/db"
+	"github.com/motki/core/eveapi"
+	"github.com/motki/core/evedb"
+	"github.com/motki/core/evemarketer"
+	"github.com/motki/core/log"
+	"github.com/motki/core/model"
+	"github.com/motki/core/proto"
+	"github.com/motki/core/proto/client"
+	"github.com/motki/core/proto/server"
+	"github.com/motki/core/worker"
 )
 
 // Config represents the configuration of an Env or ClientEnv.

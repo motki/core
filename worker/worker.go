@@ -7,7 +7,7 @@ import (
 
 	"github.com/pkg/errors"
 
-	"github.com/motki/motki/log"
+	"github.com/motki/core/log"
 )
 
 // Job defines the interface for performing asynchronous work.

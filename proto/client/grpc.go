@@ -11,9 +11,9 @@ import (
 	"google.golang.org/grpc/credentials"
 	"google.golang.org/grpc/test/bufconn"
 
-	"github.com/motki/motki/log"
-	"github.com/motki/motki/proto"
-	"github.com/motki/motki/proto/server"
+	"github.com/motki/core/log"
+	"github.com/motki/core/proto"
+	"github.com/motki/core/proto/server"
 )
 
 // Ensure that GRPCClient implements the Client interface.

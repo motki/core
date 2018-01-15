@@ -4,7 +4,7 @@ import (
 	"testing"
 
 	"github.com/golang/protobuf/ptypes/timestamp"
-	"github.com/motki/motki/proto"
+	"github.com/motki/core/proto"
 )
 
 func TestMarshalCharacter(t *testing.T) {

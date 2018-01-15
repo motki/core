@@ -31,10 +31,10 @@ func (api *EveAPI) GetCorporation(corpID int) (corp *Corporation, err error) {
 	}
 	corp = &Corporation{}
 	corp.CorporationID = corpID
-	corp.Name = dat.CorporationName
-	corp.Description = dat.CorporationDescription
+	corp.Name = dat.Name
+	corp.Description = dat.Description
 	corp.Ticker = dat.Ticker
-	corp.CreationDate = dat.CreationDate
+	corp.CreationDate = dat.DateFounded
 	corp.AllianceID = int(dat.AllianceId)
 	return corp, nil
 }
@@ -46,7 +46,7 @@ func (api *EveAPI) GetAlliance(allianceID int) (alliance *Alliance, err error) {
 	}
 	alliance = &Alliance{}
 	alliance.AllianceID = allianceID
-	alliance.Name = dat.AllianceName
+	alliance.Name = dat.Name
 	alliance.Ticker = dat.Ticker
 	alliance.DateFounded = dat.DateFounded
 	return alliance, nil

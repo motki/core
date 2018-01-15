@@ -40,6 +40,6 @@ func ExampleNewClientEnv() {
 		fmt.Println("motki: error getting corporation: " + err.Error())
 	}
 
-	// Output contains:
+	// Output:
 	// motki: error getting corporation: rpc error: code = Unavailable desc = grpc: the connection is unavailable
 }

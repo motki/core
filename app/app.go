@@ -193,6 +193,7 @@ type Env struct {
 	EveDB      *evedb.EveDB
 	EveAPI     *eveapi.EveAPI
 
+	// GRPC application server.
 	Server server.Server
 
 	// Prevent external packages from constructing the struct themselves.

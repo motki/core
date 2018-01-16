@@ -154,6 +154,7 @@ func (srv *grpcServer) SaveProduct(ctx context.Context, req *proto.SaveProductRe
 	}
 	prod := proto.ProtoToProduct(req.Product)
 	if prod.ProductID != 0 {
+		// TODO: always get the existing product to make sure it belongs to the corp. inefficient.
 		_, err := srv.model.GetProduct(corp.CorporationID, prod.ProductID)
 		if err != nil {
 			return nil, err
@@ -174,10 +175,10 @@ func (srv *grpcServer) SaveProduct(ctx context.Context, req *proto.SaveProductRe
 	return productResponse(prod), nil
 }
 
-func (srv *grpcServer) GetMarketPrice(ctx context.Context, req *proto.GetMarketPriceRequest) (resp *proto.GetMarketPriceResponse, err error) {
+func (srv *grpcServer) UpdateProductPrices(ctx context.Context, req *proto.UpdateProductPricesRequest) (resp *proto.ProductResponse, err error) {
 	defer func() {
 		if err != nil {
-			resp = &proto.GetMarketPriceResponse{
+			resp = &proto.ProductResponse{
 				Result: errorResult(err),
 			}
 			err = nil
@@ -186,20 +187,18 @@ func (srv *grpcServer) GetMarketPrice(ctx context.Context, req *proto.GetMarketP
 	if req.Token == nil {
 		return nil, errors.New("token cannot be empty")
 	}
-	if len(req.TypeId) == 0 {
-		return nil, errors.New("must pass at least one type ID")
-	}
-	var ids []int
-	for _, id := range req.TypeId {
-		ids = append(ids, int(id))
-	}
-	prices, err := srv.model.GetMarketPrices(ids[0], ids[1:]...)
+	user, err := srv.model.GetUserBySessionKey(req.Token.Identifier)
 	if err != nil {
 		return nil, err
 	}
-	res := map[int64]*proto.MarketPrice{}
-	for _, p := range prices {
-		res[int64(p.TypeID)] = proto.MarketPriceToProto(p)
+	_, err = srv.model.GetAuthorization(user, model.RoleLogistics)
+	if err != nil {
+		return nil, err
 	}
-	return &proto.GetMarketPriceResponse{Result: successResult, Prices: res}, nil
+	prod := proto.ProtoToProduct(req.Product)
+	err = srv.model.UpdateProductMarketPrices(prod, prod.MarketRegionID)
+	if err != nil {
+		return nil, err
+	}
+	return productResponse(prod), nil
 }

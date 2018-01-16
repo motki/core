@@ -29,6 +29,7 @@ It has these top-level messages:
 	NewProductRequest
 	SaveProductRequest
 	GetProductsRequest
+	UpdateProductPricesRequest
 	ProductsResponse
 	MarketPrice
 	GetMarketPriceRequest

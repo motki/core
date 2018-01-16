@@ -120,6 +120,11 @@ message GetProductsRequest {
     Token token = 1;
 }
 
+message UpdateProductPricesRequest {
+    Token token = 1;
+    Product product = 2;
+}
+
 message ProductsResponse {
     Result result = 1;
     repeated Product product = 2;
@@ -130,6 +135,7 @@ service ProductService {
     rpc GetProduct (GetProductRequest) returns (ProductResponse);
     rpc NewProduct (NewProductRequest) returns (ProductResponse);
     rpc SaveProduct (SaveProductRequest) returns (ProductResponse);
+    rpc UpdateProductPrices (UpdateProductPricesRequest) returns (ProductResponse);
 }
 
 message MarketPrice {

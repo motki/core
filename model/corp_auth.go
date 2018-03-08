@@ -1,6 +1,7 @@
 package model
 
 import (
+	"strconv"
 	"time"
 
 	"github.com/jackc/pgx"
@@ -81,7 +82,7 @@ func (m *Manager) GetCorporationConfig(corpID int) (*CorporationConfig, error) {
 }
 
 func (m *Manager) GetCorporationAuthorization(corpID int) (*Authorization, error) {
-	v, err := m.cache.Memoize("corp_auth", corpID, func() (cache.Value, error) {
+	v, err := m.cache.Memoize("corp_auth:"+strconv.Itoa(corpID), func() (cache.Value, error) {
 		config, err := m.GetCorporationConfig(corpID)
 		if err != nil {
 			return nil, err

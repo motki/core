@@ -1,20 +1,16 @@
 package cache
 
 import (
-	"strconv"
 	"sync"
 	"time"
 )
 
 type Value interface{}
 
-type key struct {
-	kind string
-	id   int
-}
+type key string
 
 func (c key) String() string {
-	return c.kind + ":" + strconv.Itoa(c.id)
+	return string(c)
 }
 
 type item struct {
@@ -31,6 +27,7 @@ type Bucket struct {
 	mu    *sync.RWMutex
 	ttl   time.Duration
 	quit  chan struct{}
+	tag   func(k key, t time.Time)
 }
 
 func New(ttl time.Duration) *Bucket {
@@ -43,6 +40,7 @@ func New(ttl time.Duration) *Bucket {
 	exp := newExpunger(b)
 	go exp.processTags()
 	go exp.expungeExpiredEntries()
+	b.tag = exp.tag
 	return b
 }
 
@@ -51,8 +49,8 @@ func (c *Bucket) Shutdown() error {
 	return nil
 }
 
-func (c *Bucket) Get(kind string, id int) (Value, bool) {
-	k := key{kind, id}
+func (c *Bucket) Get(ky string) (Value, bool) {
+	k := key(ky)
 	c.mu.RLock()
 	it, ok := c.items[k]
 	c.mu.RUnlock()
@@ -66,23 +64,26 @@ func (c *Bucket) Get(kind string, id int) (Value, bool) {
 	return it.value, true
 }
 
-func (c *Bucket) Put(kind string, id int, val Value) {
+func (c *Bucket) Put(ky string, val Value) {
 	c.mu.Lock()
 	defer c.mu.Unlock()
-	c.items[key{kind, id}] = &item{
+	expiry := time.Now().Add(c.ttl)
+	k := key(ky)
+	c.items[k] = &item{
 		value:   val,
-		expires: time.Now().Add(c.ttl),
+		expires: expiry,
 	}
+	c.tag(k, expiry)
 }
 
-func (c *Bucket) Memoize(kind string, id int, vfn func() (Value, error)) (v Value, err error) {
+func (c *Bucket) Memoize(ky string, vfn func() (Value, error)) (v Value, err error) {
 	var ok bool
-	if v, ok = c.Get(kind, id); ok {
+	if v, ok = c.Get(ky); ok {
 		return v, nil
 	}
 	defer func() {
 		if err == nil {
-			c.Put(kind, id, v)
+			c.Put(ky, v)
 		}
 	}()
 	return vfn()

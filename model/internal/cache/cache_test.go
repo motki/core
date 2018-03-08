@@ -16,9 +16,9 @@ func Test(t *testing.T) {
 			t.Errorf("error shutting down bucket: %s", err.Error())
 		}
 	}()
-	b.Put("test", 0, expected)
+	b.Put("test", expected)
 
-	v, ok := b.Get("test", 0)
+	v, ok := b.Get("test")
 	if !ok {
 		t.Errorf("expected value from cache, got nothing")
 		return
@@ -34,7 +34,7 @@ func Test(t *testing.T) {
 
 	<-time.After(20 * time.Millisecond)
 
-	_, ok = b.Get("test", 0)
+	_, ok = b.Get("test")
 	if ok {
 		t.Errorf("expected value to be expunged from cache")
 		return
@@ -52,7 +52,7 @@ func TestMemoize(t *testing.T) {
 	calls := new(int)
 
 	get := func() (cache.Value, error) {
-		return b.Memoize("test", 0, func() (cache.Value, error) {
+		return b.Memoize("test", func() (cache.Value, error) {
 			*calls++
 			return *calls, nil
 		})

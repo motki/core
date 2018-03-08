@@ -31,6 +31,10 @@ type MarketOrder struct {
 }
 
 func (m *Manager) GetCorporationOrder(ctx context.Context, corpID, orderID int) (*MarketOrder, error) {
+	var err error
+	if ctx, err = m.corporationAuthContext(ctx, corpID); err != nil {
+		return nil, err
+	}
 	order, err := m.getCorporationOrderFromDB(corpID, orderID)
 	if err != nil && err != pgx.ErrNoRows {
 		return nil, err
@@ -127,6 +131,9 @@ func (m *Manager) getCorporationOrderFromAPI(ctx context.Context, corpID, orderI
 }
 
 func (m *Manager) GetCorporationOrders(ctx context.Context, corpID int) (orders []*MarketOrder, err error) {
+	if ctx, err = m.corporationAuthContext(ctx, corpID); err != nil {
+		return nil, err
+	}
 	orders, err = m.getCorporationOrdersFromDB(corpID)
 	if err != nil && err != pgx.ErrNoRows {
 		return nil, err

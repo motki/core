@@ -19,6 +19,16 @@ type Region struct {
 	Name     string
 }
 
+type Station struct {
+	StationID       int
+	StationTypeID   int
+	CorporationID   int
+	SystemID        int
+	ConstellationID int
+	RegionID        int
+	Name            string
+}
+
 func (e *EveDB) GetSystem(id int) (*System, error) {
 	c, err := e.pool.Open()
 	if err != nil {
@@ -108,4 +118,28 @@ func (e *EveDB) GetAllRegions() ([]*Region, error) {
 		res = append(res, &r)
 	}
 	return res, nil
+}
+
+func (e *EveDB) GetStation(stationID int) (*Station, error) {
+	c, err := e.pool.Open()
+	if err != nil {
+		return nil, err
+	}
+	defer e.pool.Release(c)
+	r := c.QueryRow(
+		`SELECT s."stationID"
+     			, s."stationTypeID"
+     			, s."stationName"
+     			, s."solarSystemID"
+     			, s."constellationID"
+     			, s."regionID"
+			, s."corporationID"
+     			FROM evesde."staStations" s
+     			  WHERE s."stationID" = $1`, stationID)
+	s := &Station{}
+	err = r.Scan(&s.StationID, &s.StationTypeID, &s.Name, &s.SystemID, &s.ConstellationID, &s.RegionID, &s.CorporationID)
+	if err != nil {
+		return nil, err
+	}
+	return s, nil
 }

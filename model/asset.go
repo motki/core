@@ -36,6 +36,9 @@ func assetFromEveAPI(bp *eveapi.Asset) *Asset {
 }
 
 func (m *Manager) GetCorporationAssets(ctx context.Context, corpID int) (res []*Asset, err error) {
+	if ctx, err = m.corporationAuthContext(ctx, corpID); err != nil {
+		return nil, err
+	}
 	res, err = m.getCorporationAssetsFromDB(corpID)
 	if err != nil {
 		return nil, err
@@ -47,6 +50,9 @@ func (m *Manager) GetCorporationAssets(ctx context.Context, corpID int) (res []*
 }
 
 func (m *Manager) GetCorporationAssetsByTypeAndLocationID(ctx context.Context, corpID, typeID, locationID int) (res []*Asset, err error) {
+	if ctx, err = m.corporationAuthContext(ctx, corpID); err != nil {
+		return nil, err
+	}
 	assets, err := m.GetCorporationAssets(ctx, corpID)
 	if err != nil {
 		return nil, err
@@ -60,6 +66,9 @@ func (m *Manager) GetCorporationAssetsByTypeAndLocationID(ctx context.Context, c
 }
 
 func (m *Manager) GetCorporationAsset(ctx context.Context, corpID int, itemID int) (res *Asset, err error) {
+	if ctx, err = m.corporationAuthContext(ctx, corpID); err != nil {
+		return nil, err
+	}
 	res, err = m.getCorporationAssetFromDB(corpID, itemID)
 	if err != nil {
 		return nil, err
@@ -88,6 +97,7 @@ func (m *Manager) GetAssetSystem(a *Asset) (*evedb.System, error) {
 		// LocationID is a StationID
 	case a.LocationID < 67000000:
 		// LocationID is a conquerable station or outpost
+
 	default:
 		// LocationID is in a container (or citadel)
 		ca, err := m.getCorporationAssetFromDB(a.corpID, a.LocationID)

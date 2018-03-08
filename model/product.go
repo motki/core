@@ -1,6 +1,7 @@
 package model
 
 import (
+	"bytes"
 	"database/sql"
 	"strconv"
 	"strings"
@@ -8,6 +9,7 @@ import (
 	"github.com/jackc/pgx"
 	"github.com/pkg/errors"
 	"github.com/shopspring/decimal"
+	"golang.org/x/net/context"
 
 	"github.com/motki/core/evemarketer"
 )
@@ -83,6 +85,9 @@ func (p Product) Clone() *Product {
 
 // NewProduct creates a new production chain for the given corporation and type.
 func (m *Manager) NewProduct(corpID int, typeID int) (*Product, error) {
+	if _, err := m.corporationAuthContext(context.Background(), corpID); err != nil {
+		return nil, err
+	}
 	bp, err := m.evedb.GetBlueprint(typeID)
 	if err != nil {
 		return nil, errors.Wrapf(err, "unable to create production chain for typeID %d", typeID)
@@ -110,31 +115,90 @@ func (m *Manager) NewProduct(corpID int, typeID int) (*Product, error) {
 	return p, nil
 }
 
-// UpdateProductMarketPrices fetches the latest market data for the production chain.
+// UpdateProductMarketPrices fetches the latest market data for the production
+// chain in the specified region.
+//
+// This method updates the Product's regionID. To avoid this behavior, pass the
+// current regionID in.
+//
+//   err := m.UpdateProductMarketPrices(prod, prod.RegionID)
 func (m *Manager) UpdateProductMarketPrices(product *Product, regionID int) error {
-	stat, err := m.GetMarketStatRegion(regionID, product.TypeID)
-	if err != nil {
-		return errors.Wrapf(err, "unable to update production chain market price for typeID %d", product.TypeID)
+	if _, err := m.corporationAuthContext(context.Background(), product.CorporationID); err != nil {
+		return err
 	}
-	max := decimal.NewFromFloat(1000000000000)
-	var bestSell = max
-	for _, s := range stat {
-		if s.TypeID != product.TypeID {
-			continue
+	return m.updateProductsMarketPrices(regionID, product)
+}
+
+func (m *Manager) updateProductsMarketPrices(regionID int, products ...*Product) error {
+	typeIDMap := make(map[int]struct{})
+	var visitProduct func(*Product)
+	visitProduct = func(p *Product) {
+		typeIDMap[p.TypeID] = struct{}{}
+		for _, prod := range p.Materials {
+			visitProduct(prod)
 		}
+	}
+	for _, p := range products {
+		visitProduct(p)
+	}
+	var typeIDs []int
+	for id := range typeIDMap {
+		typeIDs = append(typeIDs, id)
+	}
+	firstID := typeIDs[0]
+	restIDs := typeIDs[1:]
+	stat, err := m.GetMarketStatRegion(regionID, firstID, restIDs...)
+	if err != nil {
+		return errors.Wrap(err, "unable to update production chain market prices")
+	}
+	bestSellMap := make(map[int]decimal.Decimal)
+	for _, s := range stat {
 		if s.Kind != evemarketer.StatSell {
 			continue
 		}
-		if s.Min.LessThan(bestSell) {
-			bestSell = s.Min
+		if v, ok := bestSellMap[s.TypeID]; !ok || s.Min.LessThan(v) {
+			bestSellMap[s.TypeID] = s.Min
 		}
 	}
-	if bestSell.Equals(max) {
-		return errors.Errorf("no sell orders found for typeID %d in regionID %d", product.TypeID, regionID)
+	missing := make(map[int]struct{})
+	for _, prod := range products {
+		if v, ok := bestSellMap[prod.TypeID]; ok {
+			prod.MarketPrice = v
+			prod.MarketRegionID = regionID
+		} else {
+			missing[prod.TypeID] = struct{}{}
+		}
 	}
-	product.MarketPrice = bestSell
-	product.MarketRegionID = regionID
+	if len(missing) > 0 {
+		buf := &bytes.Buffer{}
+		f := false
+		for id := range missing {
+			if f {
+				buf.WriteString(",")
+			}
+			f = true
+			buf.WriteString(strconv.Itoa(id))
+		}
+		return errors.Errorf("unable to fetch market prices for type IDs: %s", buf.String())
+	}
 	return nil
+}
+
+func (m *Manager) UpdateProductMarketPricesRecursive(product *Product, regionID int) error {
+	if _, err := m.corporationAuthContext(context.Background(), product.CorporationID); err != nil {
+		return err
+	}
+	var prods []*Product
+	var visitProduct func(*Product)
+	visitProduct = func(p *Product) {
+		p.MarketRegionID = regionID
+		prods = append(prods, p)
+		for _, prod := range p.Materials {
+			visitProduct(prod)
+		}
+	}
+	visitProduct(product)
+	return m.updateProductsMarketPrices(regionID, prods...)
 }
 
 // saveProductWithTx attempts to insert or update the given product.
@@ -201,6 +265,9 @@ func (m *Manager) saveProductWithTx(tx *pgx.Tx, product *Product) error {
 //
 // This function automatically handles both inserting and updating.
 func (m *Manager) SaveProduct(product *Product) error {
+	if _, err := m.corporationAuthContext(context.Background(), product.CorporationID); err != nil {
+		return err
+	}
 	c, err := m.pool.Open()
 	if err != nil {
 		return err
@@ -223,11 +290,17 @@ func (m *Manager) SaveProduct(product *Product) error {
 
 // GetAllProducts returns all production chains associated with the given corporation.
 func (m *Manager) GetAllProducts(corpID int) ([]*Product, error) {
+	if _, err := m.corporationAuthContext(context.Background(), corpID); err != nil {
+		return nil, err
+	}
 	return m.getProducts(corpID)
 }
 
 // GetProduct returns a production chain for the given corporation and root product.
 func (m *Manager) GetProduct(corpID int, productID int) (*Product, error) {
+	if _, err := m.corporationAuthContext(context.Background(), corpID); err != nil {
+		return nil, err
+	}
 	prods, err := m.getProducts(corpID, productID)
 	if err != nil {
 		return nil, err

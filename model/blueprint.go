@@ -50,6 +50,9 @@ func blueprintFromEveAPI(bp *eveapi.Blueprint) *Blueprint {
 }
 
 func (m *Manager) GetCorporationBlueprints(ctx context.Context, corpID int) (jobs []*Blueprint, err error) {
+	if ctx, err = m.corporationAuthContext(ctx, corpID); err != nil {
+		return nil, err
+	}
 	jobs, err = m.getCorporationBlueprintsFromDB(corpID)
 	if err != nil {
 		return nil, err

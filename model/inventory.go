@@ -17,6 +17,9 @@ type InventoryItem struct {
 }
 
 func (m *Manager) GetCorporationInventory(ctx context.Context, corpID int) (items []*InventoryItem, err error) {
+	if ctx, err = m.corporationAuthContext(ctx, corpID); err != nil {
+		return nil, err
+	}
 	c, err := m.pool.Open()
 	if err != nil {
 		return nil, err
@@ -52,7 +55,7 @@ func (m *Manager) GetCorporationInventory(ctx context.Context, corpID int) (item
 			if err != nil {
 				return nil, err
 			}
-			err = m.SaveInventoryItem(r)
+			err = m.SaveInventoryItem(ctx, r)
 			if err != nil {
 				return nil, err
 			}
@@ -83,6 +86,10 @@ func (m *Manager) updateInventoryItemLevel(ctx context.Context, item *InventoryI
 }
 
 func (m *Manager) NewInventoryItem(ctx context.Context, corpID, typeID, locationID int) (*InventoryItem, error) {
+	var err error
+	if ctx, err = m.corporationAuthContext(ctx, corpID); err != nil {
+		return nil, err
+	}
 	c, err := m.pool.Open()
 	if err != nil {
 		return nil, err
@@ -115,7 +122,11 @@ func (m *Manager) NewInventoryItem(ctx context.Context, corpID, typeID, location
 	return it, nil
 }
 
-func (m *Manager) SaveInventoryItem(item *InventoryItem) error {
+func (m *Manager) SaveInventoryItem(ctx context.Context, item *InventoryItem) error {
+	var err error
+	if ctx, err = m.corporationAuthContext(ctx, item.CorporationID); err != nil {
+		return err
+	}
 	c, err := m.pool.Open()
 	if err != nil {
 		return err

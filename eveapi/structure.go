@@ -1,74 +1,39 @@
 package eveapi
 
 import (
-	"database/sql/driver"
-	"encoding/json"
-	"fmt"
-	"strings"
+	"time"
 
-	"github.com/antihax/goesi/esi"
 	"golang.org/x/net/context"
 )
 
+// A Structure is a player-owned citadel.
 type Structure struct {
 	StructureID int64
+	Name        string
 	SystemID    int64
 	TypeID      int64
+}
+
+// A CorporationStructure contains additional, sensitive information about a citadel.
+type CorporationStructure struct {
+	Structure
 	ProfileID   int64
-	CurrentVuln VulnSchedule
-	NextVuln    VulnSchedule
+	Services    []string
+	FuelExpires time.Time
+	StateStart  time.Time
+	StateEnd    time.Time
+	UnanchorsAt time.Time
+	VulnWeekday int64
+	VulnHour    int64
+	State       string
 }
 
-type VulnSchedule map[int][]int
-
-func (s *VulnSchedule) Scan(src interface{}) error {
-	if v, ok := src.(string); ok {
-		return json.Unmarshal([]byte(v), &s)
-	}
-	return fmt.Errorf("invalid vulnerability schedule: %v", src)
-}
-
-func (s VulnSchedule) Value() (driver.Value, error) {
-	return json.Marshal(s)
-}
-
-func (s VulnSchedule) String() string {
-	var out []string
-	for day, hrs := range s {
-		var d string
-		switch day {
-		case 0:
-			d = "Sunday"
-		case 1:
-			d = "Monday"
-		case 2:
-			d = "Tuesday"
-		case 3:
-			d = "Wednesday"
-		case 4:
-			d = "Thursday"
-		case 5:
-			d = "Friday"
-		default:
-			d = "Saturday"
-		}
-		var td []string
-		for _, hr := range hrs {
-			td = append(td, fmt.Sprintf("%02d00", hr))
-		}
-		if len(td) != 0 {
-			out = append(out, fmt.Sprintf("%s: %s", d, strings.Join(td, ", ")))
-		}
-	}
-	return strings.Join(out, ", ")
-}
-
-func (api *EveAPI) GetCorporationStructures(ctx context.Context, corpID int) ([]*Structure, error) {
+func (api *EveAPI) GetCorporationStructures(ctx context.Context, corpID int) ([]*CorporationStructure, error) {
 	res, _, err := api.client.ESI.CorporationApi.GetCorporationsCorporationIdStructures(ctx, int32(corpID), nil)
 	if err != nil {
 		return nil, err
 	}
-	var structures []*Structure
+	var structures []*CorporationStructure
 	for _, bp := range res {
 		sched := map[int][]int{}
 		for _, sch := range bp.CurrentVul {
@@ -86,31 +51,41 @@ func (api *EveAPI) GetCorporationStructures(ctx context.Context, corpID int) ([]
 			}
 			nsched[d] = append(nsched[d], h)
 		}
-		structures = append(structures, &Structure{
-			StructureID: bp.StructureId,
-			SystemID:    int64(bp.SystemId),
-			TypeID:      int64(bp.TypeId),
+		// ESI doesn't return the structure name in this API call for some reason.
+		// Query the Universe ESI API for the structures name.
+		s, err := api.GetStructure(ctx, bp.StructureId)
+		if err != nil {
+			return nil, err
+		}
+		var srvs []string
+		for _, r := range bp.Services {
+			srvs = append(srvs, r.Name)
+		}
+		structures = append(structures, &CorporationStructure{
+			Structure:   *s,
 			ProfileID:   int64(bp.ProfileId),
-			CurrentVuln: sched,
-			NextVuln:    nsched,
+			UnanchorsAt: bp.UnanchorsAt,
+			StateStart:  bp.StateTimerStart,
+			StateEnd:    bp.StateTimerEnd,
+			Services:    srvs,
+			FuelExpires: bp.FuelExpires,
+			VulnWeekday: 0,  // TODO: Update goesi
+			VulnHour:    0,  // TODO: Update goesi
+			State:       "", // TODO: Update goesi
 		})
 	}
 	return structures, nil
 }
 
-func (api *EveAPI) UpdateCorporationStructureVulnSchedule(ctx context.Context, corpID int, structureID int, sched VulnSchedule) error {
-	var newSched []esi.PutCorporationsCorporationIdStructuresStructureIdNewSchedule
-	for day, hrs := range sched {
-		for _, hr := range hrs {
-			newSched = append(newSched, esi.PutCorporationsCorporationIdStructuresStructureIdNewSchedule{
-				Day:  int32(day),
-				Hour: int32(hr),
-			})
-		}
-	}
-	_, err := api.client.ESI.CorporationApi.PutCorporationsCorporationIdStructuresStructureId(ctx, int32(corpID), newSched, int64(structureID), nil)
+func (api *EveAPI) GetStructure(ctx context.Context, structureID int64) (*Structure, error) {
+	res, _, err := api.client.ESI.UniverseApi.GetUniverseStructuresStructureId(ctx, int64(structureID), nil)
 	if err != nil {
-		return err
+		return nil, err
 	}
-	return nil
+	return &Structure{
+		StructureID: structureID,
+		Name:        res.Name,
+		SystemID:    int64(res.SolarSystemId),
+		TypeID:      int64(res.TypeId),
+	}, nil
 }

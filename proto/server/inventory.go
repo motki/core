@@ -108,9 +108,13 @@ func (srv *grpcServer) SaveInventoryItem(ctx context.Context, req *proto.SaveInv
 	if err != nil {
 		return nil, err
 	}
+	corpAuth, err := srv.model.GetCorporationAuthorization(char.CorporationID)
+	if err != nil {
+		return nil, err
+	}
 	it := proto.ProtoToInventoryItem(req.Item)
 	it.CorporationID = char.CorporationID
-	if err := srv.model.SaveInventoryItem(it); err != nil {
+	if err := srv.model.SaveInventoryItem(corpAuth.Context(), it); err != nil {
 		return nil, err
 	}
 	return &proto.InventoryItemResponse{

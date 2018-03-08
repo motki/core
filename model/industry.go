@@ -7,6 +7,9 @@ import (
 )
 
 func (m *Manager) GetCorporationIndustryJobs(ctx context.Context, corpID int) (jobs []*eveapi.IndustryJob, err error) {
+	if ctx, err = m.corporationAuthContext(ctx, corpID); err != nil {
+		return nil, err
+	}
 	jobs, err = m.getCorporationIndustryJobsFromDB(corpID)
 	if err != nil {
 		return nil, err

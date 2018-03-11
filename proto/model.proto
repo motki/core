@@ -1,6 +1,7 @@
 syntax = "proto3";
 import "google/protobuf/timestamp.proto";
 import "motki.proto";
+import "evedb.proto";
 
 package motki.model;
 option go_package = "proto";
@@ -12,6 +13,7 @@ enum Role {
     LOGISTICS = 2;
 }
 
+// A Character is a player-controlled character.
 message Character {
     int64 id = 1;
     int64 corporation_id = 2;
@@ -22,6 +24,49 @@ message Character {
     int32 ancestry_id = 7;
     google.protobuf.Timestamp birth_date = 8;
     string description = 9;
+}
+
+// A Corporation is a corporation, either player-controlled or NPC.
+message Corporation {
+    int64 id = 1;
+    int64 alliance_id = 2;
+    string name = 3;
+    google.protobuf.Timestamp creation_date = 4;
+    string description = 5;
+    string ticker = 6;
+}
+
+// An Alliance is a player-controlled alliance.
+message Alliance {
+    int64 id = 1;
+    string name = 2;
+    google.protobuf.Timestamp date_founded = 3;
+    string ticker = 4;
+}
+
+// A Structure is a player-controlled citadel.
+message Structure {
+    int64 id = 1;
+    string name = 2;
+    int64 system_id = 3;
+    int64 type_id = 4;
+}
+
+// A CorporationStructure is a structure with additional, sensitive information.
+message CorporationStructure {
+    int64 id = 1;
+    string name = 2;
+    int64 system_id = 3;
+    int64 type_id = 4;
+    int64 profile_id = 5;
+    repeated string services = 6;
+    google.protobuf.Timestamp fuel_expires = 7;
+    google.protobuf.Timestamp state_start = 8;
+    google.protobuf.Timestamp state_end = 9;
+    google.protobuf.Timestamp unanchors_at = 10;
+    int64 vulnerability_weekday = 11;
+    int64 vulnerability_hour = 12;
+    string state = 13;
 }
 
 message GetCharacterRequest {
@@ -35,15 +80,6 @@ message CharacterResponse {
     Character character = 2;
 }
 
-message Corporation {
-    int64 id = 1;
-    int64 alliance_id = 2;
-    string name = 3;
-    google.protobuf.Timestamp creation_date = 4;
-    string description = 5;
-    string ticker = 6;
-}
-
 message GetCorporationRequest {
     Token token = 1;
     int64 corporation_id = 2;
@@ -53,14 +89,6 @@ message CorporationResponse {
     Result result = 1;
     Corporation corporation = 2;
 }
-
-message Alliance {
-    int64 id = 1;
-    string name = 2;
-    google.protobuf.Timestamp date_founded = 3;
-    string ticker = 4;
-}
-
 
 message GetAllianceRequest {
     Token token = 1;
@@ -72,12 +100,43 @@ message AllianceResponse {
     Alliance alliance = 2;
 }
 
-service InfoService {
-    rpc GetCharacter (GetCharacterRequest) returns (CharacterResponse);
-    rpc GetCorporation (GetCorporationRequest) returns (CorporationResponse);
-    rpc GetAlliance (GetAllianceRequest) returns (AllianceResponse);
+message GetStructureRequest {
+    Token token = 1;
+    int64 structure_id = 2;
 }
 
+message GetStructureResponse {
+    Result result = 1;
+    Structure structure = 2;
+}
+
+message GetCorpStructureResponse {
+    Result result = 1;
+    CorporationStructure structure = 2;
+}
+
+message GetCorpStructuresRequest {
+    Token token = 1;
+}
+
+message GetCorpStructuresResponse {
+    Result result = 1;
+    repeated CorporationStructure structures = 2;
+}
+
+// InfoService provides information about entities in the EVE universe.
+service InfoService {
+    // GetCharacter returns information about a specific character.
+    rpc GetCharacter (GetCharacterRequest) returns (CharacterResponse);
+    // GetCorporation returns information about a specific corporation.
+    rpc GetCorporation (GetCorporationRequest) returns (CorporationResponse);
+    // GetAlliance returns information about a specific alliance.
+    rpc GetAlliance (GetAllianceRequest) returns (AllianceResponse);
+    // GetStructure returns basic information about a specific structure.
+    rpc GetStructure (GetStructureRequest) returns (GetStructureResponse);
+}
+
+// A Product is one component in a production chain.
 message Product {
     enum Kind {
         BUY = 0;
@@ -130,14 +189,23 @@ message ProductsResponse {
     repeated Product product = 2;
 }
 
+// ProductService provides interaction with corporation production chains.
+// These endpoints require that the corporation in question has opted-in to data collection.
 service ProductService {
+    // GetProducts returns all root-level products for a corporation.
     rpc GetProducts (GetProductsRequest) returns (ProductsResponse);
+    // GetProduct returns a specific root-level product.
     rpc GetProduct (GetProductRequest) returns (ProductResponse);
+    // NewProduct creates and returns a new production chain for a specific type.
     rpc NewProduct (NewProductRequest) returns (ProductResponse);
+    // SaveProduct persists changes to a production chain to the server.
     rpc SaveProduct (SaveProductRequest) returns (ProductResponse);
+    // UpdateProductPrices fetches and populates the latest market price for
+    // the entire production chain.
     rpc UpdateProductPrices (UpdateProductPricesRequest) returns (ProductResponse);
 }
 
+// MarketPrice describes the current market price for the given type.
 message MarketPrice {
     int64 type_id = 1;
     double average = 2;
@@ -154,11 +222,15 @@ message GetMarketPriceResponse {
     map<int64, MarketPrice> prices = 2;
 }
 
+// MarketPriceService provides current market price information.
 service MarketPriceService {
+    // GetMarketPrice returns the current market price for a specific type.
     rpc GetMarketPrice (GetMarketPriceRequest) returns (GetMarketPriceResponse);
 }
 
+// Blueprint describes the necessary materials for producting an item.
 message Blueprint {
+    // Kind is blueprint original (BPO) or copy (BPC)
     enum Kind {
         ORIGINAL = 0;
         COPY = 1;
@@ -184,10 +256,18 @@ message GetCorpBlueprintsResponse {
     repeated Blueprint blueprint = 2;
 }
 
+// CorporationService provides information about opted-in corporations.
+// These endpoints require that the corporation in question has opted-in to data collection.
 service CorporationService {
+    // GetCorpStructure returns detailed information about a specific structure.
+    rpc GetCorpStructure (GetStructureRequest) returns (GetCorpStructureResponse);
+    // GetCorpStructure returns detailed information about corporation-owned structures.
+    rpc GetCorpStructures (GetCorpStructuresRequest) returns (GetCorpStructuresResponse);
+    // GetCorpBlueprints returns all corporation-owned blueprints.
     rpc GetCorpBlueprints (GetCorpBlueprintsRequest) returns (GetCorpBlueprintsResponse);
 }
 
+// InventoryItem is one item in an overall inventory.
 message InventoryItem {
     int64 type_id = 1;
     int64 location_id = 2;
@@ -221,8 +301,13 @@ message InventoryItemResponse {
     InventoryItem item = 2;
 }
 
+// InventoryService provides information about corporation inventory levels.
+// These endpoints require that the corporation in question has opted-in to data collection.
 service InventoryService {
+    // GetInventory returns all inventory items for a corporation.
     rpc GetInventory (GetInventoryRequest) returns (GetInventoryResponse);
+    // NewInventoryItem creates a new inventory item for a specific type.
     rpc NewInventoryItem (NewInventoryItemRequest) returns (InventoryItemResponse);
+    // SaveInventoryItem persists changes to a given inventory item on the server.
     rpc SaveInventoryItem (SaveInventoryItemRequest) returns (InventoryItemResponse);
 }

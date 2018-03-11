@@ -8,8 +8,8 @@ import (
 	"github.com/pkg/errors"
 	"golang.org/x/net/context"
 
+	"github.com/motki/core/cache"
 	"github.com/motki/core/log"
-	"github.com/motki/core/model/internal/cache"
 )
 
 var ErrCorpNotRegistered = errors.New("ceo or director is not registered for the given corporation")

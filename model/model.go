@@ -4,11 +4,11 @@ package model // import "github.com/motki/core/model"
 import (
 	"time"
 
+	"github.com/motki/core/cache"
 	"github.com/motki/core/db"
 	"github.com/motki/core/eveapi"
 	"github.com/motki/core/evedb"
 	"github.com/motki/core/evemarketer"
-	"github.com/motki/core/model/internal/cache"
 )
 
 // A Manager is used to retrieve and save data.

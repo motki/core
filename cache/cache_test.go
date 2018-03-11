@@ -4,7 +4,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/motki/core/model/internal/cache"
+	"github.com/motki/core/cache"
 )
 
 func Test(t *testing.T) {

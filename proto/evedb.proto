@@ -4,7 +4,7 @@ import "motki.proto";
 package motki.evedb;
 option go_package = "proto";
 
-
+// Icon is a static icon file.
 message Icon {
     int64 icon_id = 1;
     string image_url = 2;
@@ -20,6 +20,7 @@ message Race {
     Icon icon = 5;
 }
 
+// Ancestry describes an ancestry in EVE.
 message Ancestry {
     int64 ancestry_id = 1;
     string name = 2;
@@ -34,6 +35,7 @@ message Ancestry {
     Icon icon = 11;
 }
 
+// Bloodline is a bloodline in EVE.
 message Bloodline {
     int64 bloodline_id = 1;
     string name = 2;
@@ -54,6 +56,7 @@ message Bloodline {
     Icon icon = 17;
 }
 
+// System is a solar system in the EVE universe.
 message System {
     int64 system_id = 1;
     string name = 2;
@@ -62,23 +65,38 @@ message System {
     double security = 5;
 }
 
+// Constellation is a constellation in the EVE universe.
 message Constellation {
     int64 constellation_id = 1;
     string name = 2;
     int64 region_id = 3;
 }
 
+// Region is a region of space in the EVE universe.
 message Region {
     int64 region_id = 1;
     string name = 2;
 }
 
+// Station is a NPC station in the EVE universe.
+message Station {
+    int64 station_id = 1;
+    int64 station_type_id = 2;
+    int64 corporation_id = 3;
+    int64 system_id = 4;
+    int64 constellation_id = 5;
+    int64 region_id = 6;
+    string name = 7;
+}
+
+// ItemType is basic information about an item in the EVE universe.
 message ItemType {
     int64 type_id = 1;
     string name = 2;
     string description = 3;
 }
 
+// ItemTypeDetail is detailed information about an item in the EVE universe.
 message ItemTypeDetail {
     int64 type_id = 1;
     string name = 2;
@@ -231,18 +249,46 @@ message GetMaterialSheetResponse {
     MaterialSheet mat_sheet = 2;
 }
 
+message GetStationRequest {
+    int64 station_id = 1;
+}
+
+message GetStationResponse {
+    Result result = 1;
+    Station station = 2;
+}
+
+// EveDBService is a service that queries information stored in the EVE static dump.
 service EveDBService {
+    // GetRegion gets a specific region.
     rpc GetRegion (GetRegionRequest) returns (GetRegionResponse);
+    // GetRegions returns a list of all regions.
     rpc GetRegions (GetRegionsRequest) returns (GetRegionsResponse);
+    // GetConstellation gets a specific constellation.
     rpc GetConstellation (GetConstellationRequest) returns (GetConstellationResponse);
+    // GetSystem gets a specific solar system.
     rpc GetSystem (GetSystemRequest) returns (GetSystemResponse);
+    // GetStation gets a specific station.
+    rpc GetStation (GetStationRequest) returns (GetStationResponse);
+
+    // GetRace gets a specific race.
     rpc GetRace (GetRaceRequest) returns (GetRaceResponse);
+    // GetRaces returns a list of all races.
     rpc GetRaces (GetRacesRequest) returns (GetRacesResponse);
+    // GetBloodline gets a specific bloodline.
     rpc GetBloodline (GetBloodlineRequest) returns (GetBloodlineResponse);
+    // GetAncestry gets a specific ancestry.
     rpc GetAncestry (GetAncestryRequest) returns (GetAncestryResponse);
+
+    // GetItemType gets the basic information for a specific item type.
     rpc GetItemType (GetItemTypeRequest) returns (GetItemTypeResponse);
+    // GetItemTypeDetail gets the detailed information for a specific item type.
     rpc GetItemTypeDetail (GetItemTypeDetailRequest) returns (GetItemTypeDetailResponse);
-    rpc QueryItemTypes (QueryItemTypesRequest) returns (QueryItemTypesResponse);
-    rpc QueryItemTypeDetails (QueryItemTypeDetailsRequest) returns (QueryItemTypeDetailsResponse);
+    // GetMaterialSheet gets a list of materials required to produce an item.
     rpc GetMaterialSheet (GetMaterialSheetRequest) returns (GetMaterialSheetResponse);
+
+    // QueryItemTypes returns basic information for types matching the input query.
+    rpc QueryItemTypes (QueryItemTypesRequest) returns (QueryItemTypesResponse);
+    // QueryItemTypeDetails returns detailed information for types matching the input query.
+    rpc QueryItemTypeDetails (QueryItemTypeDetailsRequest) returns (QueryItemTypeDetailsResponse);
 }

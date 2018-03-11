@@ -18,7 +18,7 @@ func ExampleNewClientEnv() {
 	conf := &app.Config{
 		Backend: proto.Config{
 			Kind:       proto.BackendRemoteGRPC,
-			RemoteGRPC: proto.RemoteConfig{ServerAddr: "motki.org:8443"},
+			RemoteGRPC: proto.RemoteConfig{ServerAddr: "motki.org:18443"},
 		},
 		Logging: log.Config{
 			Level: "debug",

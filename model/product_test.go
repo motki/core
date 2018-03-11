@@ -103,7 +103,7 @@ func TestProductCost(t *testing.T) {
 	if cost := id17.Cost(); !cost.Equals(decimal.NewFromFloat(5)) {
 		t.Errorf("expected cost for typeID 17 to be 5.00, got %s", cost)
 	}
-	if cost := prod.Cost(); !cost.Equals(decimal.NewFromFloat(105290.9)) {
+	if cost := prod.Cost(); !cost.Truncate(1).Equals(decimal.NewFromFloat(105290.9)) {
 		t.Errorf("expected cost for product to be 105290.9, got %s", cost)
 	}
 }

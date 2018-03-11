@@ -35,11 +35,13 @@ func ExampleNewClientEnv() {
 	}
 
 	// This method call will always fail when ran under the godoc sandbox without network access.
-	_, err = env.Client.GetCorporation(98513229)
+	corp, err := env.Client.GetCorporation(98513229)
 	if err != nil {
 		fmt.Println("motki: error getting corporation: " + err.Error())
 	}
 
+	fmt.Println(corp.Name)
+
 	// Output:
-	// motki: error getting corporation: rpc error: code = Unavailable desc = all SubConns are in TransientFailure
+	// Moritake Industries
 }

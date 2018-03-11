@@ -13,8 +13,12 @@ type cachingGRPCClient struct {
 	cache *cache.Bucket
 }
 
+func cacheKey(prefix string, id int) string {
+	return prefix + strconv.Itoa(id)
+}
+
 func (c *cachingGRPCClient) GetRegion(regionID int) (*evedb.Region, error) {
-	v, err := c.cache.Memoize("region:"+strconv.Itoa(regionID), func() (cache.Value, error) {
+	v, err := c.cache.Memoize(cacheKey("region:", regionID), func() (cache.Value, error) {
 		return c.GRPCClient.GetRegion(regionID)
 	})
 	if err != nil {
@@ -42,7 +46,7 @@ func (c *cachingGRPCClient) GetRegions() ([]*evedb.Region, error) {
 
 // GetSystem returns information about the given system ID.
 func (c *cachingGRPCClient) GetSystem(systemID int) (*evedb.System, error) {
-	v, err := c.cache.Memoize("system:"+strconv.Itoa(systemID), func() (cache.Value, error) {
+	v, err := c.cache.Memoize(cacheKey("system:", systemID), func() (cache.Value, error) {
 		return c.GRPCClient.GetSystem(systemID)
 	})
 	if err != nil {
@@ -56,7 +60,7 @@ func (c *cachingGRPCClient) GetSystem(systemID int) (*evedb.System, error) {
 
 // GetConstellation returns information about the given constellation ID.
 func (c *cachingGRPCClient) GetConstellation(constellationID int) (*evedb.Constellation, error) {
-	v, err := c.cache.Memoize("constellation:"+strconv.Itoa(constellationID), func() (cache.Value, error) {
+	v, err := c.cache.Memoize(cacheKey("constellation:", constellationID), func() (cache.Value, error) {
 		return c.GRPCClient.GetConstellation(constellationID)
 	})
 	if err != nil {
@@ -70,7 +74,7 @@ func (c *cachingGRPCClient) GetConstellation(constellationID int) (*evedb.Conste
 
 // GetRace returns information about the given race ID.
 func (c *cachingGRPCClient) GetRace(raceID int) (*evedb.Race, error) {
-	v, err := c.cache.Memoize("race:"+strconv.Itoa(raceID), func() (cache.Value, error) {
+	v, err := c.cache.Memoize(cacheKey("race:", raceID), func() (cache.Value, error) {
 		return c.GRPCClient.GetRace(raceID)
 	})
 	if err != nil {
@@ -98,7 +102,7 @@ func (c *cachingGRPCClient) GetRaces() ([]*evedb.Race, error) {
 
 // GetBloodline returns information about the given bloodline ID.
 func (c *cachingGRPCClient) GetBloodline(bloodlineID int) (*evedb.Bloodline, error) {
-	v, err := c.cache.Memoize("bloodline", func() (cache.Value, error) {
+	v, err := c.cache.Memoize(cacheKey("bloodline:", bloodlineID), func() (cache.Value, error) {
 		return c.GRPCClient.GetBloodline(bloodlineID)
 	})
 	if err != nil {
@@ -112,7 +116,7 @@ func (c *cachingGRPCClient) GetBloodline(bloodlineID int) (*evedb.Bloodline, err
 
 // GetAncestry returns information about the given ancestry ID.
 func (c *cachingGRPCClient) GetAncestry(ancestryID int) (*evedb.Ancestry, error) {
-	v, err := c.cache.Memoize("ancestry", func() (cache.Value, error) {
+	v, err := c.cache.Memoize(cacheKey("ancestry:", ancestryID), func() (cache.Value, error) {
 		return c.GRPCClient.GetAncestry(ancestryID)
 	})
 	if err != nil {
@@ -122,4 +126,46 @@ func (c *cachingGRPCClient) GetAncestry(ancestryID int) (*evedb.Ancestry, error)
 		return a, nil
 	}
 	return nil, errors.Errorf("expected *evedb.Ancestry from cache, got %T", v)
+}
+
+// GetItemType returns information about the given type ID.
+func (c *cachingGRPCClient) GetItemType(typeID int) (*evedb.ItemType, error) {
+	v, err := c.cache.Memoize(cacheKey("item:", typeID), func() (cache.Value, error) {
+		return c.GRPCClient.GetItemType(typeID)
+	})
+	if err != nil {
+		return nil, err
+	}
+	if a, ok := v.(*evedb.ItemType); ok {
+		return a, nil
+	}
+	return nil, errors.Errorf("expected *evedb.ItemType from cache, got %T", v)
+}
+
+// GetItemTypeDetail returns detailed information about the given type ID.
+func (c *cachingGRPCClient) GetItemTypeDetail(typeID int) (*evedb.ItemTypeDetail, error) {
+	v, err := c.cache.Memoize(cacheKey("item_detail:", typeID), func() (cache.Value, error) {
+		return c.GRPCClient.GetItemTypeDetail(typeID)
+	})
+	if err != nil {
+		return nil, err
+	}
+	if a, ok := v.(*evedb.ItemTypeDetail); ok {
+		return a, nil
+	}
+	return nil, errors.Errorf("expected *evedb.ItemTypeDetail from cache, got %T", v)
+}
+
+// GetMaterialSheet returns manufacturing information about the given type ID.
+func (c *cachingGRPCClient) GetMaterialSheet(typeID int) (*evedb.MaterialSheet, error) {
+	v, err := c.cache.Memoize(cacheKey("mat_sheet:", typeID), func() (cache.Value, error) {
+		return c.GRPCClient.GetMaterialSheet(typeID)
+	})
+	if err != nil {
+		return nil, err
+	}
+	if a, ok := v.(*evedb.MaterialSheet); ok {
+		return a, nil
+	}
+	return nil, errors.Errorf("expected *evedb.MaterialSheet from cache, got %T", v)
 }

@@ -35,22 +35,6 @@ func (api *EveAPI) GetCorporationStructures(ctx context.Context, corpID int) ([]
 	}
 	var structures []*CorporationStructure
 	for _, bp := range res {
-		sched := map[int][]int{}
-		for _, sch := range bp.CurrentVul {
-			d, h := int(sch.Day), int(sch.Hour)
-			if _, ok := sched[d]; !ok {
-				sched[d] = []int{}
-			}
-			sched[d] = append(sched[d], h)
-		}
-		nsched := map[int][]int{}
-		for _, sch := range bp.NextVul {
-			d, h := int(sch.Day), int(sch.Hour)
-			if _, ok := nsched[d]; !ok {
-				nsched[d] = []int{}
-			}
-			nsched[d] = append(nsched[d], h)
-		}
 		// ESI doesn't return the structure name in this API call for some reason.
 		// Query the Universe ESI API for the structures name.
 		s, err := api.GetStructure(ctx, bp.StructureId)

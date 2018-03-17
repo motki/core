@@ -60,7 +60,7 @@ func (e *EveDB) GetConstellation(id int) (*Constellation, error) {
 	defer e.pool.Release(c)
 	row := c.QueryRow(
 		`SELECT
-			, s."constellationID"
+			  s."constellationID"
 			, s."regionID"
 			, s."constellationName"
 			FROM evesde."mapConstellations" s

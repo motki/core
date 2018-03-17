@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/golang/protobuf/ptypes/timestamp"
+	"github.com/motki/core/eveapi"
 	"github.com/motki/core/evedb"
 	"github.com/motki/core/model"
 	"github.com/shopspring/decimal"
@@ -34,7 +35,7 @@ func CharacterToProto(char *model.Character) *Character {
 		BloodlineId:   int32(char.BloodlineID),
 		BirthDate: &timestamp.Timestamp{
 			Seconds: char.BirthDate.Unix(),
-			Nanos:   int32(char.BirthDate.Nanosecond()),
+			Nanos:   int32(char.BirthDate.UnixNano()),
 		},
 		Description: char.Description,
 	}
@@ -59,7 +60,7 @@ func CorporationToProto(corp *model.Corporation) *Corporation {
 		Ticker:     corp.Ticker,
 		CreationDate: &timestamp.Timestamp{
 			Seconds: corp.CreationDate.Unix(),
-			Nanos:   int32(corp.CreationDate.Nanosecond()),
+			Nanos:   int32(corp.CreationDate.UnixNano()),
 		},
 		Description: corp.Description,
 	}
@@ -81,7 +82,7 @@ func AllianceToProto(alliance *model.Alliance) *Alliance {
 		Ticker: alliance.Ticker,
 		DateFounded: &timestamp.Timestamp{
 			Seconds: alliance.DateFounded.Unix(),
-			Nanos:   int32(alliance.DateFounded.Nanosecond()),
+			Nanos:   int32(alliance.DateFounded.UnixNano()),
 		},
 	}
 }
@@ -476,7 +477,132 @@ func InventoryItemToProto(m *model.InventoryItem) *InventoryItem {
 		CurrentLevel: int64(m.CurrentLevel),
 		MinLevel:     int64(m.MinimumLevel),
 		FetchedAt: &timestamp.Timestamp{
-			int64(m.FetchedAt.Second()),
-			int32(m.FetchedAt.Nanosecond())},
+			m.FetchedAt.Unix(),
+			int32(m.FetchedAt.UnixNano())},
+	}
+}
+
+func ProtoToStructure(p *Structure) *eveapi.Structure {
+	return &eveapi.Structure{
+		StructureID: p.Id,
+		TypeID:      p.TypeId,
+		Name:        p.Name,
+		SystemID:    p.SystemId,
+	}
+}
+
+func StructureToProto(m *eveapi.Structure) *Structure {
+	return &Structure{
+		Id:       m.StructureID,
+		TypeId:   m.TypeID,
+		Name:     m.Name,
+		SystemId: m.SystemID,
+	}
+}
+
+func CorpStructureToProto(m *eveapi.CorporationStructure) *CorporationStructure {
+	return &CorporationStructure{
+		Id:        m.StructureID,
+		Name:      m.Name,
+		SystemId:  m.SystemID,
+		TypeId:    m.TypeID,
+		ProfileId: m.ProfileID,
+		Services:  m.Services,
+		FuelExpires: &timestamp.Timestamp{
+			m.FuelExpires.Unix(),
+			int32(m.FuelExpires.UnixNano())},
+		StateStart: &timestamp.Timestamp{
+			m.StateStart.Unix(),
+			int32(m.StateStart.UnixNano())},
+		StateEnd: &timestamp.Timestamp{
+			m.StateEnd.Unix(),
+			int32(m.StateEnd.UnixNano())},
+		UnanchorsAt: &timestamp.Timestamp{
+			m.UnanchorsAt.Unix(),
+			int32(m.UnanchorsAt.UnixNano())},
+		VulnerabilityWeekday: m.VulnWeekday,
+		VulnerabilityHour:    m.VulnHour,
+		State:                m.State,
+	}
+}
+
+func ProtoToCorpStructure(p *CorporationStructure) *eveapi.CorporationStructure {
+	return &eveapi.CorporationStructure{
+		Structure: eveapi.Structure{
+			StructureID: p.Id,
+			Name:        p.Name,
+			SystemID:    p.SystemId,
+			TypeID:      p.TypeId,
+		},
+		ProfileID:   p.ProfileId,
+		Services:    p.Services,
+		FuelExpires: time.Unix(p.FuelExpires.Seconds, int64(p.FuelExpires.Nanos)),
+		StateStart:  time.Unix(p.StateStart.Seconds, int64(p.StateStart.Nanos)),
+		StateEnd:    time.Unix(p.StateEnd.Seconds, int64(p.StateEnd.Nanos)),
+		UnanchorsAt: time.Unix(p.UnanchorsAt.Seconds, int64(p.UnanchorsAt.Nanos)),
+		VulnWeekday: p.VulnerabilityWeekday,
+		VulnHour:    p.VulnerabilityHour,
+	}
+}
+
+func StationToProto(m *evedb.Station) *Station {
+	return &Station{
+		StationId:       int64(m.StationID),
+		Name:            m.Name,
+		CorporationId:   int64(m.CorporationID),
+		SystemId:        int64(m.SystemID),
+		ConstellationId: int64(m.ConstellationID),
+		RegionId:        int64(m.RegionID),
+		StationTypeId:   int64(m.StationTypeID),
+	}
+}
+
+func ProtoToStation(p *Station) *evedb.Station {
+	return &evedb.Station{
+		StationID:       int(p.StationId),
+		Name:            p.Name,
+		CorporationID:   int(p.CorporationId),
+		SystemID:        int(p.SystemId),
+		ConstellationID: int(p.ConstellationId),
+		RegionID:        int(p.RegionId),
+		StationTypeID:   int(p.StationTypeId),
+	}
+}
+
+func LocationToProto(m *model.Location) *Location {
+	var sta *Station
+	var str *Structure
+	if m.Structure != nil {
+		str = StructureToProto(m.Structure)
+	}
+	if m.Station != nil {
+		sta = StationToProto(m.Station)
+	}
+	return &Location{
+		Id:            int64(m.LocationID),
+		System:        SystemToProto(m.System),
+		Constellation: ConstellationToProto(m.Constellation),
+		Region:        RegionToProto(m.Region),
+		Station:       sta,
+		Structure:     str,
+	}
+}
+
+func ProtoToLocation(p *Location) *model.Location {
+	var sta *evedb.Station
+	var str *eveapi.Structure
+	if p.Station != nil {
+		sta = ProtoToStation(p.Station)
+	}
+	if p.Structure != nil {
+		str = ProtoToStructure(p.Structure)
+	}
+	return &model.Location{
+		LocationID:    int(p.Id),
+		System:        ProtoToSystem(p.System),
+		Constellation: ProtoToConstellation(p.Constellation),
+		Region:        ProtoToRegion(p.Region),
+		Station:       sta,
+		Structure:     str,
 	}
 }

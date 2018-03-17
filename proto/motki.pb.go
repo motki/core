@@ -15,14 +15,20 @@ It has these top-level messages:
 	AuthenticateRequest
 	AuthenticateResponse
 	Character
+	Corporation
+	Alliance
+	Structure
+	CorporationStructure
 	GetCharacterRequest
 	CharacterResponse
-	Corporation
 	GetCorporationRequest
 	CorporationResponse
-	Alliance
 	GetAllianceRequest
 	AllianceResponse
+	GetStructureRequest
+	GetStructureResponse
+	GetCorpStructuresRequest
+	GetCorpStructuresResponse
 	Product
 	ProductResponse
 	GetProductRequest
@@ -43,6 +49,11 @@ It has these top-level messages:
 	NewInventoryItemRequest
 	SaveInventoryItemRequest
 	InventoryItemResponse
+	Location
+	GetLocationRequest
+	LocationResponse
+	QueryLocationsRequest
+	LocationsResponse
 	Icon
 	Race
 	Ancestry
@@ -50,6 +61,7 @@ It has these top-level messages:
 	System
 	Constellation
 	Region
+	Station
 	ItemType
 	ItemTypeDetail
 	MaterialSheet
@@ -80,6 +92,8 @@ It has these top-level messages:
 	QueryItemTypeDetailsResponse
 	GetMaterialSheetRequest
 	GetMaterialSheetResponse
+	GetStationRequest
+	GetStationResponse
 */
 package proto
 

@@ -49,18 +49,57 @@ func (m *Manager) GetCorporationAssets(ctx context.Context, corpID int) (res []*
 	return m.getCorporationAssetsFromAPI(ctx, corpID)
 }
 
+// GetCorporationAssetsByTypeAndLocationID queries the database to find any assets
+// with the given type and location.
+//
+// This method will not fetch assets from the API.
 func (m *Manager) GetCorporationAssetsByTypeAndLocationID(ctx context.Context, corpID, typeID, locationID int) (res []*Asset, err error) {
-	if ctx, err = m.corporationAuthContext(ctx, corpID); err != nil {
+	if _, err = m.corporationAuthContext(ctx, corpID); err != nil {
 		return nil, err
 	}
-	assets, err := m.GetCorporationAssets(ctx, corpID)
+	c, err := m.pool.Open()
 	if err != nil {
 		return nil, err
 	}
-	for _, a := range assets {
-		if a.TypeID == typeID && a.LocationID == locationID {
-			res = append(res, a)
+	defer m.pool.Release(c)
+	rs, err := c.Query(
+		`SELECT
+			  a.item_id
+			, a.location_id
+			, a.type_id
+			, a.quantity
+			, a.singleton
+			, a.raw_quantity
+			, a.flag_id
+			, a.corporation_id
+			, a.fetched_at
+			FROM app.assets a
+			JOIN app.assets a2 ON a.location_id = a2.item_id 
+				AND a2.valid = TRUE AND a2.corporation_id = a.corporation_id
+			WHERE a.type_id = $2 
+				AND a.corporation_id = $1 
+				AND a.valid = true 
+				AND (a.location_id = $3 OR a2.location_id = $3)`, corpID, typeID, locationID)
+	if err != nil {
+		return nil, err
+	}
+	for rs.Next() {
+		r := &Asset{}
+		err := rs.Scan(
+			&r.ItemID,
+			&r.LocationID,
+			&r.TypeID,
+			&r.Quantity,
+			&r.Singleton,
+			&r.RawQuantity,
+			&r.FlagID,
+			&r.corpID,
+			&r.fetchedAt,
+		)
+		if err != nil {
+			return nil, err
 		}
+		res = append(res, r)
 	}
 	return res, nil
 }
@@ -157,10 +196,10 @@ func (m *Manager) getCorporationAssetFromDB(corpID int, itemID int) (*Asset, err
 		return nil, err
 	}
 	if !status {
-		return nil, errors.New("stale database entry")
+		//	return nil, errors.New("stale database entry")
 	}
 	if !valid {
-		return nil, errors.New("invalid database entry")
+		//return nil, errors.New("invalid database entry")
 	}
 	return r, nil
 }

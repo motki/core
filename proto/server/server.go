@@ -30,6 +30,7 @@ type Server interface {
 	proto.EveDBServiceServer
 	proto.CorporationServiceServer
 	proto.InventoryServiceServer
+	proto.LocationServiceServer
 
 	// Serve opens a listening socket for the GRPC server.
 	Serve() error
@@ -64,6 +65,7 @@ func New(conf proto.Config, m *model.Manager, edb *evedb.EveDB, api *eveapi.EveA
 	proto.RegisterEveDBServiceServer(srv.grpc, srv)
 	proto.RegisterCorporationServiceServer(srv.grpc, srv)
 	proto.RegisterInventoryServiceServer(srv.grpc, srv)
+	proto.RegisterLocationServiceServer(srv.grpc, srv)
 	return srv, nil
 }
 
@@ -137,4 +139,22 @@ func (srv *grpcServer) Authenticate(ctx context.Context, req *proto.Authenticate
 		return nil, err
 	}
 	return &proto.AuthenticateResponse{Result: successResult, Token: &proto.Token{tok}}, nil
+}
+
+func (srv *grpcServer) getAuthorizedContext(tok *proto.Token, role model.Role) (context.Context, int, error) {
+	if tok == nil || tok.Identifier == "" {
+		return nil, 0, errors.New("token cannot be empty")
+	}
+	user, err := srv.model.GetUserBySessionKey(tok.Identifier)
+	if err != nil {
+		return nil, 0, err
+	}
+	a, err := srv.model.GetAuthorization(user, role)
+	if err != nil {
+		return nil, 0, err
+	}
+	if err = srv.model.SaveAuthorization(user, role, int(a.CharacterID), a.Token); err != nil {
+		return nil, 0, err
+	}
+	return a.Context(), int(a.CharacterID), nil
 }

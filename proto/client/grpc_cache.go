@@ -5,6 +5,7 @@ import (
 
 	"github.com/motki/core/cache"
 	"github.com/motki/core/evedb"
+	"github.com/motki/core/model"
 	"github.com/pkg/errors"
 )
 
@@ -168,4 +169,17 @@ func (c *cachingGRPCClient) GetMaterialSheet(typeID int) (*evedb.MaterialSheet, 
 		return a, nil
 	}
 	return nil, errors.Errorf("expected *evedb.MaterialSheet from cache, got %T", v)
+}
+
+func (c *cachingGRPCClient) GetLocation(locationID int) (*model.Location, error) {
+	v, err := c.cache.Memoize(cacheKey("location:", locationID), func() (cache.Value, error) {
+		return c.GRPCClient.GetLocation(locationID)
+	})
+	if err != nil {
+		return nil, err
+	}
+	if a, ok := v.(*model.Location); ok {
+		return a, nil
+	}
+	return nil, errors.Errorf("expected *model.Location from cache, got %T", v)
 }

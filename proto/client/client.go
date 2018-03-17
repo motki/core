@@ -11,6 +11,7 @@ package client // import "github.com/motki/core/proto/client"
 import (
 	"github.com/pkg/errors"
 
+	"github.com/motki/core/eveapi"
 	"github.com/motki/core/evedb"
 	"github.com/motki/core/log"
 	"github.com/motki/core/model"
@@ -34,6 +35,8 @@ type Client interface {
 	MarketClient
 	AssetClient
 	InventoryClient
+	StructureClient
+	LocationClient
 }
 
 // New creates a new Client using the given model configuration.
@@ -157,4 +160,14 @@ type CharacterClient interface {
 	GetCorporation(corpID int) (*model.Corporation, error)
 	// GetAlliance returns a populated Alliance for the given alliance ID.
 	GetAlliance(allianceID int) (*model.Alliance, error)
+}
+
+type StructureClient interface {
+	GetStructure(structureID int) (*eveapi.Structure, error)
+	GetCorpStructures() ([]*eveapi.CorporationStructure, error)
+}
+
+type LocationClient interface {
+	GetLocation(locationID int) (*model.Location, error)
+	QueryLocations(query string) ([]*model.Location, error)
 }

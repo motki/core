@@ -136,7 +136,7 @@ func (m *Manager) SaveCorporationConfig(corpID int, detail *CorporationConfig) e
 func (m *Manager) corporationAuthContext(ctx context.Context, corpID int) (context.Context, error) {
 	if authctx, ok := ctx.(authContext); ok {
 		if authctx.CorporationID() != corpID {
-			return nil, errors.New("corpID mismatch")
+			return nil, errors.Errorf("corpID mismatch: expected %d, got %d", corpID, authctx.CorporationID())
 		}
 	}
 	a, err := m.GetCorporationAuthorization(corpID)
@@ -187,6 +187,12 @@ func (m *Manager) UpdateCorporationDataFunc(logger log.Logger) func() error {
 				logger.Errorf("error fetching corp blueprints: %s", err.Error())
 			} else {
 				logger.Debugf("fetched %d blueprints for corporation %d", len(res), a.CorporationID)
+			}
+
+			if res, err := m.GetCorporationStructures(ctx, a.CorporationID); err != nil {
+				logger.Errorf("error fetching corp structures: %s", err.Error())
+			} else {
+				logger.Debugf("fetched %d structures for corporation %d", len(res), a.CorporationID)
 			}
 		}
 		return nil

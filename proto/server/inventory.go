@@ -28,7 +28,7 @@ func (srv *grpcServer) GetInventory(ctx context.Context, req *proto.GetInventory
 	if err != nil {
 		return nil, err
 	}
-	corp, err := srv.model.GetCorporation(char.CorporationID)
+	_, err = srv.model.GetCorporation(char.CorporationID)
 	if err != nil {
 		return nil, err
 	}
@@ -36,7 +36,7 @@ func (srv *grpcServer) GetInventory(ctx context.Context, req *proto.GetInventory
 	if err != nil {
 		return nil, err
 	}
-	items, err := srv.model.GetCorporationInventory(corpAuth.Context(), corp.CorporationID)
+	items, err := srv.model.GetCorporationInventory(corpAuth.Context(), char.CorporationID)
 	if err != nil {
 		return nil, err
 	}

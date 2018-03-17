@@ -47,9 +47,11 @@ func (m *Manager) GetCorporationInventory(ctx context.Context, corpID int) (item
 			&r.CurrentLevel,
 			&r.FetchedAt,
 		)
+
 		if err != nil {
 			return nil, err
 		}
+		r.CorporationID = corpID
 		if r.FetchedAt.Before(time.Now().Add(-2 * time.Hour)) {
 			err = m.updateInventoryItemLevel(ctx, r)
 			if err != nil {
@@ -105,7 +107,7 @@ func (m *Manager) NewInventoryItem(ctx context.Context, corpID, typeID, location
 			, c.fetched_at
 			FROM app.inventory_items c
 			WHERE c.corporation_id = $1 AND c.type_id = $2 AND c.location_id = $3`, corpID, typeID, locationID)
-	if err := r.Scan(&it); err != nil {
+	if err := r.Scan(&it.TypeID, &it.LocationID, &it.MinimumLevel, &it.CurrentLevel, &it.FetchedAt); err != nil {
 		if err == pgx.ErrNoRows {
 			it = &InventoryItem{
 				TypeID:     typeID,
@@ -113,10 +115,15 @@ func (m *Manager) NewInventoryItem(ctx context.Context, corpID, typeID, location
 
 				CorporationID: corpID,
 			}
-			if err = m.updateInventoryItemLevel(ctx, it); err != nil {
-				return nil, err
-			}
+		} else {
+			return nil, err
 		}
+	}
+	if err = m.updateInventoryItemLevel(ctx, it); err != nil {
+		return nil, err
+	}
+	err = m.SaveInventoryItem(ctx, it)
+	if err != nil {
 		return nil, err
 	}
 	return it, nil

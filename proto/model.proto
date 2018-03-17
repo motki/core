@@ -110,11 +110,6 @@ message GetStructureResponse {
     Structure structure = 2;
 }
 
-message GetCorpStructureResponse {
-    Result result = 1;
-    CorporationStructure structure = 2;
-}
-
 message GetCorpStructuresRequest {
     Token token = 1;
 }
@@ -259,9 +254,7 @@ message GetCorpBlueprintsResponse {
 // CorporationService provides information about opted-in corporations.
 // These endpoints require that the corporation in question has opted-in to data collection.
 service CorporationService {
-    // GetCorpStructure returns detailed information about a specific structure.
-    rpc GetCorpStructure (GetStructureRequest) returns (GetCorpStructureResponse);
-    // GetCorpStructure returns detailed information about corporation-owned structures.
+    // GetCorpStructures returns detailed information about corporation-owned structures.
     rpc GetCorpStructures (GetCorpStructuresRequest) returns (GetCorpStructuresResponse);
     // GetCorpBlueprints returns all corporation-owned blueprints.
     rpc GetCorpBlueprints (GetCorpBlueprintsRequest) returns (GetCorpBlueprintsResponse);
@@ -302,7 +295,7 @@ message InventoryItemResponse {
 }
 
 // InventoryService provides information about corporation inventory levels.
-// These endpoints require that the corporation in question has opted-in to data collection.
+// These endpoints require that the user's corporation has opted-in to data collection.
 service InventoryService {
     // GetInventory returns all inventory items for a corporation.
     rpc GetInventory (GetInventoryRequest) returns (GetInventoryResponse);
@@ -310,4 +303,44 @@ service InventoryService {
     rpc NewInventoryItem (NewInventoryItemRequest) returns (InventoryItemResponse);
     // SaveInventoryItem persists changes to a given inventory item on the server.
     rpc SaveInventoryItem (SaveInventoryItemRequest) returns (InventoryItemResponse);
+}
+
+// A Location is a location in the EVE universe.
+message Location {
+    int64 id = 1;
+    evedb.System system = 3;
+    evedb.Constellation constellation = 4;
+    evedb.Region region = 5;
+    evedb.Station station = 6;
+    Structure structure = 7;
+}
+
+message GetLocationRequest {
+    Token token = 1;
+    int64 location_id = 2;
+}
+
+message LocationResponse {
+    Result result = 1;
+    Location location = 2;
+}
+
+message QueryLocationsRequest {
+    Token token = 1;
+    string query = 2;
+}
+
+message LocationsResponse {
+    Result result = 1;
+    repeated Location location = 2;
+}
+
+// LocationService provides information about structures, stations, and the universe.
+// If the user's corporation has opted-in, asset and structure information is used to
+// enhance the results.
+service LocationService {
+    // GetLocation returns information about a specific location ID.
+    rpc GetLocation (GetLocationRequest) returns (LocationResponse);
+    // QueryLocations returns locations that match the input query.
+    rpc QueryLocations (QueryLocationsRequest) returns (LocationsResponse);
 }

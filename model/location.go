@@ -39,6 +39,16 @@ type Location struct {
 	noexport struct{}
 }
 
+func (l Location) String() string {
+	if l.IsCitadel() {
+		return l.Structure.Name
+	}
+	if l.IsStation() {
+		return l.Station.Name
+	}
+	return l.System.Name
+}
+
 // IsStation returns true if the location is a NPC station.
 //
 // Use this method to determine if a location represents a NPC station.
@@ -61,6 +71,16 @@ func (l Location) IsSystem() bool {
 	return l.Station == nil && l.Structure == nil
 }
 
+// ParentID returns the StationID, StructureID, or SystemID that this location exists in.
+func (l Location) ParentID() int {
+	if l.IsStation() {
+		return l.Station.StationID
+	} else if l.IsCitadel() {
+		return int(l.Structure.StructureID)
+	}
+	return l.System.SystemID
+}
+
 // GetLocation attempts to resolve the given location.
 func (m *Manager) GetLocation(ctx context.Context, locationID int) (*Location, error) {
 	// Magic numbers here are sourced from:
@@ -77,14 +97,14 @@ func (m *Manager) GetLocation(ctx context.Context, locationID int) (*Location, e
 	var err error
 	switch {
 	case locationID < 60000000:
-		// LocationID is a SystemID.
+		// locationID is a SystemID.
 		loc.System, err = m.evedb.GetSystem(locationID)
 		if err != nil {
 			return nil, err
 		}
 
 	case locationID < 61000000:
-		// Location is a Station or legacy outpost.
+		// locationID is a Station or legacy outpost.
 		if locationID >= legacyOutpostStart && locationID <= legacyOutpostEndInclusive {
 			// Conquerable outpost pre-dating player outposts. Not yet supported.
 			return nil, errors.Errorf("unable to determine details for locationID %d, conquerable outposts are not supported", locationID)
@@ -93,15 +113,21 @@ func (m *Manager) GetLocation(ctx context.Context, locationID int) (*Location, e
 		loc.Station, err = m.evedb.GetStation(locationID)
 
 	case locationID < 66000000:
-		// Location is a conquerable outpost. Not yet supported.
+		// locationID is a conquerable outpost. Not yet supported.
 		return nil, errors.Errorf("unable to determine details for locationID %d, conquerable outposts are not supported", locationID)
 
 	case locationID < 67000000:
-		// LocationID is a rented office.
+		// locationID is a rented office.
 		loc.Station, err = m.evedb.GetStation(locationID - offsetOfficeIDToStationID)
 
 	default:
-		// LocationID is in a container or citadel.
+		// locationID might be a citadel.
+		s, err := m.GetStructure(ctx, locationID)
+		if err == nil {
+			loc.Structure = s
+			break
+		}
+		// locationID is in a container somewhere.
 		if corpID != 0 {
 			// Corporation is opted-in, we can query for asset information.
 			if ca, err := m.GetCorporationAsset(ctx, corpID, locationID); err == nil {
@@ -114,13 +140,6 @@ func (m *Manager) GetLocation(ctx context.Context, locationID int) (*Location, e
 				return nil, errors.Wrapf(err, "unable to determine details for locationID %d", locationID)
 			}
 		}
-		// No corporation or corporation isn't opted-in, but locationID might be
-		// a public citadel.
-		s, err := m.GetStructure(ctx, locationID)
-		if err != nil {
-			return nil, err
-		}
-		loc.Structure = s
 
 	}
 
@@ -150,5 +169,52 @@ func (m *Manager) GetLocation(ctx context.Context, locationID int) (*Location, e
 	if loc.Region, err = m.evedb.GetRegion(loc.System.RegionID); err != nil {
 		return nil, err
 	}
+	loc.LocationID = locationID
 	return loc, nil
+}
+
+func (m *Manager) QueryLocations(ctx context.Context, query string) ([]*Location, error) {
+	c, err := m.pool.Open()
+	if err != nil {
+		return nil, err
+	}
+	defer m.pool.Release(c)
+	var corpID int
+	if c, ok := authContextFromContext(ctx); ok {
+		corpID = c.CorporationID()
+	}
+	r, err := c.Query(`SELECT s.structure_id
+FROM app.structures s
+WHERE s.name ILIKE '%' || $1 || '%'
+  AND s.corporation_id = $2
+
+UNION ALL
+
+SELECT s."stationID"
+FROM evesde."staStations" s
+WHERE s."stationName" ILIKE '%' || $1 || '%'
+
+UNION ALL
+
+SELECT s."solarSystemID"
+FROM evesde."mapSolarSystems" s
+WHERE s."solarSystemName" ILIKE '%' || $1 || '%'`, query, corpID)
+	if err != nil {
+		return nil, err
+	}
+	var res []*Location
+	for r.Next() {
+		var i int
+		err = r.Scan(&i)
+		if err != nil {
+			return nil, err
+		}
+		// TODO: expensive call in a loop
+		loc, err := m.GetLocation(ctx, i)
+		if err != nil {
+			return nil, err
+		}
+		res = append(res, loc)
+	}
+	return res, nil
 }

@@ -276,3 +276,22 @@ func (srv *grpcServer) GetMaterialSheet(ctx context.Context, req *proto.GetMater
 		MatSheet: proto.MatSheetToProto(res),
 	}, nil
 }
+
+func (srv *grpcServer) GetStation(ctx context.Context, req *proto.GetStationRequest) (resp *proto.GetStationResponse, err error) {
+	defer func() {
+		if err != nil {
+			resp = &proto.GetStationResponse{
+				Result: errorResult(err),
+			}
+			err = nil
+		}
+	}()
+	res, err := srv.evedb.GetStation(int(req.StationId))
+	if err != nil {
+		return nil, err
+	}
+	return &proto.GetStationResponse{
+		Result:  successResult,
+		Station: proto.StationToProto(res),
+	}, nil
+}

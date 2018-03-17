@@ -1,43 +1,12 @@
 package server
 
 import (
-	"github.com/antihax/goesi"
 	"github.com/pkg/errors"
 	"golang.org/x/net/context"
 
 	"github.com/motki/core/model"
 	"github.com/motki/core/proto"
 )
-
-func (srv *grpcServer) getAuthorizedContext(tok *proto.Token, role model.Role) (context.Context, int, error) {
-	if tok == nil || tok.Identifier == "" {
-		return nil, 0, errors.New("token cannot be empty")
-	}
-	user, err := srv.model.GetUserBySessionKey(tok.Identifier)
-	if err != nil {
-		return nil, 0, err
-	}
-	a, err := srv.model.GetAuthorization(user, role)
-	if err != nil {
-		return nil, 0, err
-	}
-	source, err := srv.eveapi.TokenSource(a.Token)
-	if err != nil {
-		return nil, 0, err
-	}
-	info, err := srv.eveapi.Verify(source)
-	if err != nil {
-		return nil, 0, err
-	}
-	t, err := source.Token()
-	if err != nil {
-		return nil, 0, err
-	}
-	if err = srv.model.SaveAuthorization(user, role, int(info.CharacterID), t); err != nil {
-		return nil, 0, err
-	}
-	return context.WithValue(context.Background(), goesi.ContextOAuth2, source), int(info.CharacterID), nil
-}
 
 func (srv *grpcServer) GetCorpBlueprints(ctx context.Context, req *proto.GetCorpBlueprintsRequest) (resp *proto.GetCorpBlueprintsResponse, err error) {
 	defer func() {

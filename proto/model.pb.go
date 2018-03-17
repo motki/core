@@ -62,8 +62,9 @@ var Product_Kind_value = map[string]int32{
 func (x Product_Kind) String() string {
 	return proto1.EnumName(Product_Kind_name, int32(x))
 }
-func (Product_Kind) EnumDescriptor() ([]byte, []int) { return fileDescriptor1, []int{9, 0} }
+func (Product_Kind) EnumDescriptor() ([]byte, []int) { return fileDescriptor1, []int{15, 0} }
 
+// Kind is blueprint original (BPO) or copy (BPC)
 type Blueprint_Kind int32
 
 const (
@@ -83,8 +84,9 @@ var Blueprint_Kind_value = map[string]int32{
 func (x Blueprint_Kind) String() string {
 	return proto1.EnumName(Blueprint_Kind_name, int32(x))
 }
-func (Blueprint_Kind) EnumDescriptor() ([]byte, []int) { return fileDescriptor1, []int{20, 0} }
+func (Blueprint_Kind) EnumDescriptor() ([]byte, []int) { return fileDescriptor1, []int{26, 0} }
 
+// A Character is a player-controlled character.
 type Character struct {
 	Id            int64                      `protobuf:"varint,1,opt,name=id" json:"id,omitempty"`
 	CorporationId int64                      `protobuf:"varint,2,opt,name=corporation_id,json=corporationId" json:"corporation_id,omitempty"`
@@ -165,62 +167,7 @@ func (m *Character) GetDescription() string {
 	return ""
 }
 
-type GetCharacterRequest struct {
-	Token       *Token `protobuf:"bytes,1,opt,name=token" json:"token,omitempty"`
-	Role        Role   `protobuf:"varint,2,opt,name=role,enum=motki.model.Role" json:"role,omitempty"`
-	CharacterId int64  `protobuf:"varint,3,opt,name=character_id,json=characterId" json:"character_id,omitempty"`
-}
-
-func (m *GetCharacterRequest) Reset()                    { *m = GetCharacterRequest{} }
-func (m *GetCharacterRequest) String() string            { return proto1.CompactTextString(m) }
-func (*GetCharacterRequest) ProtoMessage()               {}
-func (*GetCharacterRequest) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{1} }
-
-func (m *GetCharacterRequest) GetToken() *Token {
-	if m != nil {
-		return m.Token
-	}
-	return nil
-}
-
-func (m *GetCharacterRequest) GetRole() Role {
-	if m != nil {
-		return m.Role
-	}
-	return Role_ANON
-}
-
-func (m *GetCharacterRequest) GetCharacterId() int64 {
-	if m != nil {
-		return m.CharacterId
-	}
-	return 0
-}
-
-type CharacterResponse struct {
-	Result    *Result    `protobuf:"bytes,1,opt,name=result" json:"result,omitempty"`
-	Character *Character `protobuf:"bytes,2,opt,name=character" json:"character,omitempty"`
-}
-
-func (m *CharacterResponse) Reset()                    { *m = CharacterResponse{} }
-func (m *CharacterResponse) String() string            { return proto1.CompactTextString(m) }
-func (*CharacterResponse) ProtoMessage()               {}
-func (*CharacterResponse) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{2} }
-
-func (m *CharacterResponse) GetResult() *Result {
-	if m != nil {
-		return m.Result
-	}
-	return nil
-}
-
-func (m *CharacterResponse) GetCharacter() *Character {
-	if m != nil {
-		return m.Character
-	}
-	return nil
-}
-
+// A Corporation is a corporation, either player-controlled or NPC.
 type Corporation struct {
 	Id           int64                      `protobuf:"varint,1,opt,name=id" json:"id,omitempty"`
 	AllianceId   int64                      `protobuf:"varint,2,opt,name=alliance_id,json=allianceId" json:"alliance_id,omitempty"`
@@ -233,7 +180,7 @@ type Corporation struct {
 func (m *Corporation) Reset()                    { *m = Corporation{} }
 func (m *Corporation) String() string            { return proto1.CompactTextString(m) }
 func (*Corporation) ProtoMessage()               {}
-func (*Corporation) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{3} }
+func (*Corporation) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{1} }
 
 func (m *Corporation) GetId() int64 {
 	if m != nil {
@@ -277,54 +224,7 @@ func (m *Corporation) GetTicker() string {
 	return ""
 }
 
-type GetCorporationRequest struct {
-	Token         *Token `protobuf:"bytes,1,opt,name=token" json:"token,omitempty"`
-	CorporationId int64  `protobuf:"varint,2,opt,name=corporation_id,json=corporationId" json:"corporation_id,omitempty"`
-}
-
-func (m *GetCorporationRequest) Reset()                    { *m = GetCorporationRequest{} }
-func (m *GetCorporationRequest) String() string            { return proto1.CompactTextString(m) }
-func (*GetCorporationRequest) ProtoMessage()               {}
-func (*GetCorporationRequest) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{4} }
-
-func (m *GetCorporationRequest) GetToken() *Token {
-	if m != nil {
-		return m.Token
-	}
-	return nil
-}
-
-func (m *GetCorporationRequest) GetCorporationId() int64 {
-	if m != nil {
-		return m.CorporationId
-	}
-	return 0
-}
-
-type CorporationResponse struct {
-	Result      *Result      `protobuf:"bytes,1,opt,name=result" json:"result,omitempty"`
-	Corporation *Corporation `protobuf:"bytes,2,opt,name=corporation" json:"corporation,omitempty"`
-}
-
-func (m *CorporationResponse) Reset()                    { *m = CorporationResponse{} }
-func (m *CorporationResponse) String() string            { return proto1.CompactTextString(m) }
-func (*CorporationResponse) ProtoMessage()               {}
-func (*CorporationResponse) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{5} }
-
-func (m *CorporationResponse) GetResult() *Result {
-	if m != nil {
-		return m.Result
-	}
-	return nil
-}
-
-func (m *CorporationResponse) GetCorporation() *Corporation {
-	if m != nil {
-		return m.Corporation
-	}
-	return nil
-}
-
+// An Alliance is a player-controlled alliance.
 type Alliance struct {
 	Id          int64                      `protobuf:"varint,1,opt,name=id" json:"id,omitempty"`
 	Name        string                     `protobuf:"bytes,2,opt,name=name" json:"name,omitempty"`
@@ -335,7 +235,7 @@ type Alliance struct {
 func (m *Alliance) Reset()                    { *m = Alliance{} }
 func (m *Alliance) String() string            { return proto1.CompactTextString(m) }
 func (*Alliance) ProtoMessage()               {}
-func (*Alliance) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{6} }
+func (*Alliance) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{2} }
 
 func (m *Alliance) GetId() int64 {
 	if m != nil {
@@ -365,6 +265,264 @@ func (m *Alliance) GetTicker() string {
 	return ""
 }
 
+// A Structure is a player-controlled citadel.
+type Structure struct {
+	Id       int64  `protobuf:"varint,1,opt,name=id" json:"id,omitempty"`
+	Name     string `protobuf:"bytes,2,opt,name=name" json:"name,omitempty"`
+	SystemId int64  `protobuf:"varint,3,opt,name=system_id,json=systemId" json:"system_id,omitempty"`
+	TypeId   int64  `protobuf:"varint,4,opt,name=type_id,json=typeId" json:"type_id,omitempty"`
+}
+
+func (m *Structure) Reset()                    { *m = Structure{} }
+func (m *Structure) String() string            { return proto1.CompactTextString(m) }
+func (*Structure) ProtoMessage()               {}
+func (*Structure) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{3} }
+
+func (m *Structure) GetId() int64 {
+	if m != nil {
+		return m.Id
+	}
+	return 0
+}
+
+func (m *Structure) GetName() string {
+	if m != nil {
+		return m.Name
+	}
+	return ""
+}
+
+func (m *Structure) GetSystemId() int64 {
+	if m != nil {
+		return m.SystemId
+	}
+	return 0
+}
+
+func (m *Structure) GetTypeId() int64 {
+	if m != nil {
+		return m.TypeId
+	}
+	return 0
+}
+
+// A CorporationStructure is a structure with additional, sensitive information.
+type CorporationStructure struct {
+	Id                   int64                      `protobuf:"varint,1,opt,name=id" json:"id,omitempty"`
+	Name                 string                     `protobuf:"bytes,2,opt,name=name" json:"name,omitempty"`
+	SystemId             int64                      `protobuf:"varint,3,opt,name=system_id,json=systemId" json:"system_id,omitempty"`
+	TypeId               int64                      `protobuf:"varint,4,opt,name=type_id,json=typeId" json:"type_id,omitempty"`
+	ProfileId            int64                      `protobuf:"varint,5,opt,name=profile_id,json=profileId" json:"profile_id,omitempty"`
+	Services             []string                   `protobuf:"bytes,6,rep,name=services" json:"services,omitempty"`
+	FuelExpires          *google_protobuf.Timestamp `protobuf:"bytes,7,opt,name=fuel_expires,json=fuelExpires" json:"fuel_expires,omitempty"`
+	StateStart           *google_protobuf.Timestamp `protobuf:"bytes,8,opt,name=state_start,json=stateStart" json:"state_start,omitempty"`
+	StateEnd             *google_protobuf.Timestamp `protobuf:"bytes,9,opt,name=state_end,json=stateEnd" json:"state_end,omitempty"`
+	UnanchorsAt          *google_protobuf.Timestamp `protobuf:"bytes,10,opt,name=unanchors_at,json=unanchorsAt" json:"unanchors_at,omitempty"`
+	VulnerabilityWeekday int64                      `protobuf:"varint,11,opt,name=vulnerability_weekday,json=vulnerabilityWeekday" json:"vulnerability_weekday,omitempty"`
+	VulnerabilityHour    int64                      `protobuf:"varint,12,opt,name=vulnerability_hour,json=vulnerabilityHour" json:"vulnerability_hour,omitempty"`
+	State                string                     `protobuf:"bytes,13,opt,name=state" json:"state,omitempty"`
+}
+
+func (m *CorporationStructure) Reset()                    { *m = CorporationStructure{} }
+func (m *CorporationStructure) String() string            { return proto1.CompactTextString(m) }
+func (*CorporationStructure) ProtoMessage()               {}
+func (*CorporationStructure) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{4} }
+
+func (m *CorporationStructure) GetId() int64 {
+	if m != nil {
+		return m.Id
+	}
+	return 0
+}
+
+func (m *CorporationStructure) GetName() string {
+	if m != nil {
+		return m.Name
+	}
+	return ""
+}
+
+func (m *CorporationStructure) GetSystemId() int64 {
+	if m != nil {
+		return m.SystemId
+	}
+	return 0
+}
+
+func (m *CorporationStructure) GetTypeId() int64 {
+	if m != nil {
+		return m.TypeId
+	}
+	return 0
+}
+
+func (m *CorporationStructure) GetProfileId() int64 {
+	if m != nil {
+		return m.ProfileId
+	}
+	return 0
+}
+
+func (m *CorporationStructure) GetServices() []string {
+	if m != nil {
+		return m.Services
+	}
+	return nil
+}
+
+func (m *CorporationStructure) GetFuelExpires() *google_protobuf.Timestamp {
+	if m != nil {
+		return m.FuelExpires
+	}
+	return nil
+}
+
+func (m *CorporationStructure) GetStateStart() *google_protobuf.Timestamp {
+	if m != nil {
+		return m.StateStart
+	}
+	return nil
+}
+
+func (m *CorporationStructure) GetStateEnd() *google_protobuf.Timestamp {
+	if m != nil {
+		return m.StateEnd
+	}
+	return nil
+}
+
+func (m *CorporationStructure) GetUnanchorsAt() *google_protobuf.Timestamp {
+	if m != nil {
+		return m.UnanchorsAt
+	}
+	return nil
+}
+
+func (m *CorporationStructure) GetVulnerabilityWeekday() int64 {
+	if m != nil {
+		return m.VulnerabilityWeekday
+	}
+	return 0
+}
+
+func (m *CorporationStructure) GetVulnerabilityHour() int64 {
+	if m != nil {
+		return m.VulnerabilityHour
+	}
+	return 0
+}
+
+func (m *CorporationStructure) GetState() string {
+	if m != nil {
+		return m.State
+	}
+	return ""
+}
+
+type GetCharacterRequest struct {
+	Token       *Token `protobuf:"bytes,1,opt,name=token" json:"token,omitempty"`
+	Role        Role   `protobuf:"varint,2,opt,name=role,enum=motki.model.Role" json:"role,omitempty"`
+	CharacterId int64  `protobuf:"varint,3,opt,name=character_id,json=characterId" json:"character_id,omitempty"`
+}
+
+func (m *GetCharacterRequest) Reset()                    { *m = GetCharacterRequest{} }
+func (m *GetCharacterRequest) String() string            { return proto1.CompactTextString(m) }
+func (*GetCharacterRequest) ProtoMessage()               {}
+func (*GetCharacterRequest) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{5} }
+
+func (m *GetCharacterRequest) GetToken() *Token {
+	if m != nil {
+		return m.Token
+	}
+	return nil
+}
+
+func (m *GetCharacterRequest) GetRole() Role {
+	if m != nil {
+		return m.Role
+	}
+	return Role_ANON
+}
+
+func (m *GetCharacterRequest) GetCharacterId() int64 {
+	if m != nil {
+		return m.CharacterId
+	}
+	return 0
+}
+
+type CharacterResponse struct {
+	Result    *Result    `protobuf:"bytes,1,opt,name=result" json:"result,omitempty"`
+	Character *Character `protobuf:"bytes,2,opt,name=character" json:"character,omitempty"`
+}
+
+func (m *CharacterResponse) Reset()                    { *m = CharacterResponse{} }
+func (m *CharacterResponse) String() string            { return proto1.CompactTextString(m) }
+func (*CharacterResponse) ProtoMessage()               {}
+func (*CharacterResponse) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{6} }
+
+func (m *CharacterResponse) GetResult() *Result {
+	if m != nil {
+		return m.Result
+	}
+	return nil
+}
+
+func (m *CharacterResponse) GetCharacter() *Character {
+	if m != nil {
+		return m.Character
+	}
+	return nil
+}
+
+type GetCorporationRequest struct {
+	Token         *Token `protobuf:"bytes,1,opt,name=token" json:"token,omitempty"`
+	CorporationId int64  `protobuf:"varint,2,opt,name=corporation_id,json=corporationId" json:"corporation_id,omitempty"`
+}
+
+func (m *GetCorporationRequest) Reset()                    { *m = GetCorporationRequest{} }
+func (m *GetCorporationRequest) String() string            { return proto1.CompactTextString(m) }
+func (*GetCorporationRequest) ProtoMessage()               {}
+func (*GetCorporationRequest) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{7} }
+
+func (m *GetCorporationRequest) GetToken() *Token {
+	if m != nil {
+		return m.Token
+	}
+	return nil
+}
+
+func (m *GetCorporationRequest) GetCorporationId() int64 {
+	if m != nil {
+		return m.CorporationId
+	}
+	return 0
+}
+
+type CorporationResponse struct {
+	Result      *Result      `protobuf:"bytes,1,opt,name=result" json:"result,omitempty"`
+	Corporation *Corporation `protobuf:"bytes,2,opt,name=corporation" json:"corporation,omitempty"`
+}
+
+func (m *CorporationResponse) Reset()                    { *m = CorporationResponse{} }
+func (m *CorporationResponse) String() string            { return proto1.CompactTextString(m) }
+func (*CorporationResponse) ProtoMessage()               {}
+func (*CorporationResponse) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{8} }
+
+func (m *CorporationResponse) GetResult() *Result {
+	if m != nil {
+		return m.Result
+	}
+	return nil
+}
+
+func (m *CorporationResponse) GetCorporation() *Corporation {
+	if m != nil {
+		return m.Corporation
+	}
+	return nil
+}
+
 type GetAllianceRequest struct {
 	Token      *Token `protobuf:"bytes,1,opt,name=token" json:"token,omitempty"`
 	AllianceId int64  `protobuf:"varint,2,opt,name=alliance_id,json=allianceId" json:"alliance_id,omitempty"`
@@ -373,7 +531,7 @@ type GetAllianceRequest struct {
 func (m *GetAllianceRequest) Reset()                    { *m = GetAllianceRequest{} }
 func (m *GetAllianceRequest) String() string            { return proto1.CompactTextString(m) }
 func (*GetAllianceRequest) ProtoMessage()               {}
-func (*GetAllianceRequest) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{7} }
+func (*GetAllianceRequest) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{9} }
 
 func (m *GetAllianceRequest) GetToken() *Token {
 	if m != nil {
@@ -397,7 +555,7 @@ type AllianceResponse struct {
 func (m *AllianceResponse) Reset()                    { *m = AllianceResponse{} }
 func (m *AllianceResponse) String() string            { return proto1.CompactTextString(m) }
 func (*AllianceResponse) ProtoMessage()               {}
-func (*AllianceResponse) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{8} }
+func (*AllianceResponse) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{10} }
 
 func (m *AllianceResponse) GetResult() *Result {
 	if m != nil {
@@ -413,6 +571,95 @@ func (m *AllianceResponse) GetAlliance() *Alliance {
 	return nil
 }
 
+type GetStructureRequest struct {
+	Token       *Token `protobuf:"bytes,1,opt,name=token" json:"token,omitempty"`
+	StructureId int64  `protobuf:"varint,2,opt,name=structure_id,json=structureId" json:"structure_id,omitempty"`
+}
+
+func (m *GetStructureRequest) Reset()                    { *m = GetStructureRequest{} }
+func (m *GetStructureRequest) String() string            { return proto1.CompactTextString(m) }
+func (*GetStructureRequest) ProtoMessage()               {}
+func (*GetStructureRequest) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{11} }
+
+func (m *GetStructureRequest) GetToken() *Token {
+	if m != nil {
+		return m.Token
+	}
+	return nil
+}
+
+func (m *GetStructureRequest) GetStructureId() int64 {
+	if m != nil {
+		return m.StructureId
+	}
+	return 0
+}
+
+type GetStructureResponse struct {
+	Result    *Result    `protobuf:"bytes,1,opt,name=result" json:"result,omitempty"`
+	Structure *Structure `protobuf:"bytes,2,opt,name=structure" json:"structure,omitempty"`
+}
+
+func (m *GetStructureResponse) Reset()                    { *m = GetStructureResponse{} }
+func (m *GetStructureResponse) String() string            { return proto1.CompactTextString(m) }
+func (*GetStructureResponse) ProtoMessage()               {}
+func (*GetStructureResponse) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{12} }
+
+func (m *GetStructureResponse) GetResult() *Result {
+	if m != nil {
+		return m.Result
+	}
+	return nil
+}
+
+func (m *GetStructureResponse) GetStructure() *Structure {
+	if m != nil {
+		return m.Structure
+	}
+	return nil
+}
+
+type GetCorpStructuresRequest struct {
+	Token *Token `protobuf:"bytes,1,opt,name=token" json:"token,omitempty"`
+}
+
+func (m *GetCorpStructuresRequest) Reset()                    { *m = GetCorpStructuresRequest{} }
+func (m *GetCorpStructuresRequest) String() string            { return proto1.CompactTextString(m) }
+func (*GetCorpStructuresRequest) ProtoMessage()               {}
+func (*GetCorpStructuresRequest) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{13} }
+
+func (m *GetCorpStructuresRequest) GetToken() *Token {
+	if m != nil {
+		return m.Token
+	}
+	return nil
+}
+
+type GetCorpStructuresResponse struct {
+	Result     *Result                 `protobuf:"bytes,1,opt,name=result" json:"result,omitempty"`
+	Structures []*CorporationStructure `protobuf:"bytes,2,rep,name=structures" json:"structures,omitempty"`
+}
+
+func (m *GetCorpStructuresResponse) Reset()                    { *m = GetCorpStructuresResponse{} }
+func (m *GetCorpStructuresResponse) String() string            { return proto1.CompactTextString(m) }
+func (*GetCorpStructuresResponse) ProtoMessage()               {}
+func (*GetCorpStructuresResponse) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{14} }
+
+func (m *GetCorpStructuresResponse) GetResult() *Result {
+	if m != nil {
+		return m.Result
+	}
+	return nil
+}
+
+func (m *GetCorpStructuresResponse) GetStructures() []*CorporationStructure {
+	if m != nil {
+		return m.Structures
+	}
+	return nil
+}
+
+// A Product is one component in a production chain.
 type Product struct {
 	Id                 int32        `protobuf:"varint,1,opt,name=id" json:"id,omitempty"`
 	TypeId             int64        `protobuf:"varint,2,opt,name=type_id,json=typeId" json:"type_id,omitempty"`
@@ -429,7 +676,7 @@ type Product struct {
 func (m *Product) Reset()                    { *m = Product{} }
 func (m *Product) String() string            { return proto1.CompactTextString(m) }
 func (*Product) ProtoMessage()               {}
-func (*Product) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{9} }
+func (*Product) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{15} }
 
 func (m *Product) GetId() int32 {
 	if m != nil {
@@ -509,7 +756,7 @@ type ProductResponse struct {
 func (m *ProductResponse) Reset()                    { *m = ProductResponse{} }
 func (m *ProductResponse) String() string            { return proto1.CompactTextString(m) }
 func (*ProductResponse) ProtoMessage()               {}
-func (*ProductResponse) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{10} }
+func (*ProductResponse) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{16} }
 
 func (m *ProductResponse) GetResult() *Result {
 	if m != nil {
@@ -533,7 +780,7 @@ type GetProductRequest struct {
 func (m *GetProductRequest) Reset()                    { *m = GetProductRequest{} }
 func (m *GetProductRequest) String() string            { return proto1.CompactTextString(m) }
 func (*GetProductRequest) ProtoMessage()               {}
-func (*GetProductRequest) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{11} }
+func (*GetProductRequest) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{17} }
 
 func (m *GetProductRequest) GetToken() *Token {
 	if m != nil {
@@ -557,7 +804,7 @@ type NewProductRequest struct {
 func (m *NewProductRequest) Reset()                    { *m = NewProductRequest{} }
 func (m *NewProductRequest) String() string            { return proto1.CompactTextString(m) }
 func (*NewProductRequest) ProtoMessage()               {}
-func (*NewProductRequest) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{12} }
+func (*NewProductRequest) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{18} }
 
 func (m *NewProductRequest) GetToken() *Token {
 	if m != nil {
@@ -581,7 +828,7 @@ type SaveProductRequest struct {
 func (m *SaveProductRequest) Reset()                    { *m = SaveProductRequest{} }
 func (m *SaveProductRequest) String() string            { return proto1.CompactTextString(m) }
 func (*SaveProductRequest) ProtoMessage()               {}
-func (*SaveProductRequest) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{13} }
+func (*SaveProductRequest) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{19} }
 
 func (m *SaveProductRequest) GetToken() *Token {
 	if m != nil {
@@ -604,7 +851,7 @@ type GetProductsRequest struct {
 func (m *GetProductsRequest) Reset()                    { *m = GetProductsRequest{} }
 func (m *GetProductsRequest) String() string            { return proto1.CompactTextString(m) }
 func (*GetProductsRequest) ProtoMessage()               {}
-func (*GetProductsRequest) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{14} }
+func (*GetProductsRequest) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{20} }
 
 func (m *GetProductsRequest) GetToken() *Token {
 	if m != nil {
@@ -621,7 +868,7 @@ type UpdateProductPricesRequest struct {
 func (m *UpdateProductPricesRequest) Reset()                    { *m = UpdateProductPricesRequest{} }
 func (m *UpdateProductPricesRequest) String() string            { return proto1.CompactTextString(m) }
 func (*UpdateProductPricesRequest) ProtoMessage()               {}
-func (*UpdateProductPricesRequest) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{15} }
+func (*UpdateProductPricesRequest) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{21} }
 
 func (m *UpdateProductPricesRequest) GetToken() *Token {
 	if m != nil {
@@ -645,7 +892,7 @@ type ProductsResponse struct {
 func (m *ProductsResponse) Reset()                    { *m = ProductsResponse{} }
 func (m *ProductsResponse) String() string            { return proto1.CompactTextString(m) }
 func (*ProductsResponse) ProtoMessage()               {}
-func (*ProductsResponse) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{16} }
+func (*ProductsResponse) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{22} }
 
 func (m *ProductsResponse) GetResult() *Result {
 	if m != nil {
@@ -661,6 +908,7 @@ func (m *ProductsResponse) GetProduct() []*Product {
 	return nil
 }
 
+// MarketPrice describes the current market price for the given type.
 type MarketPrice struct {
 	TypeId  int64   `protobuf:"varint,1,opt,name=type_id,json=typeId" json:"type_id,omitempty"`
 	Average float64 `protobuf:"fixed64,2,opt,name=average" json:"average,omitempty"`
@@ -670,7 +918,7 @@ type MarketPrice struct {
 func (m *MarketPrice) Reset()                    { *m = MarketPrice{} }
 func (m *MarketPrice) String() string            { return proto1.CompactTextString(m) }
 func (*MarketPrice) ProtoMessage()               {}
-func (*MarketPrice) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{17} }
+func (*MarketPrice) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{23} }
 
 func (m *MarketPrice) GetTypeId() int64 {
 	if m != nil {
@@ -701,7 +949,7 @@ type GetMarketPriceRequest struct {
 func (m *GetMarketPriceRequest) Reset()                    { *m = GetMarketPriceRequest{} }
 func (m *GetMarketPriceRequest) String() string            { return proto1.CompactTextString(m) }
 func (*GetMarketPriceRequest) ProtoMessage()               {}
-func (*GetMarketPriceRequest) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{18} }
+func (*GetMarketPriceRequest) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{24} }
 
 func (m *GetMarketPriceRequest) GetToken() *Token {
 	if m != nil {
@@ -725,7 +973,7 @@ type GetMarketPriceResponse struct {
 func (m *GetMarketPriceResponse) Reset()                    { *m = GetMarketPriceResponse{} }
 func (m *GetMarketPriceResponse) String() string            { return proto1.CompactTextString(m) }
 func (*GetMarketPriceResponse) ProtoMessage()               {}
-func (*GetMarketPriceResponse) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{19} }
+func (*GetMarketPriceResponse) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{25} }
 
 func (m *GetMarketPriceResponse) GetResult() *Result {
 	if m != nil {
@@ -741,6 +989,7 @@ func (m *GetMarketPriceResponse) GetPrices() map[int64]*MarketPrice {
 	return nil
 }
 
+// Blueprint describes the necessary materials for producting an item.
 type Blueprint struct {
 	ItemId      int64          `protobuf:"varint,1,opt,name=item_id,json=itemId" json:"item_id,omitempty"`
 	LocationId  int64          `protobuf:"varint,2,opt,name=location_id,json=locationId" json:"location_id,omitempty"`
@@ -757,7 +1006,7 @@ type Blueprint struct {
 func (m *Blueprint) Reset()                    { *m = Blueprint{} }
 func (m *Blueprint) String() string            { return proto1.CompactTextString(m) }
 func (*Blueprint) ProtoMessage()               {}
-func (*Blueprint) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{20} }
+func (*Blueprint) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{26} }
 
 func (m *Blueprint) GetItemId() int64 {
 	if m != nil {
@@ -836,7 +1085,7 @@ type GetCorpBlueprintsRequest struct {
 func (m *GetCorpBlueprintsRequest) Reset()                    { *m = GetCorpBlueprintsRequest{} }
 func (m *GetCorpBlueprintsRequest) String() string            { return proto1.CompactTextString(m) }
 func (*GetCorpBlueprintsRequest) ProtoMessage()               {}
-func (*GetCorpBlueprintsRequest) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{21} }
+func (*GetCorpBlueprintsRequest) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{27} }
 
 func (m *GetCorpBlueprintsRequest) GetToken() *Token {
 	if m != nil {
@@ -853,7 +1102,7 @@ type GetCorpBlueprintsResponse struct {
 func (m *GetCorpBlueprintsResponse) Reset()                    { *m = GetCorpBlueprintsResponse{} }
 func (m *GetCorpBlueprintsResponse) String() string            { return proto1.CompactTextString(m) }
 func (*GetCorpBlueprintsResponse) ProtoMessage()               {}
-func (*GetCorpBlueprintsResponse) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{22} }
+func (*GetCorpBlueprintsResponse) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{28} }
 
 func (m *GetCorpBlueprintsResponse) GetResult() *Result {
 	if m != nil {
@@ -869,6 +1118,7 @@ func (m *GetCorpBlueprintsResponse) GetBlueprint() []*Blueprint {
 	return nil
 }
 
+// InventoryItem is one item in an overall inventory.
 type InventoryItem struct {
 	TypeId       int64                      `protobuf:"varint,1,opt,name=type_id,json=typeId" json:"type_id,omitempty"`
 	LocationId   int64                      `protobuf:"varint,2,opt,name=location_id,json=locationId" json:"location_id,omitempty"`
@@ -880,7 +1130,7 @@ type InventoryItem struct {
 func (m *InventoryItem) Reset()                    { *m = InventoryItem{} }
 func (m *InventoryItem) String() string            { return proto1.CompactTextString(m) }
 func (*InventoryItem) ProtoMessage()               {}
-func (*InventoryItem) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{23} }
+func (*InventoryItem) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{29} }
 
 func (m *InventoryItem) GetTypeId() int64 {
 	if m != nil {
@@ -924,7 +1174,7 @@ type GetInventoryRequest struct {
 func (m *GetInventoryRequest) Reset()                    { *m = GetInventoryRequest{} }
 func (m *GetInventoryRequest) String() string            { return proto1.CompactTextString(m) }
 func (*GetInventoryRequest) ProtoMessage()               {}
-func (*GetInventoryRequest) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{24} }
+func (*GetInventoryRequest) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{30} }
 
 func (m *GetInventoryRequest) GetToken() *Token {
 	if m != nil {
@@ -941,7 +1191,7 @@ type GetInventoryResponse struct {
 func (m *GetInventoryResponse) Reset()                    { *m = GetInventoryResponse{} }
 func (m *GetInventoryResponse) String() string            { return proto1.CompactTextString(m) }
 func (*GetInventoryResponse) ProtoMessage()               {}
-func (*GetInventoryResponse) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{25} }
+func (*GetInventoryResponse) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{31} }
 
 func (m *GetInventoryResponse) GetResult() *Result {
 	if m != nil {
@@ -966,7 +1216,7 @@ type NewInventoryItemRequest struct {
 func (m *NewInventoryItemRequest) Reset()                    { *m = NewInventoryItemRequest{} }
 func (m *NewInventoryItemRequest) String() string            { return proto1.CompactTextString(m) }
 func (*NewInventoryItemRequest) ProtoMessage()               {}
-func (*NewInventoryItemRequest) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{26} }
+func (*NewInventoryItemRequest) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{32} }
 
 func (m *NewInventoryItemRequest) GetToken() *Token {
 	if m != nil {
@@ -997,7 +1247,7 @@ type SaveInventoryItemRequest struct {
 func (m *SaveInventoryItemRequest) Reset()                    { *m = SaveInventoryItemRequest{} }
 func (m *SaveInventoryItemRequest) String() string            { return proto1.CompactTextString(m) }
 func (*SaveInventoryItemRequest) ProtoMessage()               {}
-func (*SaveInventoryItemRequest) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{27} }
+func (*SaveInventoryItemRequest) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{33} }
 
 func (m *SaveInventoryItemRequest) GetToken() *Token {
 	if m != nil {
@@ -1021,7 +1271,7 @@ type InventoryItemResponse struct {
 func (m *InventoryItemResponse) Reset()                    { *m = InventoryItemResponse{} }
 func (m *InventoryItemResponse) String() string            { return proto1.CompactTextString(m) }
 func (*InventoryItemResponse) ProtoMessage()               {}
-func (*InventoryItemResponse) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{28} }
+func (*InventoryItemResponse) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{34} }
 
 func (m *InventoryItemResponse) GetResult() *Result {
 	if m != nil {
@@ -1037,16 +1287,175 @@ func (m *InventoryItemResponse) GetItem() *InventoryItem {
 	return nil
 }
 
+// A Location is a location in the EVE universe.
+type Location struct {
+	Id            int64          `protobuf:"varint,1,opt,name=id" json:"id,omitempty"`
+	System        *System        `protobuf:"bytes,3,opt,name=system" json:"system,omitempty"`
+	Constellation *Constellation `protobuf:"bytes,4,opt,name=constellation" json:"constellation,omitempty"`
+	Region        *Region        `protobuf:"bytes,5,opt,name=region" json:"region,omitempty"`
+	Station       *Station       `protobuf:"bytes,6,opt,name=station" json:"station,omitempty"`
+	Structure     *Structure     `protobuf:"bytes,7,opt,name=structure" json:"structure,omitempty"`
+}
+
+func (m *Location) Reset()                    { *m = Location{} }
+func (m *Location) String() string            { return proto1.CompactTextString(m) }
+func (*Location) ProtoMessage()               {}
+func (*Location) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{35} }
+
+func (m *Location) GetId() int64 {
+	if m != nil {
+		return m.Id
+	}
+	return 0
+}
+
+func (m *Location) GetSystem() *System {
+	if m != nil {
+		return m.System
+	}
+	return nil
+}
+
+func (m *Location) GetConstellation() *Constellation {
+	if m != nil {
+		return m.Constellation
+	}
+	return nil
+}
+
+func (m *Location) GetRegion() *Region {
+	if m != nil {
+		return m.Region
+	}
+	return nil
+}
+
+func (m *Location) GetStation() *Station {
+	if m != nil {
+		return m.Station
+	}
+	return nil
+}
+
+func (m *Location) GetStructure() *Structure {
+	if m != nil {
+		return m.Structure
+	}
+	return nil
+}
+
+type GetLocationRequest struct {
+	Token      *Token `protobuf:"bytes,1,opt,name=token" json:"token,omitempty"`
+	LocationId int64  `protobuf:"varint,2,opt,name=location_id,json=locationId" json:"location_id,omitempty"`
+}
+
+func (m *GetLocationRequest) Reset()                    { *m = GetLocationRequest{} }
+func (m *GetLocationRequest) String() string            { return proto1.CompactTextString(m) }
+func (*GetLocationRequest) ProtoMessage()               {}
+func (*GetLocationRequest) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{36} }
+
+func (m *GetLocationRequest) GetToken() *Token {
+	if m != nil {
+		return m.Token
+	}
+	return nil
+}
+
+func (m *GetLocationRequest) GetLocationId() int64 {
+	if m != nil {
+		return m.LocationId
+	}
+	return 0
+}
+
+type LocationResponse struct {
+	Result   *Result   `protobuf:"bytes,1,opt,name=result" json:"result,omitempty"`
+	Location *Location `protobuf:"bytes,2,opt,name=location" json:"location,omitempty"`
+}
+
+func (m *LocationResponse) Reset()                    { *m = LocationResponse{} }
+func (m *LocationResponse) String() string            { return proto1.CompactTextString(m) }
+func (*LocationResponse) ProtoMessage()               {}
+func (*LocationResponse) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{37} }
+
+func (m *LocationResponse) GetResult() *Result {
+	if m != nil {
+		return m.Result
+	}
+	return nil
+}
+
+func (m *LocationResponse) GetLocation() *Location {
+	if m != nil {
+		return m.Location
+	}
+	return nil
+}
+
+type QueryLocationsRequest struct {
+	Token *Token `protobuf:"bytes,1,opt,name=token" json:"token,omitempty"`
+	Query string `protobuf:"bytes,2,opt,name=query" json:"query,omitempty"`
+}
+
+func (m *QueryLocationsRequest) Reset()                    { *m = QueryLocationsRequest{} }
+func (m *QueryLocationsRequest) String() string            { return proto1.CompactTextString(m) }
+func (*QueryLocationsRequest) ProtoMessage()               {}
+func (*QueryLocationsRequest) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{38} }
+
+func (m *QueryLocationsRequest) GetToken() *Token {
+	if m != nil {
+		return m.Token
+	}
+	return nil
+}
+
+func (m *QueryLocationsRequest) GetQuery() string {
+	if m != nil {
+		return m.Query
+	}
+	return ""
+}
+
+type LocationsResponse struct {
+	Result   *Result     `protobuf:"bytes,1,opt,name=result" json:"result,omitempty"`
+	Location []*Location `protobuf:"bytes,2,rep,name=location" json:"location,omitempty"`
+}
+
+func (m *LocationsResponse) Reset()                    { *m = LocationsResponse{} }
+func (m *LocationsResponse) String() string            { return proto1.CompactTextString(m) }
+func (*LocationsResponse) ProtoMessage()               {}
+func (*LocationsResponse) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{39} }
+
+func (m *LocationsResponse) GetResult() *Result {
+	if m != nil {
+		return m.Result
+	}
+	return nil
+}
+
+func (m *LocationsResponse) GetLocation() []*Location {
+	if m != nil {
+		return m.Location
+	}
+	return nil
+}
+
 func init() {
 	proto1.RegisterType((*Character)(nil), "motki.model.Character")
+	proto1.RegisterType((*Corporation)(nil), "motki.model.Corporation")
+	proto1.RegisterType((*Alliance)(nil), "motki.model.Alliance")
+	proto1.RegisterType((*Structure)(nil), "motki.model.Structure")
+	proto1.RegisterType((*CorporationStructure)(nil), "motki.model.CorporationStructure")
 	proto1.RegisterType((*GetCharacterRequest)(nil), "motki.model.GetCharacterRequest")
 	proto1.RegisterType((*CharacterResponse)(nil), "motki.model.CharacterResponse")
-	proto1.RegisterType((*Corporation)(nil), "motki.model.Corporation")
 	proto1.RegisterType((*GetCorporationRequest)(nil), "motki.model.GetCorporationRequest")
 	proto1.RegisterType((*CorporationResponse)(nil), "motki.model.CorporationResponse")
-	proto1.RegisterType((*Alliance)(nil), "motki.model.Alliance")
 	proto1.RegisterType((*GetAllianceRequest)(nil), "motki.model.GetAllianceRequest")
 	proto1.RegisterType((*AllianceResponse)(nil), "motki.model.AllianceResponse")
+	proto1.RegisterType((*GetStructureRequest)(nil), "motki.model.GetStructureRequest")
+	proto1.RegisterType((*GetStructureResponse)(nil), "motki.model.GetStructureResponse")
+	proto1.RegisterType((*GetCorpStructuresRequest)(nil), "motki.model.GetCorpStructuresRequest")
+	proto1.RegisterType((*GetCorpStructuresResponse)(nil), "motki.model.GetCorpStructuresResponse")
 	proto1.RegisterType((*Product)(nil), "motki.model.Product")
 	proto1.RegisterType((*ProductResponse)(nil), "motki.model.ProductResponse")
 	proto1.RegisterType((*GetProductRequest)(nil), "motki.model.GetProductRequest")
@@ -1067,6 +1476,11 @@ func init() {
 	proto1.RegisterType((*NewInventoryItemRequest)(nil), "motki.model.NewInventoryItemRequest")
 	proto1.RegisterType((*SaveInventoryItemRequest)(nil), "motki.model.SaveInventoryItemRequest")
 	proto1.RegisterType((*InventoryItemResponse)(nil), "motki.model.InventoryItemResponse")
+	proto1.RegisterType((*Location)(nil), "motki.model.Location")
+	proto1.RegisterType((*GetLocationRequest)(nil), "motki.model.GetLocationRequest")
+	proto1.RegisterType((*LocationResponse)(nil), "motki.model.LocationResponse")
+	proto1.RegisterType((*QueryLocationsRequest)(nil), "motki.model.QueryLocationsRequest")
+	proto1.RegisterType((*LocationsResponse)(nil), "motki.model.LocationsResponse")
 	proto1.RegisterEnum("motki.model.Role", Role_name, Role_value)
 	proto1.RegisterEnum("motki.model.Product_Kind", Product_Kind_name, Product_Kind_value)
 	proto1.RegisterEnum("motki.model.Blueprint_Kind", Blueprint_Kind_name, Blueprint_Kind_value)
@@ -1083,9 +1497,14 @@ const _ = grpc.SupportPackageIsVersion4
 // Client API for InfoService service
 
 type InfoServiceClient interface {
+	// GetCharacter returns information about a specific character.
 	GetCharacter(ctx context.Context, in *GetCharacterRequest, opts ...grpc.CallOption) (*CharacterResponse, error)
+	// GetCorporation returns information about a specific corporation.
 	GetCorporation(ctx context.Context, in *GetCorporationRequest, opts ...grpc.CallOption) (*CorporationResponse, error)
+	// GetAlliance returns information about a specific alliance.
 	GetAlliance(ctx context.Context, in *GetAllianceRequest, opts ...grpc.CallOption) (*AllianceResponse, error)
+	// GetStructure returns basic information about a specific structure.
+	GetStructure(ctx context.Context, in *GetStructureRequest, opts ...grpc.CallOption) (*GetStructureResponse, error)
 }
 
 type infoServiceClient struct {
@@ -1123,12 +1542,26 @@ func (c *infoServiceClient) GetAlliance(ctx context.Context, in *GetAllianceRequ
 	return out, nil
 }
 
+func (c *infoServiceClient) GetStructure(ctx context.Context, in *GetStructureRequest, opts ...grpc.CallOption) (*GetStructureResponse, error) {
+	out := new(GetStructureResponse)
+	err := grpc.Invoke(ctx, "/motki.model.InfoService/GetStructure", in, out, c.cc, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // Server API for InfoService service
 
 type InfoServiceServer interface {
+	// GetCharacter returns information about a specific character.
 	GetCharacter(context.Context, *GetCharacterRequest) (*CharacterResponse, error)
+	// GetCorporation returns information about a specific corporation.
 	GetCorporation(context.Context, *GetCorporationRequest) (*CorporationResponse, error)
+	// GetAlliance returns information about a specific alliance.
 	GetAlliance(context.Context, *GetAllianceRequest) (*AllianceResponse, error)
+	// GetStructure returns basic information about a specific structure.
+	GetStructure(context.Context, *GetStructureRequest) (*GetStructureResponse, error)
 }
 
 func RegisterInfoServiceServer(s *grpc.Server, srv InfoServiceServer) {
@@ -1189,6 +1622,24 @@ func _InfoService_GetAlliance_Handler(srv interface{}, ctx context.Context, dec 
 	return interceptor(ctx, in, info, handler)
 }
 
+func _InfoService_GetStructure_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetStructureRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(InfoServiceServer).GetStructure(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/motki.model.InfoService/GetStructure",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(InfoServiceServer).GetStructure(ctx, req.(*GetStructureRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 var _InfoService_serviceDesc = grpc.ServiceDesc{
 	ServiceName: "motki.model.InfoService",
 	HandlerType: (*InfoServiceServer)(nil),
@@ -1205,6 +1656,10 @@ var _InfoService_serviceDesc = grpc.ServiceDesc{
 			MethodName: "GetAlliance",
 			Handler:    _InfoService_GetAlliance_Handler,
 		},
+		{
+			MethodName: "GetStructure",
+			Handler:    _InfoService_GetStructure_Handler,
+		},
 	},
 	Streams:  []grpc.StreamDesc{},
 	Metadata: "model.proto",
@@ -1213,10 +1668,16 @@ var _InfoService_serviceDesc = grpc.ServiceDesc{
 // Client API for ProductService service
 
 type ProductServiceClient interface {
+	// GetProducts returns all root-level products for a corporation.
 	GetProducts(ctx context.Context, in *GetProductsRequest, opts ...grpc.CallOption) (*ProductsResponse, error)
+	// GetProduct returns a specific root-level product.
 	GetProduct(ctx context.Context, in *GetProductRequest, opts ...grpc.CallOption) (*ProductResponse, error)
+	// NewProduct creates and returns a new production chain for a specific type.
 	NewProduct(ctx context.Context, in *NewProductRequest, opts ...grpc.CallOption) (*ProductResponse, error)
+	// SaveProduct persists changes to a production chain to the server.
 	SaveProduct(ctx context.Context, in *SaveProductRequest, opts ...grpc.CallOption) (*ProductResponse, error)
+	// UpdateProductPrices fetches and populates the latest market price for
+	// the entire production chain.
 	UpdateProductPrices(ctx context.Context, in *UpdateProductPricesRequest, opts ...grpc.CallOption) (*ProductResponse, error)
 }
 
@@ -1276,10 +1737,16 @@ func (c *productServiceClient) UpdateProductPrices(ctx context.Context, in *Upda
 // Server API for ProductService service
 
 type ProductServiceServer interface {
+	// GetProducts returns all root-level products for a corporation.
 	GetProducts(context.Context, *GetProductsRequest) (*ProductsResponse, error)
+	// GetProduct returns a specific root-level product.
 	GetProduct(context.Context, *GetProductRequest) (*ProductResponse, error)
+	// NewProduct creates and returns a new production chain for a specific type.
 	NewProduct(context.Context, *NewProductRequest) (*ProductResponse, error)
+	// SaveProduct persists changes to a production chain to the server.
 	SaveProduct(context.Context, *SaveProductRequest) (*ProductResponse, error)
+	// UpdateProductPrices fetches and populates the latest market price for
+	// the entire production chain.
 	UpdateProductPrices(context.Context, *UpdateProductPricesRequest) (*ProductResponse, error)
 }
 
@@ -1409,6 +1876,7 @@ var _ProductService_serviceDesc = grpc.ServiceDesc{
 // Client API for MarketPriceService service
 
 type MarketPriceServiceClient interface {
+	// GetMarketPrice returns the current market price for a specific type.
 	GetMarketPrice(ctx context.Context, in *GetMarketPriceRequest, opts ...grpc.CallOption) (*GetMarketPriceResponse, error)
 }
 
@@ -1432,6 +1900,7 @@ func (c *marketPriceServiceClient) GetMarketPrice(ctx context.Context, in *GetMa
 // Server API for MarketPriceService service
 
 type MarketPriceServiceServer interface {
+	// GetMarketPrice returns the current market price for a specific type.
 	GetMarketPrice(context.Context, *GetMarketPriceRequest) (*GetMarketPriceResponse, error)
 }
 
@@ -1473,6 +1942,9 @@ var _MarketPriceService_serviceDesc = grpc.ServiceDesc{
 // Client API for CorporationService service
 
 type CorporationServiceClient interface {
+	// GetCorpStructures returns detailed information about corporation-owned structures.
+	GetCorpStructures(ctx context.Context, in *GetCorpStructuresRequest, opts ...grpc.CallOption) (*GetCorpStructuresResponse, error)
+	// GetCorpBlueprints returns all corporation-owned blueprints.
 	GetCorpBlueprints(ctx context.Context, in *GetCorpBlueprintsRequest, opts ...grpc.CallOption) (*GetCorpBlueprintsResponse, error)
 }
 
@@ -1482,6 +1954,15 @@ type corporationServiceClient struct {
 
 func NewCorporationServiceClient(cc *grpc.ClientConn) CorporationServiceClient {
 	return &corporationServiceClient{cc}
+}
+
+func (c *corporationServiceClient) GetCorpStructures(ctx context.Context, in *GetCorpStructuresRequest, opts ...grpc.CallOption) (*GetCorpStructuresResponse, error) {
+	out := new(GetCorpStructuresResponse)
+	err := grpc.Invoke(ctx, "/motki.model.CorporationService/GetCorpStructures", in, out, c.cc, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
 }
 
 func (c *corporationServiceClient) GetCorpBlueprints(ctx context.Context, in *GetCorpBlueprintsRequest, opts ...grpc.CallOption) (*GetCorpBlueprintsResponse, error) {
@@ -1496,11 +1977,32 @@ func (c *corporationServiceClient) GetCorpBlueprints(ctx context.Context, in *Ge
 // Server API for CorporationService service
 
 type CorporationServiceServer interface {
+	// GetCorpStructures returns detailed information about corporation-owned structures.
+	GetCorpStructures(context.Context, *GetCorpStructuresRequest) (*GetCorpStructuresResponse, error)
+	// GetCorpBlueprints returns all corporation-owned blueprints.
 	GetCorpBlueprints(context.Context, *GetCorpBlueprintsRequest) (*GetCorpBlueprintsResponse, error)
 }
 
 func RegisterCorporationServiceServer(s *grpc.Server, srv CorporationServiceServer) {
 	s.RegisterService(&_CorporationService_serviceDesc, srv)
+}
+
+func _CorporationService_GetCorpStructures_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetCorpStructuresRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CorporationServiceServer).GetCorpStructures(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/motki.model.CorporationService/GetCorpStructures",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CorporationServiceServer).GetCorpStructures(ctx, req.(*GetCorpStructuresRequest))
+	}
+	return interceptor(ctx, in, info, handler)
 }
 
 func _CorporationService_GetCorpBlueprints_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
@@ -1526,6 +2028,10 @@ var _CorporationService_serviceDesc = grpc.ServiceDesc{
 	HandlerType: (*CorporationServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
+			MethodName: "GetCorpStructures",
+			Handler:    _CorporationService_GetCorpStructures_Handler,
+		},
+		{
 			MethodName: "GetCorpBlueprints",
 			Handler:    _CorporationService_GetCorpBlueprints_Handler,
 		},
@@ -1537,8 +2043,11 @@ var _CorporationService_serviceDesc = grpc.ServiceDesc{
 // Client API for InventoryService service
 
 type InventoryServiceClient interface {
+	// GetInventory returns all inventory items for a corporation.
 	GetInventory(ctx context.Context, in *GetInventoryRequest, opts ...grpc.CallOption) (*GetInventoryResponse, error)
+	// NewInventoryItem creates a new inventory item for a specific type.
 	NewInventoryItem(ctx context.Context, in *NewInventoryItemRequest, opts ...grpc.CallOption) (*InventoryItemResponse, error)
+	// SaveInventoryItem persists changes to a given inventory item on the server.
 	SaveInventoryItem(ctx context.Context, in *SaveInventoryItemRequest, opts ...grpc.CallOption) (*InventoryItemResponse, error)
 }
 
@@ -1580,8 +2089,11 @@ func (c *inventoryServiceClient) SaveInventoryItem(ctx context.Context, in *Save
 // Server API for InventoryService service
 
 type InventoryServiceServer interface {
+	// GetInventory returns all inventory items for a corporation.
 	GetInventory(context.Context, *GetInventoryRequest) (*GetInventoryResponse, error)
+	// NewInventoryItem creates a new inventory item for a specific type.
 	NewInventoryItem(context.Context, *NewInventoryItemRequest) (*InventoryItemResponse, error)
+	// SaveInventoryItem persists changes to a given inventory item on the server.
 	SaveInventoryItem(context.Context, *SaveInventoryItemRequest) (*InventoryItemResponse, error)
 }
 
@@ -1664,107 +2176,239 @@ var _InventoryService_serviceDesc = grpc.ServiceDesc{
 	Metadata: "model.proto",
 }
 
+// Client API for LocationService service
+
+type LocationServiceClient interface {
+	// GetLocation returns information about a specific location ID.
+	GetLocation(ctx context.Context, in *GetLocationRequest, opts ...grpc.CallOption) (*LocationResponse, error)
+	// QueryLocations returns locations that match the input query.
+	QueryLocations(ctx context.Context, in *QueryLocationsRequest, opts ...grpc.CallOption) (*LocationsResponse, error)
+}
+
+type locationServiceClient struct {
+	cc *grpc.ClientConn
+}
+
+func NewLocationServiceClient(cc *grpc.ClientConn) LocationServiceClient {
+	return &locationServiceClient{cc}
+}
+
+func (c *locationServiceClient) GetLocation(ctx context.Context, in *GetLocationRequest, opts ...grpc.CallOption) (*LocationResponse, error) {
+	out := new(LocationResponse)
+	err := grpc.Invoke(ctx, "/motki.model.LocationService/GetLocation", in, out, c.cc, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *locationServiceClient) QueryLocations(ctx context.Context, in *QueryLocationsRequest, opts ...grpc.CallOption) (*LocationsResponse, error) {
+	out := new(LocationsResponse)
+	err := grpc.Invoke(ctx, "/motki.model.LocationService/QueryLocations", in, out, c.cc, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+// Server API for LocationService service
+
+type LocationServiceServer interface {
+	// GetLocation returns information about a specific location ID.
+	GetLocation(context.Context, *GetLocationRequest) (*LocationResponse, error)
+	// QueryLocations returns locations that match the input query.
+	QueryLocations(context.Context, *QueryLocationsRequest) (*LocationsResponse, error)
+}
+
+func RegisterLocationServiceServer(s *grpc.Server, srv LocationServiceServer) {
+	s.RegisterService(&_LocationService_serviceDesc, srv)
+}
+
+func _LocationService_GetLocation_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetLocationRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(LocationServiceServer).GetLocation(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/motki.model.LocationService/GetLocation",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(LocationServiceServer).GetLocation(ctx, req.(*GetLocationRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _LocationService_QueryLocations_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(QueryLocationsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(LocationServiceServer).QueryLocations(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/motki.model.LocationService/QueryLocations",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(LocationServiceServer).QueryLocations(ctx, req.(*QueryLocationsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+var _LocationService_serviceDesc = grpc.ServiceDesc{
+	ServiceName: "motki.model.LocationService",
+	HandlerType: (*LocationServiceServer)(nil),
+	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "GetLocation",
+			Handler:    _LocationService_GetLocation_Handler,
+		},
+		{
+			MethodName: "QueryLocations",
+			Handler:    _LocationService_QueryLocations_Handler,
+		},
+	},
+	Streams:  []grpc.StreamDesc{},
+	Metadata: "model.proto",
+}
+
 func init() { proto1.RegisterFile("model.proto", fileDescriptor1) }
 
 var fileDescriptor1 = []byte{
-	// 1578 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xb4, 0x57, 0xdd, 0x6e, 0xdb, 0xc6,
-	0x12, 0x0e, 0x45, 0xfd, 0x0e, 0x6d, 0x1f, 0x79, 0x9d, 0xd8, 0x0a, 0x73, 0x92, 0x28, 0xcc, 0xf1,
-	0x39, 0x3e, 0x05, 0x2a, 0xb7, 0x6a, 0x2f, 0x92, 0x00, 0x6d, 0x61, 0x3b, 0xae, 0xc1, 0xd6, 0xb1,
-	0x0d, 0xca, 0x2e, 0xe0, 0xa2, 0xa8, 0x41, 0x91, 0x2b, 0x9b, 0x30, 0x45, 0x2a, 0xd4, 0xca, 0x89,
-	0x72, 0x5b, 0xa4, 0x2f, 0x52, 0xf4, 0x01, 0xfa, 0x12, 0xbd, 0xeb, 0x55, 0xaf, 0xfb, 0x2e, 0xc5,
-	0xfe, 0x90, 0x5a, 0x52, 0x92, 0x65, 0xb9, 0xed, 0x15, 0xb9, 0xb3, 0xb3, 0xdf, 0xec, 0x7e, 0x33,
-	0x3b, 0x33, 0x0b, 0x5a, 0x37, 0x74, 0xb1, 0xdf, 0xe8, 0x45, 0x21, 0x09, 0x91, 0xd6, 0x0d, 0xc9,
-	0xa5, 0xd7, 0x60, 0x22, 0xfd, 0xf1, 0x79, 0x18, 0x9e, 0xfb, 0x78, 0x93, 0x4d, 0xb5, 0x07, 0x9d,
-	0x4d, 0xe2, 0x75, 0x71, 0x9f, 0xd8, 0xdd, 0x1e, 0xd7, 0xd6, 0x85, 0x36, 0x1b, 0x18, 0xbf, 0xe4,
-	0xa0, 0xb2, 0x73, 0x61, 0x47, 0xb6, 0x43, 0x70, 0x84, 0x96, 0x20, 0xe7, 0xb9, 0x35, 0xa5, 0xae,
-	0x6c, 0xa8, 0x56, 0xce, 0x73, 0xd1, 0x3a, 0x2c, 0x39, 0x61, 0xd4, 0x0b, 0x23, 0x9b, 0x78, 0x61,
-	0x70, 0xe6, 0xb9, 0xb5, 0x1c, 0x9b, 0x5b, 0x94, 0xa4, 0xa6, 0x8b, 0x1e, 0x83, 0x66, 0xfb, 0xbe,
-	0x67, 0x07, 0x0e, 0xa6, 0x3a, 0x2a, 0xd3, 0x81, 0x58, 0x64, 0xba, 0x08, 0x41, 0x3e, 0xb0, 0xbb,
-	0xb8, 0x96, 0xaf, 0x2b, 0x1b, 0x15, 0x8b, 0xfd, 0xa3, 0x27, 0xb0, 0xd0, 0xf6, 0xc3, 0xd0, 0xf5,
-	0xbd, 0x80, 0xad, 0x2a, 0xd4, 0x95, 0x8d, 0x82, 0xa5, 0x25, 0x32, 0xd3, 0x45, 0x6b, 0x50, 0x8a,
-	0x6c, 0x8e, 0x59, 0x64, 0xb3, 0x45, 0x3a, 0x14, 0x06, 0x03, 0x07, 0xf7, 0x49, 0x34, 0xa4, 0x93,
-	0x25, 0x36, 0x09, 0xb1, 0xc8, 0x74, 0xd1, 0x73, 0x80, 0xb6, 0x17, 0x91, 0x8b, 0x33, 0xd7, 0x26,
-	0xb8, 0x56, 0xae, 0x2b, 0x1b, 0x5a, 0x53, 0x6f, 0x70, 0x66, 0x1a, 0x31, 0x33, 0x8d, 0xe3, 0x98,
-	0x19, 0xab, 0xc2, 0xb4, 0x5f, 0xda, 0x04, 0xa3, 0x3a, 0x68, 0x2e, 0xee, 0x3b, 0x91, 0xd7, 0xa3,
-	0xa7, 0xab, 0x55, 0xd8, 0x96, 0x65, 0x91, 0xf1, 0x83, 0x02, 0x2b, 0x7b, 0x98, 0x24, 0xb4, 0x59,
-	0xf8, 0xf5, 0x00, 0xf7, 0x09, 0x32, 0xa0, 0x40, 0xc2, 0x4b, 0x1c, 0x30, 0x02, 0xb5, 0xe6, 0x42,
-	0x83, 0x13, 0x7d, 0x4c, 0x65, 0x16, 0x9f, 0x42, 0xeb, 0x90, 0x8f, 0x42, 0x1f, 0x33, 0x1e, 0x97,
-	0x9a, 0xcb, 0x0d, 0xc9, 0x73, 0x0d, 0x2b, 0xf4, 0xb1, 0xc5, 0xa6, 0x29, 0x39, 0x4e, 0x0c, 0x3f,
-	0xa2, 0x54, 0x4b, 0x64, 0xa6, 0x6b, 0xf4, 0x60, 0x59, 0xda, 0x41, 0xbf, 0x17, 0x06, 0x7d, 0x8c,
-	0xd6, 0xa1, 0x18, 0xe1, 0xfe, 0xc0, 0x27, 0x62, 0x0f, 0x8b, 0xc2, 0x80, 0xc5, 0x84, 0x96, 0x98,
-	0x44, 0x9f, 0x42, 0x25, 0x81, 0x62, 0x5b, 0xd1, 0x9a, 0xab, 0xa9, 0xad, 0x8c, 0x90, 0x47, 0x8a,
-	0xc6, 0x6f, 0x0a, 0x68, 0x3b, 0x23, 0xc7, 0x8f, 0x45, 0x4b, 0x26, 0x0c, 0x72, 0x53, 0xc3, 0x40,
-	0x95, 0xc2, 0xe0, 0x0b, 0x58, 0x74, 0x22, 0xcc, 0xe3, 0x8b, 0x39, 0x2b, 0x3f, 0xd3, 0x59, 0x0b,
-	0xf1, 0x82, 0x49, 0xfe, 0x2a, 0x8c, 0xf9, 0x0b, 0xad, 0x42, 0x91, 0x78, 0xce, 0x25, 0x8e, 0x58,
-	0x14, 0x55, 0x2c, 0x31, 0x32, 0xda, 0x70, 0x8f, 0xba, 0x71, 0x74, 0xa2, 0xf9, 0x1c, 0x79, 0x93,
-	0xab, 0x61, 0xbc, 0x85, 0x95, 0x94, 0x81, 0xf9, 0xfc, 0xf4, 0x02, 0x34, 0x09, 0x4e, 0x78, 0xaa,
-	0x96, 0xf6, 0x94, 0x84, 0x2e, 0x2b, 0x1b, 0xef, 0x15, 0x28, 0x6f, 0x09, 0xee, 0xc7, 0x5c, 0x15,
-	0x7b, 0x22, 0x27, 0x79, 0xe2, 0x33, 0x58, 0xa0, 0x0e, 0x38, 0xeb, 0x84, 0x83, 0xc0, 0xc5, 0x3c,
-	0xe6, 0xae, 0x77, 0x84, 0x46, 0xf5, 0xbf, 0xe4, 0xea, 0x12, 0xcb, 0xf9, 0x14, 0xcb, 0xa7, 0x80,
-	0xf6, 0x30, 0x89, 0x77, 0x32, 0x0f, 0xc5, 0xb3, 0xe2, 0xc9, 0xf0, 0xa1, 0x3a, 0xc2, 0x9d, 0x8f,
-	0xd9, 0x8f, 0xa1, 0x1c, 0x03, 0x09, 0x5a, 0xef, 0xa5, 0x68, 0x4d, 0x70, 0x13, 0x35, 0xe3, 0xbd,
-	0x0a, 0xa5, 0xa3, 0x28, 0x74, 0x07, 0x0e, 0x91, 0xf8, 0x2c, 0x30, 0x3e, 0xd7, 0xa0, 0x44, 0x86,
-	0x3d, 0x69, 0x9b, 0x45, 0x3a, 0x34, 0x5d, 0xa4, 0x43, 0xf9, 0xf5, 0xc0, 0x0e, 0x88, 0x47, 0x86,
-	0x8c, 0xd0, 0x82, 0x95, 0x8c, 0xe9, 0x25, 0xef, 0xda, 0xd1, 0x25, 0x26, 0x67, 0xbd, 0xc8, 0x73,
-	0x78, 0xe4, 0x2b, 0x96, 0xc6, 0x65, 0x47, 0x54, 0x84, 0x36, 0xa0, 0x2a, 0x54, 0x22, 0x7c, 0x2e,
-	0xe2, 0x8c, 0x27, 0xca, 0x25, 0x2e, 0xb7, 0x98, 0xd8, 0x74, 0xd1, 0x26, 0xac, 0x74, 0x6d, 0x82,
-	0x23, 0xcf, 0xf6, 0xcf, 0x70, 0xa7, 0xe3, 0x39, 0x1e, 0x0e, 0x9c, 0x21, 0x8b, 0x78, 0xc5, 0x42,
-	0xf1, 0xd4, 0x6e, 0x32, 0x83, 0x1e, 0x02, 0xb4, 0x6d, 0xe2, 0x5c, 0x9c, 0xf5, 0xbd, 0x77, 0x58,
-	0xa4, 0xd0, 0x0a, 0x93, 0xb4, 0xbc, 0x77, 0x18, 0x7d, 0x08, 0xf9, 0x4b, 0x2f, 0x70, 0x59, 0xee,
-	0x5c, 0x6a, 0xde, 0x4f, 0x91, 0x23, 0x58, 0x68, 0x7c, 0xed, 0x05, 0xae, 0xc5, 0xd4, 0xd0, 0x03,
-	0xa8, 0xf4, 0xec, 0x08, 0x07, 0x84, 0xee, 0xb0, 0xc2, 0x0f, 0xca, 0x05, 0xa6, 0x8b, 0x3e, 0x82,
-	0x72, 0xbc, 0x81, 0x1a, 0xd4, 0xd5, 0x0d, 0xad, 0x79, 0x77, 0x12, 0x9e, 0x95, 0x68, 0x19, 0x3a,
-	0xe4, 0x29, 0x38, 0x2a, 0x81, 0xba, 0x7d, 0x72, 0x5a, 0xbd, 0x83, 0x2a, 0x50, 0xd8, 0x3e, 0x31,
-	0xf7, 0x5f, 0x56, 0x15, 0xe3, 0x02, 0xfe, 0x15, 0x2f, 0x98, 0xd3, 0xe9, 0x0d, 0x28, 0xf5, 0xf8,
-	0x4a, 0xe1, 0xf3, 0xc9, 0xdb, 0x88, 0x95, 0x8c, 0x3d, 0x58, 0xde, 0xa3, 0x9e, 0x10, 0xc6, 0x6e,
-	0x1e, 0xb9, 0x3c, 0x3c, 0x72, 0x71, 0x78, 0x18, 0x47, 0xb0, 0x7c, 0x80, 0xdf, 0xdc, 0x02, 0x68,
-	0x5a, 0x5c, 0x19, 0x17, 0x80, 0x5a, 0xf6, 0x15, 0xbe, 0x05, 0xe4, 0xbc, 0x24, 0x3c, 0x63, 0xf7,
-	0x57, 0x88, 0xfb, 0x73, 0x58, 0x32, 0x7a, 0xa0, 0x9f, 0xf4, 0x68, 0x8a, 0x10, 0x8b, 0x59, 0x48,
-	0xf7, 0xff, 0xc9, 0xbd, 0x7a, 0x50, 0x1d, 0x6d, 0xf4, 0x2f, 0xc4, 0x86, 0x3a, 0xdb, 0xd4, 0x31,
-	0x68, 0xaf, 0xa4, 0x8b, 0x2a, 0x39, 0x4a, 0x49, 0x25, 0x80, 0x1a, 0x94, 0xec, 0x2b, 0x1c, 0xd9,
-	0xe7, 0x3c, 0xcf, 0x28, 0x56, 0x3c, 0xa4, 0x39, 0xb8, 0x6d, 0xf7, 0x79, 0x35, 0x54, 0x2c, 0xf6,
-	0x6f, 0x1c, 0xb3, 0x92, 0x24, 0x01, 0xdf, 0x3a, 0x58, 0x54, 0x29, 0x58, 0xfe, 0x50, 0x60, 0x35,
-	0x0b, 0x3b, 0x1f, 0x3b, 0x7b, 0x50, 0x64, 0x39, 0xaa, 0x2f, 0xc8, 0xd9, 0x4c, 0x91, 0x33, 0x19,
-	0xbb, 0xc1, 0xfd, 0xbd, 0x1b, 0x90, 0x68, 0x68, 0x89, 0xe5, 0x7a, 0x0b, 0x34, 0x49, 0x8c, 0xaa,
-	0xa0, 0x5e, 0xe2, 0xa1, 0xa0, 0x8c, 0xfe, 0xa2, 0x06, 0x14, 0xae, 0x6c, 0x7f, 0x80, 0x27, 0x16,
-	0x3b, 0xd9, 0x0a, 0x57, 0x7b, 0x91, 0x7b, 0xa6, 0x18, 0xbf, 0xe7, 0xa0, 0xb2, 0xed, 0x0f, 0x70,
-	0x2f, 0xf2, 0x02, 0x42, 0x69, 0xf0, 0x08, 0xee, 0x4a, 0xae, 0xa0, 0x43, 0xde, 0x35, 0xfa, 0xa1,
-	0x93, 0xa9, 0xd7, 0x10, 0x8b, 0xcc, 0x54, 0x16, 0x57, 0x53, 0x4e, 0x7c, 0x00, 0x15, 0x36, 0x21,
-	0x35, 0xb1, 0x65, 0x2a, 0x38, 0xa0, 0x75, 0x73, 0x0d, 0x4a, 0x1d, 0xdf, 0x3e, 0x8f, 0x53, 0xb3,
-	0x6a, 0x15, 0xe9, 0xd0, 0x74, 0xd1, 0x7d, 0x28, 0xd3, 0xde, 0x9b, 0xa6, 0x63, 0x96, 0x87, 0x55,
-	0xab, 0x44, 0xc7, 0xbb, 0x9d, 0x0e, 0x4f, 0xfd, 0xa3, 0x6c, 0xcd, 0xd2, 0xaf, 0x4a, 0x53, 0x7f,
-	0x92, 0xa6, 0xd1, 0x66, 0x2a, 0x01, 0x3f, 0x48, 0xf1, 0x90, 0x1c, 0x56, 0x4e, 0xc1, 0x72, 0xa9,
-	0xa9, 0x30, 0xbc, 0x51, 0xa9, 0x41, 0x90, 0x8f, 0x06, 0x41, 0xbf, 0x06, 0x4c, 0xce, 0xfe, 0x8d,
-	0x47, 0x22, 0xc7, 0x2e, 0x40, 0xf9, 0xd0, 0x32, 0xf7, 0xcc, 0x83, 0xad, 0xfd, 0xea, 0x1d, 0x54,
-	0x86, 0xfc, 0xce, 0xe1, 0xd1, 0x69, 0x55, 0x31, 0x3e, 0x87, 0x9a, 0x68, 0x8f, 0x12, 0x73, 0x73,
-	0x5d, 0xff, 0xb7, 0x70, 0x7f, 0xc2, 0xfa, 0xb9, 0x1b, 0xd5, 0x76, 0xbc, 0x58, 0x84, 0xde, 0xea,
-	0x64, 0x26, 0xac, 0x91, 0xa2, 0xf1, 0xab, 0x02, 0x8b, 0x66, 0x70, 0x85, 0x03, 0x12, 0x46, 0x43,
-	0x93, 0xe0, 0xee, 0xf4, 0xeb, 0x39, 0x33, 0x26, 0x9e, 0xc2, 0xa2, 0x33, 0x88, 0x58, 0x65, 0xf3,
-	0xf1, 0x15, 0xf6, 0x45, 0x64, 0x2c, 0x08, 0xe1, 0x3e, 0x95, 0xd1, 0xf8, 0xe8, 0x7a, 0x81, 0x50,
-	0xc8, 0x73, 0xee, 0xbb, 0x5e, 0xc0, 0x27, 0x9f, 0x03, 0x74, 0x30, 0x71, 0x2e, 0xb0, 0x7b, 0x66,
-	0x13, 0x16, 0x22, 0x33, 0xde, 0x22, 0x42, 0x7b, 0x8b, 0x18, 0xcf, 0xd9, 0x43, 0x23, 0x39, 0xca,
-	0x3c, 0xec, 0x77, 0xe1, 0x6e, 0x7a, 0xe9, 0xbc, 0xe9, 0x30, 0x4f, 0x6f, 0x8d, 0xe0, 0x5c, 0x4f,
-	0x71, 0x9e, 0xa2, 0xd6, 0x62, 0x7a, 0xc6, 0x1b, 0x58, 0x3b, 0xc0, 0x6f, 0xd2, 0x33, 0x7f, 0x43,
-	0x9d, 0xcb, 0xfa, 0x47, 0xcd, 0xfa, 0xc7, 0x08, 0xa0, 0x46, 0x0b, 0xe1, 0xad, 0x2d, 0x8f, 0x0e,
-	0xaa, 0xdc, 0xe8, 0xa0, 0x01, 0xdc, 0xcb, 0xd8, 0xba, 0x2d, 0xb1, 0x37, 0xb2, 0xf7, 0xc1, 0xff,
-	0x21, 0x4f, 0xdf, 0x85, 0xf4, 0x5e, 0x6e, 0x1d, 0x1c, 0x1e, 0xf0, 0x1b, 0x7a, 0xd2, 0xda, 0xb5,
-	0xaa, 0x0a, 0x5a, 0x84, 0xca, 0xfe, 0xe1, 0x9e, 0xd9, 0x3a, 0x36, 0x77, 0x5a, 0xd5, 0x5c, 0xf3,
-	0xc7, 0x1c, 0x68, 0x66, 0xd0, 0x09, 0x5b, 0x38, 0xba, 0xa2, 0x35, 0xe9, 0x08, 0x16, 0xe4, 0x67,
-	0x2a, 0xaa, 0x67, 0x93, 0x76, 0xf6, 0x05, 0xab, 0x3f, 0x9a, 0xf2, 0x08, 0x8c, 0xcf, 0xf8, 0x0d,
-	0x2c, 0xa5, 0x5f, 0x4c, 0xc8, 0x18, 0xc3, 0x1c, 0x7b, 0x4e, 0xe9, 0xf5, 0xa9, 0x0f, 0x96, 0x18,
-	0xf7, 0x15, 0x68, 0xd2, 0x1b, 0x01, 0x3d, 0xce, 0x82, 0x66, 0x5e, 0x0f, 0xfa, 0xc3, 0xc9, 0xbd,
-	0xba, 0x80, 0x6b, 0xfe, 0xa4, 0xc2, 0x92, 0x28, 0xd8, 0x31, 0x17, 0xdc, 0x42, 0xdc, 0x1c, 0x8c,
-	0x5b, 0xc8, 0xf4, 0x37, 0x19, 0x0b, 0x63, 0x4d, 0xc5, 0x57, 0x00, 0xa3, 0x45, 0xe8, 0xd1, 0x14,
-	0xb4, 0x18, 0xec, 0xdf, 0x13, 0x5b, 0x09, 0x09, 0x6b, 0xd4, 0x1c, 0x66, 0xb0, 0xc6, 0xba, 0xc6,
-	0x19, 0x58, 0xfb, 0xa0, 0x49, 0x6d, 0x61, 0xe6, 0x98, 0xe3, 0x0d, 0xe3, 0x0c, 0xb4, 0xef, 0x60,
-	0x65, 0x42, 0x03, 0x87, 0xfe, 0x97, 0x5a, 0x34, 0xbd, 0xc5, 0xbb, 0x1e, 0xbd, 0x19, 0x02, 0x92,
-	0xea, 0x79, 0xec, 0xa8, 0x53, 0x16, 0x62, 0x72, 0x6b, 0x65, 0x5c, 0xdb, 0x6b, 0x70, 0x4b, 0x4f,
-	0x6f, 0xd0, 0x8f, 0x34, 0xdf, 0x02, 0x92, 0x82, 0x2f, 0x36, 0xd8, 0x66, 0x4d, 0x7e, 0xba, 0x4c,
-	0xa1, 0xf5, 0x49, 0x61, 0x3d, 0x56, 0x06, 0xf5, 0xff, 0xce, 0x52, 0x13, 0x96, 0x7f, 0xce, 0x41,
-	0x35, 0xb9, 0xdc, 0xb1, 0xe1, 0x16, 0xbb, 0x9e, 0x89, 0x78, 0xfc, 0x7a, 0x66, 0xf3, 0xbe, 0xfe,
-	0xe4, 0x1a, 0x8d, 0xc4, 0x65, 0xd5, 0x6c, 0x1e, 0x46, 0xff, 0xc9, 0x86, 0xd4, 0xa4, 0x64, 0xa9,
-	0x1b, 0xd7, 0xa4, 0xa2, 0x18, 0xfd, 0x7b, 0x58, 0x1e, 0x4b, 0xb6, 0x19, 0xae, 0xa6, 0x25, 0xe3,
-	0x9b, 0xe0, 0x6f, 0x97, 0xbe, 0x2d, 0xf0, 0x82, 0x58, 0x64, 0x9f, 0x4f, 0xfe, 0x0c, 0x00, 0x00,
-	0xff, 0xff, 0x98, 0xeb, 0x74, 0x90, 0xe7, 0x14, 0x00, 0x00,
+	// 2079 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xbc, 0x38, 0x5b, 0x73, 0x1b, 0x49,
+	0xd5, 0x3b, 0xba, 0xeb, 0x8c, 0xed, 0x95, 0xdb, 0x76, 0xa2, 0x28, 0xdf, 0x26, 0xce, 0xec, 0x17,
+	0x30, 0x50, 0x2b, 0x83, 0x96, 0x2a, 0x36, 0x4b, 0x71, 0x71, 0xbc, 0xc6, 0x0c, 0x78, 0x1d, 0xef,
+	0xc8, 0x81, 0x0a, 0x95, 0xc2, 0x35, 0x9a, 0x69, 0xd9, 0x53, 0x1e, 0xcd, 0x28, 0x3d, 0x3d, 0x4e,
+	0xb4, 0xaf, 0xd4, 0xfe, 0x08, 0xaa, 0x78, 0xa3, 0xf8, 0x01, 0xbc, 0xf0, 0x13, 0x78, 0xe3, 0x89,
+	0x47, 0xe0, 0xbf, 0x50, 0x7d, 0x99, 0xbb, 0x64, 0x69, 0xbc, 0xc0, 0x93, 0x34, 0xe7, 0xd6, 0xe7,
+	0x9c, 0x3e, 0x7d, 0x6e, 0xa0, 0x4e, 0x7c, 0x1b, 0xbb, 0xfd, 0x29, 0xf1, 0xa9, 0x8f, 0xd4, 0x89,
+	0x4f, 0xaf, 0x9d, 0x3e, 0x07, 0xf5, 0x1e, 0x5f, 0xfa, 0xfe, 0xa5, 0x8b, 0xf7, 0x39, 0x6a, 0x14,
+	0x8e, 0xf7, 0xa9, 0x33, 0xc1, 0x01, 0x35, 0x27, 0x53, 0x41, 0xdd, 0x93, 0xd4, 0xf2, 0x03, 0xdf,
+	0x60, 0x7b, 0x24, 0x3e, 0xb4, 0x3f, 0x57, 0xa0, 0x7d, 0x78, 0x65, 0x12, 0xd3, 0xa2, 0x98, 0xa0,
+	0x0d, 0xa8, 0x38, 0x76, 0x57, 0xd9, 0x55, 0xf6, 0xaa, 0x46, 0xc5, 0xb1, 0xd1, 0x53, 0xd8, 0xb0,
+	0x7c, 0x32, 0xf5, 0x89, 0x49, 0x1d, 0xdf, 0xbb, 0x70, 0xec, 0x6e, 0x85, 0xe3, 0xd6, 0x53, 0x50,
+	0xdd, 0x46, 0x8f, 0x41, 0x35, 0x5d, 0xd7, 0x31, 0x3d, 0x0b, 0x33, 0x9a, 0x2a, 0xa7, 0x81, 0x08,
+	0xa4, 0xdb, 0x08, 0x41, 0xcd, 0x33, 0x27, 0xb8, 0x5b, 0xdb, 0x55, 0xf6, 0xda, 0x06, 0xff, 0x8f,
+	0x9e, 0xc0, 0xda, 0xc8, 0xf5, 0x7d, 0xdb, 0x75, 0x3c, 0xce, 0x55, 0xdf, 0x55, 0xf6, 0xea, 0x86,
+	0x1a, 0xc3, 0x74, 0x1b, 0xdd, 0x87, 0x26, 0x31, 0x85, 0xcc, 0x06, 0xc7, 0x36, 0xd8, 0xa7, 0x3c,
+	0xd0, 0xb3, 0x70, 0x40, 0xc9, 0x8c, 0x21, 0x9b, 0x1c, 0x09, 0x11, 0x48, 0xb7, 0xd1, 0x33, 0x80,
+	0x91, 0x43, 0xe8, 0xd5, 0x85, 0x6d, 0x52, 0xdc, 0x6d, 0xed, 0x2a, 0x7b, 0xea, 0xa0, 0xd7, 0x17,
+	0x6e, 0xea, 0x47, 0x6e, 0xea, 0x9f, 0x47, 0x6e, 0x32, 0xda, 0x9c, 0xfa, 0x33, 0x93, 0x62, 0xb4,
+	0x0b, 0xaa, 0x8d, 0x03, 0x8b, 0x38, 0x53, 0x66, 0x5d, 0xb7, 0xcd, 0x55, 0x4e, 0x83, 0xb4, 0xbf,
+	0x29, 0xa0, 0x1e, 0x26, 0x0e, 0x28, 0x78, 0x2d, 0xe7, 0x8e, 0xca, 0x42, 0x77, 0x54, 0x53, 0xee,
+	0xf8, 0x09, 0xac, 0x5b, 0x04, 0x0b, 0x3f, 0x73, 0xa5, 0x6b, 0x4b, 0x95, 0x5e, 0x8b, 0x18, 0xe6,
+	0xe9, 0x5d, 0x2f, 0xe8, 0x8d, 0xee, 0x41, 0x83, 0x3a, 0xd6, 0x35, 0x26, 0xdc, 0x9b, 0x6d, 0x43,
+	0x7e, 0x69, 0x5f, 0x29, 0xd0, 0x3a, 0x90, 0xda, 0x15, 0x8c, 0x89, 0x74, 0xad, 0xa4, 0x74, 0xfd,
+	0x11, 0xac, 0x31, 0x15, 0x2f, 0xc6, 0x7e, 0xe8, 0xd9, 0x58, 0x5c, 0xf8, 0xed, 0xaa, 0xaa, 0x8c,
+	0xfe, 0x67, 0x82, 0x3c, 0xa5, 0x47, 0x2d, 0xa3, 0x07, 0x86, 0xf6, 0x90, 0x92, 0xd0, 0xa2, 0x21,
+	0x59, 0x4d, 0x8f, 0x87, 0xd0, 0x0e, 0x66, 0x01, 0xc5, 0x93, 0x24, 0xea, 0x5a, 0x02, 0x20, 0x82,
+	0x87, 0xce, 0xa6, 0xfc, 0x06, 0x6a, 0x1c, 0xd5, 0x60, 0x9f, 0xba, 0xad, 0xfd, 0xbe, 0x06, 0xdb,
+	0xa9, 0xeb, 0xfb, 0x1f, 0x1c, 0x89, 0x3e, 0x00, 0x98, 0x12, 0x7f, 0xec, 0xb8, 0x71, 0xa4, 0x57,
+	0x8d, 0xb6, 0x84, 0xe8, 0x36, 0xea, 0x41, 0x2b, 0xc0, 0xe4, 0xc6, 0xb1, 0x70, 0xd0, 0x6d, 0xec,
+	0x56, 0xf7, 0xda, 0x46, 0xfc, 0xcd, 0x7c, 0x3d, 0x0e, 0xb1, 0x7b, 0x81, 0xdf, 0x4d, 0x1d, 0x82,
+	0x03, 0x1e, 0xeb, 0x4b, 0x7c, 0xcd, 0xe8, 0x8f, 0x04, 0x39, 0xfa, 0x21, 0xa8, 0x01, 0x65, 0x77,
+	0x15, 0x50, 0x93, 0xd0, 0x15, 0x5e, 0x02, 0x70, 0xf2, 0x21, 0xa3, 0x46, 0x3f, 0x80, 0xb6, 0x60,
+	0xc6, 0x9e, 0xcd, 0x1f, 0xc2, 0xed, 0xac, 0x2d, 0x4e, 0x7c, 0xe4, 0xd9, 0x4c, 0xe9, 0xd0, 0x33,
+	0x3d, 0xeb, 0xca, 0x27, 0xc1, 0x85, 0x49, 0xbb, 0xb0, 0x5c, 0xe9, 0x98, 0xfe, 0x80, 0xa2, 0x8f,
+	0x61, 0xe7, 0x26, 0x74, 0x3d, 0x4c, 0xcc, 0x91, 0xe3, 0x3a, 0x74, 0x76, 0xf1, 0x16, 0xe3, 0x6b,
+	0xdb, 0x9c, 0x75, 0x55, 0xee, 0xb9, 0xed, 0x0c, 0xf2, 0xd7, 0x02, 0x87, 0x3e, 0x02, 0x94, 0x65,
+	0xba, 0xf2, 0x43, 0xd2, 0x5d, 0xe3, 0x1c, 0x9b, 0x19, 0xcc, 0xcf, 0xfd, 0x90, 0xa0, 0x6d, 0xa8,
+	0x73, 0x75, 0xbb, 0xeb, 0xfc, 0x76, 0xc5, 0x87, 0xf6, 0x3b, 0x05, 0xb6, 0x8e, 0x31, 0x8d, 0x33,
+	0xa2, 0x81, 0xdf, 0x84, 0x38, 0xa0, 0x48, 0x83, 0x3a, 0xf5, 0xaf, 0xb1, 0xc7, 0xa3, 0x43, 0x1d,
+	0xac, 0xf5, 0x45, 0x42, 0x3d, 0x67, 0x30, 0x43, 0xa0, 0xd0, 0x53, 0xa8, 0x11, 0xdf, 0x15, 0xe1,
+	0xb2, 0x31, 0xd8, 0xec, 0xa7, 0x32, 0x74, 0xdf, 0xf0, 0x5d, 0x6c, 0x70, 0x34, 0xcb, 0x7b, 0x56,
+	0x24, 0x3e, 0x09, 0x22, 0x35, 0x86, 0xe9, 0xb6, 0x36, 0x85, 0xcd, 0x94, 0x06, 0xc1, 0xd4, 0xf7,
+	0x02, 0x8c, 0x9e, 0x42, 0x83, 0xe0, 0x20, 0x74, 0xa9, 0xd4, 0x61, 0x5d, 0x1e, 0x60, 0x70, 0xa0,
+	0x21, 0x91, 0xe8, 0xfb, 0xd0, 0x8e, 0x45, 0x71, 0x55, 0xd4, 0xc1, 0xbd, 0x8c, 0x2a, 0x89, 0xe4,
+	0x84, 0x50, 0x1b, 0xc1, 0x0e, 0x33, 0x3b, 0x79, 0x15, 0xe5, 0x0c, 0x5f, 0xa5, 0x4a, 0x68, 0xef,
+	0x60, 0x2b, 0x73, 0x40, 0x39, 0xbb, 0x3e, 0x05, 0x35, 0x25, 0x4e, 0x5a, 0xd6, 0xcd, 0x5a, 0x96,
+	0x92, 0x9e, 0x26, 0xd6, 0x5e, 0x01, 0x3a, 0xc6, 0x34, 0x4a, 0x71, 0x65, 0x4c, 0x5b, 0x96, 0xca,
+	0x35, 0x17, 0x3a, 0x89, 0xdc, 0x72, 0x16, 0x7d, 0x0f, 0x5a, 0x91, 0x20, 0x69, 0xce, 0x4e, 0xc6,
+	0x9c, 0x58, 0x6e, 0x4c, 0xa6, 0xbd, 0xe6, 0xd1, 0x19, 0x67, 0xac, 0x32, 0x96, 0x3c, 0x81, 0xb5,
+	0x20, 0xe2, 0x4b, 0x4c, 0x51, 0x63, 0x98, 0x6e, 0x6b, 0x01, 0x6c, 0x67, 0xa5, 0x97, 0x8e, 0xbc,
+	0x58, 0xda, 0xdc, 0xc8, 0x4b, 0x24, 0x27, 0x84, 0xda, 0x8f, 0xa1, 0x2b, 0x23, 0x2f, 0x46, 0x07,
+	0x25, 0xec, 0x62, 0xc5, 0xeb, 0xc1, 0x1c, 0x01, 0xe5, 0x54, 0x3f, 0x00, 0x88, 0x35, 0x0a, 0xba,
+	0x95, 0xdd, 0xea, 0x9e, 0x3a, 0x78, 0xb2, 0x28, 0xb6, 0x12, 0x33, 0x52, 0x4c, 0xda, 0x57, 0x55,
+	0x68, 0x9e, 0x11, 0xdf, 0x0e, 0x2d, 0x9a, 0x2a, 0x24, 0x75, 0x5e, 0x48, 0x52, 0x75, 0xa1, 0x92,
+	0xa9, 0x0b, 0x3d, 0x68, 0xbd, 0x09, 0x4d, 0x8f, 0x3a, 0x74, 0xc6, 0xf3, 0x40, 0xdd, 0x88, 0xbf,
+	0xd9, 0x85, 0x4d, 0x4c, 0x72, 0x8d, 0xe9, 0xc5, 0x94, 0x38, 0x96, 0xe8, 0x07, 0x14, 0x43, 0x15,
+	0xb0, 0x33, 0x06, 0x42, 0x7b, 0xd0, 0x91, 0x24, 0x04, 0x5f, 0xca, 0xa7, 0x27, 0xda, 0xa8, 0x0d,
+	0x01, 0x37, 0x38, 0x58, 0xb7, 0xd1, 0x3e, 0x6c, 0x4d, 0x4c, 0x8a, 0x89, 0x63, 0xba, 0x17, 0x78,
+	0x3c, 0x76, 0x2c, 0x07, 0x7b, 0xd6, 0x8c, 0xf7, 0x01, 0x8a, 0x81, 0x22, 0xd4, 0x51, 0x8c, 0x61,
+	0x15, 0x6b, 0x64, 0x52, 0xeb, 0xea, 0x22, 0x70, 0xbe, 0xc4, 0xb2, 0xc1, 0x6a, 0x73, 0xc8, 0xd0,
+	0xf9, 0x12, 0xa3, 0x8f, 0xa0, 0x76, 0xed, 0x78, 0x36, 0xaf, 0x27, 0x1b, 0x83, 0x07, 0x19, 0x57,
+	0x49, 0x2f, 0xf4, 0x7f, 0xe9, 0x78, 0xb6, 0xc1, 0xc9, 0x58, 0xd5, 0x9c, 0x9a, 0x04, 0x7b, 0x94,
+	0x69, 0xd8, 0x16, 0x86, 0x0a, 0x80, 0x6e, 0xa3, 0xef, 0x42, 0x2b, 0x52, 0xa0, 0x0b, 0xdc, 0xf5,
+	0xdb, 0xf3, 0xe4, 0x19, 0x31, 0x95, 0xd6, 0x83, 0x1a, 0x13, 0x8e, 0x9a, 0x50, 0x7d, 0xfe, 0xf2,
+	0x55, 0xe7, 0x3d, 0xd4, 0x86, 0xfa, 0xf3, 0x97, 0xfa, 0xc9, 0x67, 0x1d, 0x45, 0xbb, 0x82, 0xf7,
+	0x23, 0x86, 0x92, 0x41, 0xd0, 0x87, 0xe6, 0x54, 0x70, 0xca, 0xe8, 0x9d, 0xaf, 0x46, 0x44, 0xa4,
+	0x1d, 0xc3, 0xe6, 0x31, 0xbb, 0x09, 0x79, 0xd8, 0xea, 0x4f, 0x51, 0x84, 0x47, 0x25, 0x0a, 0x0f,
+	0xed, 0x0c, 0x36, 0x4f, 0xf1, 0xdb, 0x3b, 0x08, 0x5a, 0x14, 0x57, 0xda, 0x15, 0xa0, 0xa1, 0x79,
+	0x83, 0xef, 0x20, 0xb2, 0xac, 0x13, 0x3e, 0xe1, 0xa9, 0x55, 0x82, 0x4b, 0x3d, 0xdc, 0x29, 0xf4,
+	0x5e, 0x4e, 0x59, 0x5b, 0x28, 0x99, 0x79, 0x48, 0x07, 0xff, 0x4d, 0x5d, 0x1d, 0xe8, 0x24, 0x8a,
+	0x7e, 0x8d, 0xd8, 0xa8, 0x2e, 0x3f, 0xea, 0x1c, 0xd4, 0xcf, 0x53, 0x0f, 0x35, 0x75, 0x51, 0x4a,
+	0x26, 0x01, 0x74, 0xa1, 0x69, 0xde, 0x60, 0x62, 0x5e, 0x8a, 0x8c, 0xa9, 0x18, 0xd1, 0x27, 0x6b,
+	0x3e, 0x47, 0x66, 0x20, 0x66, 0x04, 0xc5, 0xe0, 0xff, 0xb5, 0x73, 0x5e, 0xa5, 0x53, 0x82, 0xef,
+	0x1c, 0x2c, 0xd5, 0x54, 0xb0, 0xfc, 0x4b, 0x81, 0x7b, 0x79, 0xb1, 0xe5, 0xbc, 0x73, 0x0c, 0x0d,
+	0x9e, 0xa3, 0xa2, 0xd4, 0xb9, 0x9f, 0x71, 0xce, 0x7c, 0xd9, 0x7d, 0x71, 0xdf, 0x47, 0x1e, 0x25,
+	0x33, 0x43, 0xb2, 0xf7, 0x86, 0xa0, 0xa6, 0xc0, 0xa8, 0x03, 0xd5, 0x6b, 0x3c, 0x93, 0x2e, 0x63,
+	0x7f, 0x51, 0x1f, 0xea, 0x37, 0xa6, 0x1b, 0xe2, 0xb9, 0xf5, 0x3f, 0x7d, 0x8a, 0x20, 0xfb, 0xb4,
+	0xf2, 0x89, 0xa2, 0xfd, 0xbd, 0x02, 0xed, 0xe7, 0x6e, 0x88, 0xa7, 0xc4, 0xf1, 0x28, 0x73, 0x83,
+	0x23, 0xdb, 0x77, 0x79, 0x15, 0x8e, 0x68, 0xde, 0x1f, 0x83, 0xea, 0xfa, 0x56, 0xae, 0x85, 0x81,
+	0x08, 0x94, 0xed, 0xee, 0xab, 0x99, 0x4b, 0x7c, 0x08, 0x6d, 0x8e, 0x48, 0x8d, 0xb8, 0x2d, 0x06,
+	0x38, 0x65, 0x03, 0xc3, 0x7d, 0x68, 0x8e, 0x5d, 0xf3, 0x32, 0xe9, 0xfb, 0x1b, 0xec, 0x53, 0xb7,
+	0xd1, 0x03, 0x68, 0xb1, 0x31, 0x9d, 0xa5, 0x63, 0x9e, 0x87, 0xab, 0x46, 0x93, 0x7d, 0x1f, 0x8d,
+	0xc7, 0x22, 0xf5, 0x27, 0xd9, 0x9a, 0xa7, 0xdf, 0x2a, 0x4b, 0xfd, 0x71, 0x9a, 0x46, 0xfb, 0x99,
+	0x04, 0xfc, 0x30, 0xe3, 0x87, 0xd8, 0xd8, 0x74, 0x0a, 0x4e, 0x97, 0x9a, 0xb6, 0x98, 0x5b, 0xe2,
+	0x52, 0x83, 0xa0, 0x46, 0x42, 0x2f, 0xe0, 0x6d, 0x7a, 0xd5, 0xe0, 0xff, 0xb5, 0x47, 0x32, 0xc7,
+	0xae, 0x41, 0xeb, 0x85, 0xa1, 0x1f, 0xeb, 0xa7, 0x07, 0x27, 0x9d, 0xf7, 0x50, 0x0b, 0x6a, 0x87,
+	0x2f, 0xce, 0x5e, 0x75, 0x94, 0x54, 0xdd, 0x8e, 0x8f, 0x2b, 0xf5, 0xfc, 0xdf, 0xc5, 0x65, 0x3b,
+	0xcd, 0x5f, 0xba, 0xe3, 0x18, 0x45, 0xcc, 0x32, 0xf4, 0xee, 0xcd, 0xf7, 0x84, 0x91, 0x10, 0x6a,
+	0x7f, 0x55, 0x60, 0x5d, 0xf7, 0x6e, 0xb0, 0x47, 0x7d, 0x32, 0xd3, 0x29, 0x9e, 0x2c, 0x7e, 0x9e,
+	0x4b, 0x63, 0xe2, 0x43, 0x58, 0xb7, 0x42, 0xc2, 0x2b, 0x9b, 0x8b, 0x6f, 0xb0, 0x2b, 0x23, 0x63,
+	0x4d, 0x02, 0x4f, 0x18, 0x8c, 0xc5, 0xc7, 0xc4, 0xf1, 0x24, 0x81, 0x18, 0x0c, 0x5b, 0x13, 0xc7,
+	0x13, 0xc8, 0x67, 0x00, 0x63, 0x4c, 0xad, 0x2b, 0x6c, 0xb3, 0x41, 0xa9, 0xbe, 0x7c, 0x53, 0x21,
+	0xa9, 0x0f, 0xa8, 0xf6, 0x8c, 0x77, 0x83, 0xb1, 0x29, 0x65, 0xbc, 0x3f, 0xe1, 0xad, 0x5e, 0x8a,
+	0xb5, 0x6c, 0x3a, 0xac, 0xb1, 0x57, 0x23, 0x7d, 0xde, 0xcb, 0xf8, 0x3c, 0xe3, 0x5a, 0x83, 0xd3,
+	0x69, 0x6f, 0xe1, 0xfe, 0x29, 0x7e, 0x9b, 0xc5, 0xfc, 0x07, 0xea, 0x5c, 0xfe, 0x7e, 0xaa, 0xf9,
+	0xfb, 0xd1, 0x3c, 0xe8, 0xb2, 0x42, 0x78, 0xe7, 0x93, 0x13, 0x43, 0x95, 0x95, 0x0c, 0xf5, 0x60,
+	0x27, 0x77, 0xd6, 0x5d, 0x1d, 0xbb, 0xda, 0x79, 0x7f, 0xa8, 0x40, 0xeb, 0x44, 0x9a, 0x5b, 0xd8,
+	0x5f, 0x7c, 0x07, 0x1a, 0x62, 0x35, 0x21, 0x17, 0x34, 0x5b, 0x52, 0x9c, 0xd8, 0xff, 0x0d, 0x39,
+	0xca, 0x90, 0x24, 0xe8, 0xa7, 0xb0, 0x6e, 0xf9, 0x5e, 0x40, 0xb1, 0xeb, 0x8a, 0x09, 0xab, 0x96,
+	0x51, 0x41, 0xf0, 0x1c, 0xa6, 0x29, 0x8c, 0x2c, 0x03, 0x3b, 0x4e, 0xb4, 0xa1, 0x32, 0x8a, 0xb3,
+	0xc7, 0x89, 0x56, 0xd4, 0x90, 0x24, 0xac, 0xa0, 0xb2, 0x89, 0x9b, 0x51, 0x37, 0x32, 0xb5, 0x5b,
+	0x2a, 0x27, 0x70, 0x46, 0x44, 0x94, 0x1d, 0x2e, 0x9a, 0xab, 0x0e, 0x17, 0x62, 0xf0, 0x8b, 0x1c,
+	0x54, 0x72, 0xf0, 0xbb, 0xf5, 0xe5, 0xb3, 0xc1, 0x2f, 0x91, 0x5b, 0x7a, 0xf0, 0x8b, 0x04, 0xcd,
+	0x1d, 0xfc, 0x62, 0xb9, 0x31, 0x99, 0xf6, 0x05, 0xec, 0x7c, 0x11, 0x62, 0x32, 0x8b, 0x50, 0xa5,
+	0xfa, 0xa4, 0x6d, 0xa8, 0xbf, 0x61, 0xcc, 0x72, 0x91, 0x25, 0x3e, 0xb4, 0x09, 0x6c, 0xa6, 0xa4,
+	0x7d, 0x1d, 0x0b, 0xaa, 0x2b, 0x58, 0xf0, 0xed, 0x6f, 0x41, 0xcd, 0xf0, 0x5d, 0xcc, 0x2a, 0xc8,
+	0xc1, 0xe9, 0x8b, 0x53, 0x51, 0x4b, 0x5e, 0x0e, 0x8f, 0x8c, 0x8e, 0x82, 0xd6, 0xa1, 0x7d, 0xf2,
+	0xe2, 0x58, 0x1f, 0x9e, 0xeb, 0x87, 0xc3, 0x4e, 0x65, 0xf0, 0x8f, 0x0a, 0xa8, 0xba, 0x37, 0xf6,
+	0x87, 0x62, 0x07, 0x86, 0xce, 0x60, 0x2d, 0xbd, 0x93, 0x41, 0xbb, 0xf9, 0xf6, 0x22, 0xbf, 0xae,
+	0xe9, 0x3d, 0x5a, 0xb0, 0xf1, 0x88, 0xcc, 0xfc, 0x15, 0x6c, 0x64, 0xd7, 0x1d, 0x48, 0x2b, 0xc8,
+	0x2c, 0xec, 0x42, 0x7a, 0xbb, 0x0b, 0xb7, 0x0d, 0x91, 0xdc, 0xcf, 0x41, 0x4d, 0x2d, 0x1a, 0xd0,
+	0xe3, 0xbc, 0xd0, 0xdc, 0x0a, 0xa2, 0xf7, 0xc1, 0xfc, 0x81, 0x3f, 0x12, 0x37, 0xe4, 0x86, 0x27,
+	0x0b, 0xca, 0x82, 0xe1, 0xf9, 0x4d, 0x40, 0xef, 0xc9, 0x2d, 0x14, 0x42, 0xe8, 0xe0, 0x8f, 0x55,
+	0xd8, 0x90, 0xfd, 0x6a, 0xe4, 0x60, 0xa1, 0x76, 0xd4, 0x1b, 0x17, 0xd5, 0xce, 0xb5, 0xf7, 0x39,
+	0xb5, 0x0b, 0x3d, 0xf5, 0x2f, 0x00, 0x12, 0x26, 0xf4, 0x68, 0x81, 0xb4, 0x48, 0xd8, 0xff, 0xcd,
+	0xed, 0xa4, 0x53, 0xb2, 0x92, 0xd9, 0x28, 0x27, 0xab, 0x30, 0x34, 0x2d, 0x91, 0x75, 0x02, 0x6a,
+	0x6a, 0x2a, 0xca, 0x99, 0x59, 0x9c, 0x97, 0x96, 0x48, 0x7b, 0x0d, 0x5b, 0x73, 0xe6, 0x17, 0xf4,
+	0xcd, 0x0c, 0xd3, 0xe2, 0x09, 0xe7, 0x76, 0xe9, 0x03, 0x1f, 0x50, 0xaa, 0x9d, 0x8d, 0x2e, 0xea,
+	0x15, 0x8f, 0xdb, 0xf4, 0x64, 0xa1, 0xdd, 0xda, 0x6a, 0x8b, 0x93, 0x3e, 0x5c, 0xa1, 0x1d, 0x1f,
+	0xfc, 0x53, 0x01, 0x94, 0x5e, 0x72, 0xc8, 0x13, 0x47, 0x7c, 0xc8, 0xcd, 0x6e, 0x57, 0xd0, 0xd3,
+	0x79, 0x8f, 0xa5, 0xb0, 0xbe, 0xe9, 0x7d, 0x63, 0x19, 0x99, 0xf4, 0x64, 0x72, 0x46, 0xd2, 0x0a,
+	0xce, 0x3f, 0xa3, 0xd0, 0x6a, 0xce, 0x3f, 0xa3, 0xd8, 0x51, 0x0e, 0xfe, 0x54, 0x81, 0x4e, 0x5c,
+	0x40, 0x23, 0xe3, 0xc4, 0xfb, 0x8a, 0xc1, 0xc5, 0xf7, 0x95, 0xef, 0xad, 0x8a, 0xef, 0xab, 0xd8,
+	0x42, 0xbd, 0x86, 0x4e, 0xbe, 0xd7, 0x41, 0xff, 0x9f, 0x8f, 0xdb, 0x79, 0x0d, 0x49, 0x4f, 0xbb,
+	0xa5, 0xdc, 0x47, 0xd2, 0x7f, 0x0b, 0x9b, 0x85, 0x86, 0x26, 0xe7, 0xab, 0x45, 0x0d, 0xcf, 0x2a,
+	0xf2, 0x07, 0x7f, 0x51, 0xe0, 0xfd, 0x28, 0x7b, 0x67, 0xd3, 0x43, 0xdc, 0x66, 0x14, 0xd2, 0x43,
+	0xae, 0xbe, 0xe6, 0xd2, 0x43, 0xa1, 0x4a, 0x9e, 0xc3, 0x46, 0xb6, 0x96, 0xe5, 0x82, 0x78, 0x6e,
+	0xa1, 0xcb, 0xa5, 0xf4, 0x42, 0xe5, 0x7a, 0xde, 0xfc, 0x4d, 0x5d, 0x74, 0xcb, 0x0d, 0xfe, 0xf3,
+	0xf1, 0xbf, 0x03, 0x00, 0x00, 0xff, 0xff, 0x18, 0xab, 0xcb, 0xd7, 0x2f, 0x1d, 0x00, 0x00,
 }

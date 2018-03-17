@@ -33,6 +33,7 @@ type GRPCClient struct {
 	logger     log.Logger
 }
 
+// Cache time-to-live for static data.
 const cacheTTL = 600 * time.Second
 
 // newRemoteGRPC creates a new GRPC client intended for use with a remote GRPC server.
@@ -86,4 +87,9 @@ func (c *GRPCClient) Authenticate(username, password string) error {
 	}
 	c.token = res.Token.Identifier
 	return nil
+}
+
+// Authenticated returns true if the current session is authenticated.
+func (c *GRPCClient) Authenticated() bool {
+	return c.token != ""
 }

@@ -27,6 +27,8 @@ var ErrBadCredentials = errors.New("username or password is incorrect")
 type Client interface {
 	// Authenticate attempts to authenticate the client session with the server.
 	Authenticate(username, password string) error
+	// Authenticated returns true if the current session is authenticated.
+	Authenticated() bool
 
 	CharacterClient
 	EVEUniverseClient

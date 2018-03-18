@@ -13,43 +13,6 @@
 // The APIs defined in this package are intended to be the outward-facing interface for a MOTKI
 // installation.
 //
-// Minimal Example
-//
-// Below is an example of the bare minimum needed to connect to and query information from
-// the public application.
-//
-//  package main
-//
-//  import (
-//   	"fmt"
-//
-//   	"github.com/motki/core/log"
-//   	"github.com/motki/core/proto"
-//   	"github.com/motki/core/proto/client"
-//  )
-//
-//  func main() {
-//  	c := proto.Config{
-//  		Kind:       proto.BackendRemoteGRPC,
-//  		RemoteGRPC: proto.RemoteConfig{ServerAddr: "motki.org:18443"},
-//  	}
-//  	l := log.New(log.Config{Level: "debug"})
-//  	cl, err := client.New(c, l)
-//  	if err != nil {
-//  		panic(err)
-//  	}
-//
-//  	it, err := cl.GetItemType(2281)
-//  	if err != nil {
-//  		panic(err)
-//  	}
-//
-//  	fmt.Println(it.Name)
-//
-//  	// Output:
-//    // Adaptive Invulnerability Field II
-//  }
-//
 // Running the Server
 //
 // See https://github.com/motki/motki-server for information on running your own MOTKI application server.

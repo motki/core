@@ -43,3 +43,8 @@ func (c *UserClient) Authenticate(username, password string) error {
 	c.token = res.Token.Identifier
 	return nil
 }
+
+// Authenticated returns true if the current session is authenticated.
+func (c *UserClient) Authenticated() bool {
+	return c.token != ""
+}

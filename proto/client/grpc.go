@@ -29,11 +29,6 @@ type bootstrap struct {
 	logger     log.Logger
 }
 
-// Authenticated returns true if the current session is authenticated.
-func (c *bootstrap) Authenticated() bool {
-	return c.token != ""
-}
-
 // GRPCClient is the defacto implementation of the Client interface.
 type GRPCClient struct {
 	*bootstrap
@@ -54,8 +49,6 @@ const cacheTTL = 600 * time.Second
 
 func newGRPCClient(m *bootstrap) *GRPCClient {
 	return &GRPCClient{
-		bootstrap: m,
-
 		AssetClient:       &AssetClient{m},
 		CharacterClient:   &CharacterClient{m},
 		EVEUniverseClient: &EVEUniverseClient{m},

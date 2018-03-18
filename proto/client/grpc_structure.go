@@ -11,6 +11,8 @@ import (
 
 // StructureClient retrieves information about player-owned Citadels in EVE.
 type StructureClient struct {
+	// This type must be initialized using the package-level New function.
+
 	*bootstrap
 }
 

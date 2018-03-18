@@ -11,6 +11,8 @@ import (
 
 // AssetClient handles asset related functionality.
 type AssetClient struct {
+	// This type must be initialized using the package-level New function.
+
 	*bootstrap
 }
 

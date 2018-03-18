@@ -11,6 +11,8 @@ import (
 
 // ItemTypeClient retrieves type information for items in the EVE universe.
 type ItemTypeClient struct {
+	// This type must be initialized using the package-level New function.
+
 	*bootstrap
 }
 

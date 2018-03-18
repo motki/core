@@ -11,6 +11,8 @@ import (
 
 // EVEUniverseClient provides information about the EVE universe.
 type EVEUniverseClient struct {
+	// This type must be initialized using the package-level New function.
+
 	*bootstrap
 }
 

@@ -10,6 +10,8 @@ import (
 
 // UserClient handles authenticating a user session.
 type UserClient struct {
+	// This type must be initialized using the package-level New function.
+
 	*bootstrap
 }
 

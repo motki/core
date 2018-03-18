@@ -3,11 +3,16 @@ package client
 import (
 	"strconv"
 
+	"time"
+
 	"github.com/motki/core/cache"
 	"github.com/motki/core/evedb"
 	"github.com/motki/core/model"
 	"github.com/pkg/errors"
 )
+
+// Cache time-to-live for static data.
+const cacheTTL = 600 * time.Second
 
 // cachingGRPCClient wraps a GRPC client and provides short-lived, in-memory
 // caching for static data retrieved from a remote GRPC server.

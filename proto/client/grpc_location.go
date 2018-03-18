@@ -11,6 +11,8 @@ import (
 
 // LocationClient provides location information using denormalized location IDs.
 type LocationClient struct {
+	// This type must be initialized using the package-level New function.
+
 	*bootstrap
 }
 

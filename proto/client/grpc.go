@@ -31,7 +31,6 @@ type bootstrap struct {
 
 // GRPCClient is the defacto implementation of the Client interface.
 type GRPCClient struct {
-	*bootstrap
 	*AssetClient
 	*CharacterClient
 	*EVEUniverseClient
@@ -42,10 +41,11 @@ type GRPCClient struct {
 	*ProductClient
 	*StructureClient
 	*UserClient
-}
 
-// Cache time-to-live for static data.
-const cacheTTL = 600 * time.Second
+	// This type must be initialized using the package-level New function.
+
+	noexport struct{} // Don't allow other packages to initialize this struct.
+}
 
 func newGRPCClient(m *bootstrap) *GRPCClient {
 	return &GRPCClient{

@@ -11,6 +11,8 @@ import (
 
 // MarketClient retrieves market price information about types in the EVE universe.
 type MarketClient struct {
+	// This type must be initialized using the package-level New function.
+
 	*bootstrap
 }
 

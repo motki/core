@@ -11,6 +11,8 @@ import (
 
 // CharacterClient retrieves character, corporation, and alliance information.
 type CharacterClient struct {
+	// This type must be initialized using the package-level New function.
+
 	*bootstrap
 }
 

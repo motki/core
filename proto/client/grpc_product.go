@@ -14,6 +14,8 @@ import (
 // Functionality in this client requires that the user's corporation is registered
 // and opted-in to data collection.
 type ProductClient struct {
+	// This type must be initialized using the package-level New function.
+
 	*bootstrap
 }
 

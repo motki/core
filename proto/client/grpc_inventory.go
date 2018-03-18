@@ -14,6 +14,8 @@ import (
 // Functionality provided by this client requires that the user's corporation
 // is registered and opted-in to data collection.
 type InventoryClient struct {
+	// This type must be initialized using the package-level New function.
+
 	*bootstrap
 }
 

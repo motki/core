@@ -32,7 +32,7 @@ type Bucket struct {
 	ttl   time.Duration
 	items map[key]*item
 
-	mu   *sync.RWMutex
+	mu   sync.RWMutex
 	quit chan struct{}
 	tag  func(k key, t time.Time)
 }
@@ -42,7 +42,7 @@ func New(ttl time.Duration) *Bucket {
 	b := &Bucket{
 		ttl:   ttl,
 		items: make(map[key]*item),
-		mu:    &sync.RWMutex{},
+		mu:    sync.RWMutex{},
 		quit:  make(chan struct{}),
 	}
 	exp := newExpunger(b)
@@ -120,7 +120,7 @@ type expunger struct {
 
 	recs map[time.Time][]key
 	tags chan tag
-	mu   *sync.Mutex
+	mu   sync.Mutex
 }
 
 // tag represents an expiring key.
@@ -137,7 +137,7 @@ func newExpunger(b *Bucket) *expunger {
 		interval: expungeInterval,
 		recs:     make(map[time.Time][]key),
 		tags:     make(chan tag, 10),
-		mu:       &sync.Mutex{},
+		mu:       sync.Mutex{},
 	}
 }
 
@@ -164,14 +164,14 @@ func (c *expunger) processTags() {
 func (c *expunger) expungeExpiredEntries() {
 	for {
 		tick := time.Now().Truncate(c.interval)
+		c.mu.Lock()
 		for t, ks := range c.recs {
 			if tick.After(t) {
 				c.b.remove(ks...)
-				c.mu.Lock()
 				delete(c.recs, t)
-				c.mu.Unlock()
 			}
 		}
+		c.mu.Unlock()
 		select {
 		case <-time.After(c.interval):
 			continue

@@ -49,8 +49,18 @@ func blueprintFromEveAPI(bp *eveapi.Blueprint) *Blueprint {
 	}
 }
 
-func (m *Manager) GetCorporationBlueprints(ctx context.Context, corpID int) (jobs []*Blueprint, err error) {
-	if ctx, err = m.corporationAuthContext(ctx, corpID); err != nil {
+type BlueprintManager struct {
+	bootstrap
+
+	corp *CorpManager
+}
+
+func newBlueprintManager(m bootstrap, corp *CorpManager) *BlueprintManager {
+	return &BlueprintManager{m, corp}
+}
+
+func (m *BlueprintManager) GetCorporationBlueprints(ctx context.Context, corpID int) (jobs []*Blueprint, err error) {
+	if ctx, err = m.corp.authContext(ctx, corpID); err != nil {
 		return nil, err
 	}
 	jobs, err = m.getCorporationBlueprintsFromDB(corpID)
@@ -63,7 +73,7 @@ func (m *Manager) GetCorporationBlueprints(ctx context.Context, corpID int) (job
 	return m.getCorporationBlueprintsFromAPI(ctx, corpID)
 }
 
-func (m *Manager) getCorporationBlueprintsFromDB(corpID int) ([]*Blueprint, error) {
+func (m *BlueprintManager) getCorporationBlueprintsFromDB(corpID int) ([]*Blueprint, error) {
 	c, err := m.pool.Open()
 	if err != nil {
 		return nil, err
@@ -114,7 +124,7 @@ func (m *Manager) getCorporationBlueprintsFromDB(corpID int) ([]*Blueprint, erro
 	return res, nil
 }
 
-func (m *Manager) getCorporationBlueprintsFromAPI(ctx context.Context, corpID int) ([]*Blueprint, error) {
+func (m *BlueprintManager) getCorporationBlueprintsFromAPI(ctx context.Context, corpID int) ([]*Blueprint, error) {
 	bps, err := m.eveapi.GetCorporationBlueprints(ctx, corpID)
 	if err != nil {
 		return nil, err
@@ -126,7 +136,7 @@ func (m *Manager) getCorporationBlueprintsFromAPI(ctx context.Context, corpID in
 	return m.apiCorporationBlueprintsToDB(corpID, res)
 }
 
-func (m *Manager) apiCorporationBlueprintsToDB(corpID int, bps []*Blueprint) ([]*Blueprint, error) {
+func (m *BlueprintManager) apiCorporationBlueprintsToDB(corpID int, bps []*Blueprint) ([]*Blueprint, error) {
 	db, err := m.pool.Open()
 	if err != nil {
 		return nil, err

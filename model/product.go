@@ -83,9 +83,20 @@ func (p Product) Clone() *Product {
 	}
 }
 
+type ProductManager struct {
+	bootstrap
+
+	corp   *CorpManager
+	market *MarketManager
+}
+
+func newProductManager(m bootstrap, corp *CorpManager, market *MarketManager) *ProductManager {
+	return &ProductManager{m, corp, market}
+}
+
 // NewProduct creates a new production chain for the given corporation and type.
-func (m *Manager) NewProduct(corpID int, typeID int) (*Product, error) {
-	if _, err := m.corporationAuthContext(context.Background(), corpID); err != nil {
+func (m *ProductManager) NewProduct(corpID int, typeID int) (*Product, error) {
+	if _, err := m.corp.authContext(context.Background(), corpID); err != nil {
 		return nil, err
 	}
 	bp, err := m.evedb.GetBlueprint(typeID)
@@ -122,14 +133,14 @@ func (m *Manager) NewProduct(corpID int, typeID int) (*Product, error) {
 // current regionID in.
 //
 //   err := m.UpdateProductMarketPrices(prod, prod.RegionID)
-func (m *Manager) UpdateProductMarketPrices(product *Product, regionID int) error {
-	if _, err := m.corporationAuthContext(context.Background(), product.CorporationID); err != nil {
+func (m *ProductManager) UpdateProductMarketPrices(product *Product, regionID int) error {
+	if _, err := m.corp.authContext(context.Background(), product.CorporationID); err != nil {
 		return err
 	}
 	return m.updateProductsMarketPrices(regionID, product)
 }
 
-func (m *Manager) updateProductsMarketPrices(regionID int, products ...*Product) error {
+func (m *ProductManager) updateProductsMarketPrices(regionID int, products ...*Product) error {
 	typeIDMap := make(map[int]struct{})
 	var visitProduct func(*Product)
 	visitProduct = func(p *Product) {
@@ -147,7 +158,7 @@ func (m *Manager) updateProductsMarketPrices(regionID int, products ...*Product)
 	}
 	firstID := typeIDs[0]
 	restIDs := typeIDs[1:]
-	stat, err := m.GetMarketStatRegion(regionID, firstID, restIDs...)
+	stat, err := m.market.GetMarketStatRegion(regionID, firstID, restIDs...)
 	if err != nil {
 		return errors.Wrap(err, "unable to update production chain market prices")
 	}
@@ -184,8 +195,8 @@ func (m *Manager) updateProductsMarketPrices(regionID int, products ...*Product)
 	return nil
 }
 
-func (m *Manager) UpdateProductMarketPricesRecursive(product *Product, regionID int) error {
-	if _, err := m.corporationAuthContext(context.Background(), product.CorporationID); err != nil {
+func (m *ProductManager) UpdateProductMarketPricesRecursive(product *Product, regionID int) error {
+	if _, err := m.corp.authContext(context.Background(), product.CorporationID); err != nil {
 		return err
 	}
 	var prods []*Product
@@ -206,7 +217,7 @@ func (m *Manager) UpdateProductMarketPricesRecursive(product *Product, regionID 
 // This method does not commit or roll-back the transaction.
 //
 // If a product is inserted, its ProductID field is updated.
-func (m *Manager) saveProductWithTx(tx *pgx.Tx, product *Product) error {
+func (m *ProductManager) saveProductWithTx(tx *pgx.Tx, product *Product) error {
 	prodID := "DEFAULT"
 	if n := product.ProductID; n > 0 {
 		prodID = strconv.Itoa(n)
@@ -264,8 +275,8 @@ func (m *Manager) saveProductWithTx(tx *pgx.Tx, product *Product) error {
 // SaveProduct saves the given production chain in the database.
 //
 // This function automatically handles both inserting and updating.
-func (m *Manager) SaveProduct(product *Product) error {
-	if _, err := m.corporationAuthContext(context.Background(), product.CorporationID); err != nil {
+func (m *ProductManager) SaveProduct(product *Product) error {
+	if _, err := m.corp.authContext(context.Background(), product.CorporationID); err != nil {
 		return err
 	}
 	c, err := m.pool.Open()
@@ -289,16 +300,16 @@ func (m *Manager) SaveProduct(product *Product) error {
 }
 
 // GetAllProducts returns all production chains associated with the given corporation.
-func (m *Manager) GetAllProducts(corpID int) ([]*Product, error) {
-	if _, err := m.corporationAuthContext(context.Background(), corpID); err != nil {
+func (m *ProductManager) GetAllProducts(corpID int) ([]*Product, error) {
+	if _, err := m.corp.authContext(context.Background(), corpID); err != nil {
 		return nil, err
 	}
 	return m.getProducts(corpID)
 }
 
 // GetProduct returns a production chain for the given corporation and root product.
-func (m *Manager) GetProduct(corpID int, productID int) (*Product, error) {
-	if _, err := m.corporationAuthContext(context.Background(), corpID); err != nil {
+func (m *ProductManager) GetProduct(corpID int, productID int) (*Product, error) {
+	if _, err := m.corp.authContext(context.Background(), corpID); err != nil {
 		return nil, err
 	}
 	prods, err := m.getProducts(corpID, productID)
@@ -312,7 +323,7 @@ func (m *Manager) GetProduct(corpID int, productID int) (*Product, error) {
 }
 
 // getProducts handles fetching production chain components.
-func (m *Manager) getProducts(corpID int, productIDs ...int) ([]*Product, error) {
+func (m *ProductManager) getProducts(corpID int, productIDs ...int) ([]*Product, error) {
 	c, err := m.pool.Open()
 	if err != nil {
 		return nil, err

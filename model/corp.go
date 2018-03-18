@@ -10,8 +10,21 @@ import (
 	"github.com/jackc/pgx"
 	"golang.org/x/net/context"
 
+	"github.com/motki/core/cache"
 	"github.com/motki/core/eveapi"
 )
+
+type CorpManager struct {
+	bootstrap
+
+	user *UserManager
+
+	cache *cache.Bucket
+}
+
+func newCorpManager(m bootstrap, user *UserManager) *CorpManager {
+	return &CorpManager{m, user, cache.New(10 * time.Second)}
+}
 
 type Corporation struct {
 	CorporationID int
@@ -22,7 +35,7 @@ type Corporation struct {
 	Ticker        string
 }
 
-func (m *Manager) GetCorporation(corporationID int) (*Corporation, error) {
+func (m *CorpManager) GetCorporation(corporationID int) (*Corporation, error) {
 	c, err := m.getCorporationFromDB(corporationID)
 	if err != nil {
 		return nil, err
@@ -33,7 +46,7 @@ func (m *Manager) GetCorporation(corporationID int) (*Corporation, error) {
 	return c, nil
 }
 
-func (m *Manager) getCorporationFromDB(corporationID int) (*Corporation, error) {
+func (m *CorpManager) getCorporationFromDB(corporationID int) (*Corporation, error) {
 	c, err := m.pool.Open()
 	if err != nil {
 		return nil, err
@@ -68,7 +81,7 @@ func (m *Manager) getCorporationFromDB(corporationID int) (*Corporation, error) 
 	return char, nil
 }
 
-func (m *Manager) getCorporationFromAPI(corporationID int) (*Corporation, error) {
+func (m *CorpManager) getCorporationFromAPI(corporationID int) (*Corporation, error) {
 	char, err := m.eveapi.GetCorporation(corporationID)
 	if err != nil {
 		return nil, err
@@ -76,7 +89,7 @@ func (m *Manager) getCorporationFromAPI(corporationID int) (*Corporation, error)
 	return m.apiCorporationToDB(char)
 }
 
-func (m *Manager) apiCorporationToDB(corp *eveapi.Corporation) (*Corporation, error) {
+func (m *CorpManager) apiCorporationToDB(corp *eveapi.Corporation) (*Corporation, error) {
 	db, err := m.pool.Open()
 	if err != nil {
 		return nil, err
@@ -151,7 +164,7 @@ type CorporationDetail struct {
 	Hangars Divisions
 }
 
-func (m *Manager) GetCorporationDetail(corpID int) (*CorporationDetail, error) {
+func (m *CorpManager) GetCorporationDetail(corpID int) (*CorporationDetail, error) {
 	d, err := m.getCorporationDetailFromDB(corpID)
 	if err != nil {
 		return nil, err
@@ -162,11 +175,11 @@ func (m *Manager) GetCorporationDetail(corpID int) (*CorporationDetail, error) {
 	return d, nil
 }
 
-func (m *Manager) FetchCorporationDetail(ctx context.Context) (*CorporationDetail, error) {
+func (m *CorpManager) FetchCorporationDetail(ctx context.Context) (*CorporationDetail, error) {
 	return m.getCorporationDetailFromAPI(ctx)
 }
 
-func (m *Manager) getCorporationDetailFromDB(corporationID int) (*CorporationDetail, error) {
+func (m *CorpManager) getCorporationDetailFromDB(corporationID int) (*CorporationDetail, error) {
 	c, err := m.pool.Open()
 	if err != nil {
 		return nil, err
@@ -208,7 +221,7 @@ func (m *Manager) getCorporationDetailFromDB(corporationID int) (*CorporationDet
 	return corp, nil
 }
 
-func (m *Manager) getCorporationDetailFromAPI(ctx context.Context) (*CorporationDetail, error) {
+func (m *CorpManager) getCorporationDetailFromAPI(ctx context.Context) (*CorporationDetail, error) {
 	sheet, err := m.eveapi.GetCorporationSheet(ctx)
 	if err != nil {
 		return nil, err
@@ -227,7 +240,7 @@ func (m *Manager) getCorporationDetailFromAPI(ctx context.Context) (*Corporation
 	})
 }
 
-func (m *Manager) apiCorporationDetailToDB(detail *CorporationDetail) (*CorporationDetail, error) {
+func (m *CorpManager) apiCorporationDetailToDB(detail *CorporationDetail) (*CorporationDetail, error) {
 	db, err := m.pool.Open()
 	if err != nil {
 		return nil, err

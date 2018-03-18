@@ -6,8 +6,18 @@ import (
 	"github.com/motki/core/eveapi"
 )
 
-func (m *Manager) GetCorporationIndustryJobs(ctx context.Context, corpID int) (jobs []*eveapi.IndustryJob, err error) {
-	if ctx, err = m.corporationAuthContext(ctx, corpID); err != nil {
+type IndustryManager struct {
+	bootstrap
+
+	corp *CorpManager
+}
+
+func newIndustryManager(m bootstrap, corp *CorpManager) *IndustryManager {
+	return &IndustryManager{m, corp}
+}
+
+func (m *IndustryManager) GetCorporationIndustryJobs(ctx context.Context, corpID int) (jobs []*eveapi.IndustryJob, err error) {
+	if ctx, err = m.corp.authContext(ctx, corpID); err != nil {
 		return nil, err
 	}
 	jobs, err = m.getCorporationIndustryJobsFromDB(corpID)
@@ -20,7 +30,7 @@ func (m *Manager) GetCorporationIndustryJobs(ctx context.Context, corpID int) (j
 	return m.getCorporationIndustryJobsFromAPI(ctx, corpID)
 }
 
-func (m *Manager) getCorporationIndustryJobsFromDB(corpID int) ([]*eveapi.IndustryJob, error) {
+func (m *IndustryManager) getCorporationIndustryJobsFromDB(corpID int) ([]*eveapi.IndustryJob, error) {
 	c, err := m.pool.Open()
 	if err != nil {
 		return nil, err
@@ -105,7 +115,7 @@ func (m *Manager) getCorporationIndustryJobsFromDB(corpID int) ([]*eveapi.Indust
 	return res, nil
 }
 
-func (m *Manager) getCorporationIndustryJobsFromAPI(ctx context.Context, corpID int) ([]*eveapi.IndustryJob, error) {
+func (m *IndustryManager) getCorporationIndustryJobsFromAPI(ctx context.Context, corpID int) ([]*eveapi.IndustryJob, error) {
 	jobs, err := m.eveapi.GetCorporationIndustryJobs(ctx, corpID)
 	if err != nil {
 		return nil, err
@@ -118,7 +128,7 @@ func (m *Manager) getCorporationIndustryJobsFromAPI(ctx context.Context, corpID 
 	return m.apiCorporationIndustryJobsToDB(corpID, jobs)
 }
 
-func (m *Manager) apiCorporationIndustryJobsToDB(corpID int, jobs []*eveapi.IndustryJob) ([]*eveapi.IndustryJob, error) {
+func (m *IndustryManager) apiCorporationIndustryJobsToDB(corpID int, jobs []*eveapi.IndustryJob) ([]*eveapi.IndustryJob, error) {
 	db, err := m.pool.Open()
 	if err != nil {
 		return nil, err

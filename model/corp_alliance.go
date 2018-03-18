@@ -14,7 +14,7 @@ type Alliance struct {
 	Ticker      string
 }
 
-func (m *Manager) GetAlliance(allianceID int) (*Alliance, error) {
+func (m *CorpManager) GetAlliance(allianceID int) (*Alliance, error) {
 	c, err := m.getAllianceFromDB(allianceID)
 	if err != nil {
 		return nil, err
@@ -25,7 +25,7 @@ func (m *Manager) GetAlliance(allianceID int) (*Alliance, error) {
 	return c, nil
 }
 
-func (m *Manager) getAllianceFromDB(allianceID int) (*Alliance, error) {
+func (m *CorpManager) getAllianceFromDB(allianceID int) (*Alliance, error) {
 	c, err := m.pool.Open()
 	if err != nil {
 		return nil, err
@@ -55,7 +55,7 @@ func (m *Manager) getAllianceFromDB(allianceID int) (*Alliance, error) {
 	return char, nil
 }
 
-func (m *Manager) getAllianceFromAPI(allianceID int) (*Alliance, error) {
+func (m *CorpManager) getAllianceFromAPI(allianceID int) (*Alliance, error) {
 	char, err := m.eveapi.GetAlliance(allianceID)
 	if err != nil {
 		return nil, err
@@ -63,7 +63,7 @@ func (m *Manager) getAllianceFromAPI(allianceID int) (*Alliance, error) {
 	return m.apiAllianceToDB(char)
 }
 
-func (m *Manager) apiAllianceToDB(alliance *eveapi.Alliance) (*Alliance, error) {
+func (m *CorpManager) apiAllianceToDB(alliance *eveapi.Alliance) (*Alliance, error) {
 	db, err := m.pool.Open()
 	if err != nil {
 		return nil, err

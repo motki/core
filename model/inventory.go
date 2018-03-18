@@ -16,8 +16,19 @@ type InventoryItem struct {
 	FetchedAt     time.Time
 }
 
-func (m *Manager) GetCorporationInventory(ctx context.Context, corpID int) (items []*InventoryItem, err error) {
-	if ctx, err = m.corporationAuthContext(ctx, corpID); err != nil {
+type InventoryManager struct {
+	bootstrap
+
+	corp  *CorpManager
+	asset *AssetManager
+}
+
+func newInventoryManager(m bootstrap, corp *CorpManager, asset *AssetManager) *InventoryManager {
+	return &InventoryManager{m, corp, asset}
+}
+
+func (m *InventoryManager) GetCorporationInventory(ctx context.Context, corpID int) (items []*InventoryItem, err error) {
+	if ctx, err = m.corp.authContext(ctx, corpID); err != nil {
 		return nil, err
 	}
 	c, err := m.pool.Open()
@@ -70,8 +81,8 @@ func (m *Manager) GetCorporationInventory(ctx context.Context, corpID int) (item
 	return items, nil
 }
 
-func (m *Manager) updateInventoryItemLevel(ctx context.Context, item *InventoryItem) error {
-	assets, err := m.GetCorporationAssetsByTypeAndLocationID(ctx, item.CorporationID, item.TypeID, item.LocationID)
+func (m *InventoryManager) updateInventoryItemLevel(ctx context.Context, item *InventoryItem) error {
+	assets, err := m.asset.GetCorporationAssetsByTypeAndLocationID(ctx, item.CorporationID, item.TypeID, item.LocationID)
 	if err != nil {
 		return err
 	}
@@ -87,9 +98,9 @@ func (m *Manager) updateInventoryItemLevel(ctx context.Context, item *InventoryI
 	return nil
 }
 
-func (m *Manager) NewInventoryItem(ctx context.Context, corpID, typeID, locationID int) (*InventoryItem, error) {
+func (m *InventoryManager) NewInventoryItem(ctx context.Context, corpID, typeID, locationID int) (*InventoryItem, error) {
 	var err error
-	if ctx, err = m.corporationAuthContext(ctx, corpID); err != nil {
+	if ctx, err = m.corp.authContext(ctx, corpID); err != nil {
 		return nil, err
 	}
 	c, err := m.pool.Open()
@@ -129,9 +140,9 @@ func (m *Manager) NewInventoryItem(ctx context.Context, corpID, typeID, location
 	return it, nil
 }
 
-func (m *Manager) SaveInventoryItem(ctx context.Context, item *InventoryItem) error {
+func (m *InventoryManager) SaveInventoryItem(ctx context.Context, item *InventoryItem) error {
 	var err error
-	if ctx, err = m.corporationAuthContext(ctx, item.CorporationID); err != nil {
+	if ctx, err = m.corp.authContext(ctx, item.CorporationID); err != nil {
 		return err
 	}
 	c, err := m.pool.Open()

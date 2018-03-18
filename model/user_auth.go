@@ -14,7 +14,7 @@ import (
 	"golang.org/x/oauth2"
 )
 
-func (m *Manager) AuthenticateUser(name, password string) (*User, string, error) {
+func (m *UserManager) AuthenticateUser(name, password string) (*User, string, error) {
 	var emptyKey = ""
 	db, err := m.pool.Open()
 	if err != nil {
@@ -49,7 +49,7 @@ func (m *Manager) AuthenticateUser(name, password string) (*User, string, error)
 	return u, key, nil
 }
 
-func (m *Manager) GetUserBySessionKey(key string) (*User, error) {
+func (m *UserManager) GetUserBySessionKey(key string) (*User, error) {
 	db, err := m.pool.Open()
 	if err != nil {
 		return nil, err
@@ -74,7 +74,7 @@ func (m *Manager) GetUserBySessionKey(key string) (*User, error) {
 	return u, nil
 }
 
-func (m *Manager) SaveAuthorization(u *User, r Role, characterID int, tok *oauth2.Token) error {
+func (m *UserManager) SaveAuthorization(u *User, r Role, characterID int, tok *oauth2.Token) error {
 	b, err := json.Marshal(tok)
 	if err != nil {
 		return err
@@ -109,7 +109,7 @@ func (m *Manager) SaveAuthorization(u *User, r Role, characterID int, tok *oauth
 	return nil
 }
 
-func (m *Manager) GetAuthorization(user *User, role Role) (*Authorization, error) {
+func (m *UserManager) GetAuthorization(user *User, role Role) (*Authorization, error) {
 	db, err := m.pool.Open()
 	if err != nil {
 		return nil, err
@@ -156,7 +156,7 @@ func (m *Manager) GetAuthorization(user *User, role Role) (*Authorization, error
 	}
 	a.source = source
 	// Force retrieval of current char info from the API
-	char, err := m.getCharacterFromAPI(a.CharacterID)
+	char, err := m.char.getCharacterFromAPI(a.CharacterID)
 	if err != nil {
 		return nil, err
 	}
@@ -164,7 +164,7 @@ func (m *Manager) GetAuthorization(user *User, role Role) (*Authorization, error
 	return a, nil
 }
 
-func (m *Manager) RemoveAuthorization(user *User, role Role) error {
+func (m *UserManager) RemoveAuthorization(user *User, role Role) error {
 	db, err := m.pool.Open()
 	if err != nil {
 		return err

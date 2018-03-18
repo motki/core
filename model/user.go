@@ -62,7 +62,17 @@ type User struct {
 	Email  string
 }
 
-func (m *Manager) NewUser(name, email, password string) (*User, error) {
+type UserManager struct {
+	bootstrap
+
+	char *CharacterManager
+}
+
+func newUserManager(m bootstrap, char *CharacterManager) *UserManager {
+	return &UserManager{m, char}
+}
+
+func (m *UserManager) NewUser(name, email, password string) (*User, error) {
 	if name == "" || email == "" || password == "" {
 		return nil, ErrMissingField
 	}
@@ -105,7 +115,7 @@ func (m *Manager) NewUser(name, email, password string) (*User, error) {
 	}, nil
 }
 
-func (m *Manager) CreateUserVerificationHash(user *User) ([]byte, error) {
+func (m *UserManager) CreateUserVerificationHash(user *User) ([]byte, error) {
 	if user == nil {
 		return nil, errors.New("cannot get hash for nil user")
 	}
@@ -131,7 +141,7 @@ func (m *Manager) CreateUserVerificationHash(user *User) ([]byte, error) {
 	return hash, nil
 }
 
-func (m *Manager) VerifyUserEmail(email string, hash []byte) (bool, error) {
+func (m *UserManager) VerifyUserEmail(email string, hash []byte) (bool, error) {
 	if !strings.Contains(email, "@") {
 		return false, errors.New("invalid email address")
 	}

@@ -9,9 +9,19 @@ import (
 	"github.com/motki/core/eveapi"
 )
 
-func (m *Manager) GetCorporationStructures(ctx context.Context, corpID int) ([]*eveapi.CorporationStructure, error) {
+type StructureManager struct {
+	bootstrap
+
+	corp *CorpManager
+}
+
+func newStructureManager(m bootstrap, corp *CorpManager) *StructureManager {
+	return &StructureManager{m, corp}
+}
+
+func (m *StructureManager) GetCorporationStructures(ctx context.Context, corpID int) ([]*eveapi.CorporationStructure, error) {
 	var err error
-	if ctx, err = m.corporationAuthContext(ctx, corpID); err != nil {
+	if ctx, err = m.corp.authContext(ctx, corpID); err != nil {
 		return nil, err
 	}
 	if jobs, err := m.getCorporationStructuresFromDB(corpID); err == nil && jobs != nil {
@@ -22,7 +32,7 @@ func (m *Manager) GetCorporationStructures(ctx context.Context, corpID int) ([]*
 	return m.getCorporationStructuresFromAPI(ctx, corpID)
 }
 
-func (m *Manager) GetStructure(ctx context.Context, structureID int) (*eveapi.Structure, error) {
+func (m *StructureManager) GetStructure(ctx context.Context, structureID int) (*eveapi.Structure, error) {
 	c, err := m.pool.Open()
 	if err != nil {
 		return nil, err
@@ -48,7 +58,7 @@ func (m *Manager) GetStructure(ctx context.Context, structureID int) (*eveapi.St
 	return s, nil
 }
 
-func (m *Manager) getCorporationStructuresFromDB(corpID int) ([]*eveapi.CorporationStructure, error) {
+func (m *StructureManager) getCorporationStructuresFromDB(corpID int) ([]*eveapi.CorporationStructure, error) {
 	c, err := m.pool.Open()
 	if err != nil {
 		return nil, err
@@ -111,7 +121,7 @@ func (m *Manager) getCorporationStructuresFromDB(corpID int) ([]*eveapi.Corporat
 	return res, nil
 }
 
-func (m *Manager) getCorporationStructuresFromAPI(ctx context.Context, corpID int) ([]*eveapi.CorporationStructure, error) {
+func (m *StructureManager) getCorporationStructuresFromAPI(ctx context.Context, corpID int) ([]*eveapi.CorporationStructure, error) {
 	strucs, err := m.eveapi.GetCorporationStructures(ctx, corpID)
 	if err != nil {
 		return nil, err
@@ -119,7 +129,7 @@ func (m *Manager) getCorporationStructuresFromAPI(ctx context.Context, corpID in
 	return m.apiCorporationStructuresToDB(corpID, strucs)
 }
 
-func (m *Manager) apiCorporationStructuresToDB(corpID int, strucs []*eveapi.CorporationStructure) ([]*eveapi.CorporationStructure, error) {
+func (m *StructureManager) apiCorporationStructuresToDB(corpID int, strucs []*eveapi.CorporationStructure) ([]*eveapi.CorporationStructure, error) {
 	db, err := m.pool.Open()
 	if err != nil {
 		return nil, err
@@ -172,7 +182,7 @@ func (m *Manager) apiCorporationStructuresToDB(corpID int, strucs []*eveapi.Corp
 	return strucs, nil
 }
 
-func (m *Manager) getStructureFromAPI(ctx context.Context, structureID int) (*eveapi.Structure, error) {
+func (m *StructureManager) getStructureFromAPI(ctx context.Context, structureID int) (*eveapi.Structure, error) {
 	s, err := m.eveapi.GetStructure(ctx, int64(structureID))
 	if err != nil {
 		return nil, err
@@ -180,7 +190,7 @@ func (m *Manager) getStructureFromAPI(ctx context.Context, structureID int) (*ev
 	return m.apiStructureToDB(s)
 }
 
-func (m *Manager) apiStructureToDB(struc *eveapi.Structure) (*eveapi.Structure, error) {
+func (m *StructureManager) apiStructureToDB(struc *eveapi.Structure) (*eveapi.Structure, error) {
 	db, err := m.pool.Open()
 	if err != nil {
 		return nil, err

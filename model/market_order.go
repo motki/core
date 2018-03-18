@@ -30,9 +30,9 @@ type MarketOrder struct {
 	loner bool
 }
 
-func (m *Manager) GetCorporationOrder(ctx context.Context, corpID, orderID int) (*MarketOrder, error) {
+func (m *MarketManager) GetCorporationOrder(ctx context.Context, corpID, orderID int) (*MarketOrder, error) {
 	var err error
-	if ctx, err = m.corporationAuthContext(ctx, corpID); err != nil {
+	if ctx, err = m.corp.authContext(ctx, corpID); err != nil {
 		return nil, err
 	}
 	order, err := m.getCorporationOrderFromDB(corpID, orderID)
@@ -45,7 +45,7 @@ func (m *Manager) GetCorporationOrder(ctx context.Context, corpID, orderID int) 
 	return m.getCorporationOrderFromAPI(ctx, corpID, orderID)
 }
 
-func (m *Manager) getCorporationOrderFromDB(corpID, orderID int) (*MarketOrder, error) {
+func (m *MarketManager) getCorporationOrderFromDB(corpID, orderID int) (*MarketOrder, error) {
 	c, err := m.pool.Open()
 	if err != nil {
 		return nil, err
@@ -100,7 +100,7 @@ func (m *Manager) getCorporationOrderFromDB(corpID, orderID int) (*MarketOrder, 
 	return o, nil
 }
 
-func (m *Manager) getCorporationOrderFromAPI(ctx context.Context, corpID, orderID int) (*MarketOrder, error) {
+func (m *MarketManager) getCorporationOrderFromAPI(ctx context.Context, corpID, orderID int) (*MarketOrder, error) {
 	o, err := m.eveapi.GetCorporationOrder(ctx, corpID, orderID)
 	if err != nil {
 		return nil, err
@@ -130,8 +130,8 @@ func (m *Manager) getCorporationOrderFromAPI(ctx context.Context, corpID, orderI
 	return res, nil
 }
 
-func (m *Manager) GetCorporationOrders(ctx context.Context, corpID int) (orders []*MarketOrder, err error) {
-	if ctx, err = m.corporationAuthContext(ctx, corpID); err != nil {
+func (m *MarketManager) GetCorporationOrders(ctx context.Context, corpID int) (orders []*MarketOrder, err error) {
+	if ctx, err = m.corp.authContext(ctx, corpID); err != nil {
 		return nil, err
 	}
 	orders, err = m.getCorporationOrdersFromDB(corpID)
@@ -144,7 +144,7 @@ func (m *Manager) GetCorporationOrders(ctx context.Context, corpID int) (orders 
 	return m.getCorporationOrdersFromAPI(ctx, corpID)
 }
 
-func (m *Manager) getCorporationOrdersFromDB(corporationID int) ([]*MarketOrder, error) {
+func (m *MarketManager) getCorporationOrdersFromDB(corporationID int) ([]*MarketOrder, error) {
 	c, err := m.pool.Open()
 	if err != nil {
 		return nil, err
@@ -207,7 +207,7 @@ func (m *Manager) getCorporationOrdersFromDB(corporationID int) ([]*MarketOrder,
 	return res, nil
 }
 
-func (m *Manager) getCorporationOrdersFromAPI(ctx context.Context, corpID int) ([]*MarketOrder, error) {
+func (m *MarketManager) getCorporationOrdersFromAPI(ctx context.Context, corpID int) ([]*MarketOrder, error) {
 	orders, err := m.eveapi.GetCorporationOrders(ctx, corpID)
 	if err != nil {
 		return nil, err
@@ -235,7 +235,7 @@ func (m *Manager) getCorporationOrdersFromAPI(ctx context.Context, corpID int) (
 	return m.apiCorporationOrdersToDB(corpID, res)
 }
 
-func (m *Manager) apiCorporationOrdersToDB(corpID int, orders []*MarketOrder) ([]*MarketOrder, error) {
+func (m *MarketManager) apiCorporationOrdersToDB(corpID int, orders []*MarketOrder) ([]*MarketOrder, error) {
 	db, err := m.pool.Open()
 	if err != nil {
 		return nil, err

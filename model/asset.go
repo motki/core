@@ -35,8 +35,18 @@ func assetFromEveAPI(bp *eveapi.Asset) *Asset {
 	}
 }
 
-func (m *Manager) GetCorporationAssets(ctx context.Context, corpID int) (res []*Asset, err error) {
-	if ctx, err = m.corporationAuthContext(ctx, corpID); err != nil {
+type AssetManager struct {
+	bootstrap
+
+	corp *CorpManager
+}
+
+func newAssetManager(m bootstrap, corp *CorpManager) *AssetManager {
+	return &AssetManager{m, corp}
+}
+
+func (m *AssetManager) GetCorporationAssets(ctx context.Context, corpID int) (res []*Asset, err error) {
+	if ctx, err = m.corp.authContext(ctx, corpID); err != nil {
 		return nil, err
 	}
 	res, err = m.getCorporationAssetsFromDB(corpID)
@@ -53,8 +63,8 @@ func (m *Manager) GetCorporationAssets(ctx context.Context, corpID int) (res []*
 // with the given type and location.
 //
 // This method will not fetch assets from the API.
-func (m *Manager) GetCorporationAssetsByTypeAndLocationID(ctx context.Context, corpID, typeID, locationID int) (res []*Asset, err error) {
-	if _, err = m.corporationAuthContext(ctx, corpID); err != nil {
+func (m *AssetManager) GetCorporationAssetsByTypeAndLocationID(ctx context.Context, corpID, typeID, locationID int) (res []*Asset, err error) {
+	if _, err = m.corp.authContext(ctx, corpID); err != nil {
 		return nil, err
 	}
 	c, err := m.pool.Open()
@@ -104,8 +114,8 @@ func (m *Manager) GetCorporationAssetsByTypeAndLocationID(ctx context.Context, c
 	return res, nil
 }
 
-func (m *Manager) GetCorporationAsset(ctx context.Context, corpID int, itemID int) (res *Asset, err error) {
-	if ctx, err = m.corporationAuthContext(ctx, corpID); err != nil {
+func (m *AssetManager) GetCorporationAsset(ctx context.Context, corpID int, itemID int) (res *Asset, err error) {
+	if ctx, err = m.corp.authContext(ctx, corpID); err != nil {
 		return nil, err
 	}
 	res, err = m.getCorporationAssetFromDB(corpID, itemID)
@@ -127,7 +137,7 @@ func (m *Manager) GetCorporationAsset(ctx context.Context, corpID int, itemID in
 	return nil, errors.New("unable to find asset")
 }
 
-func (m *Manager) GetAssetSystem(a *Asset) (*evedb.System, error) {
+func (m *AssetManager) GetAssetSystem(a *Asset) (*evedb.System, error) {
 	switch {
 	case a.LocationID < 60000000:
 		// LocationID is a SystemID
@@ -149,7 +159,7 @@ func (m *Manager) GetAssetSystem(a *Asset) (*evedb.System, error) {
 	return nil, errors.New("unable to find system for asset")
 }
 
-func (m *Manager) getCorporationAssetFromDB(corpID int, itemID int) (*Asset, error) {
+func (m *AssetManager) getCorporationAssetFromDB(corpID int, itemID int) (*Asset, error) {
 	c, err := m.pool.Open()
 	if err != nil {
 		return nil, err
@@ -204,7 +214,7 @@ func (m *Manager) getCorporationAssetFromDB(corpID int, itemID int) (*Asset, err
 	return r, nil
 }
 
-func (m *Manager) getCorporationAssetsFromDB(corpID int) ([]*Asset, error) {
+func (m *AssetManager) getCorporationAssetsFromDB(corpID int) ([]*Asset, error) {
 	c, err := m.pool.Open()
 	if err != nil {
 		return nil, err
@@ -254,7 +264,7 @@ func (m *Manager) getCorporationAssetsFromDB(corpID int) ([]*Asset, error) {
 	return res, nil
 }
 
-func (m *Manager) getCorporationAssetsFromAPI(ctx context.Context, corpID int) ([]*Asset, error) {
+func (m *AssetManager) getCorporationAssetsFromAPI(ctx context.Context, corpID int) ([]*Asset, error) {
 	bps, err := m.eveapi.GetCorporationAssets(ctx, corpID)
 	if err != nil {
 		return nil, err
@@ -266,7 +276,7 @@ func (m *Manager) getCorporationAssetsFromAPI(ctx context.Context, corpID int) (
 	return m.apiCorporationAssetsToDB(corpID, res)
 }
 
-func (m *Manager) apiCorporationAssetsToDB(corpID int, bps []*Asset) ([]*Asset, error) {
+func (m *AssetManager) apiCorporationAssetsToDB(corpID int, bps []*Asset) ([]*Asset, error) {
 	db, err := m.pool.Open()
 	if err != nil {
 		return nil, err

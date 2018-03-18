@@ -11,7 +11,15 @@ type MailingListSubscriber struct {
 	Email string
 }
 
-func (m *Manager) GetMailingList(key string) ([]*MailingListSubscriber, error) {
+type MailManager struct {
+	bootstrap
+}
+
+func newMailManager(m bootstrap) *MailManager {
+	return &MailManager{m}
+}
+
+func (m *MailManager) GetMailingList(key string) ([]*MailingListSubscriber, error) {
 	db, err := m.pool.Open()
 	if err != nil {
 		return nil, err
@@ -34,7 +42,7 @@ func (m *Manager) GetMailingList(key string) ([]*MailingListSubscriber, error) {
 	return res, nil
 }
 
-func (m *Manager) AddToMailingList(key string, rec MailingListSubscriber) error {
+func (m *MailManager) AddToMailingList(key string, rec MailingListSubscriber) error {
 	if !strings.Contains(rec.Email, "@") {
 		return errors.New("invalid email address")
 	}

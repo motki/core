@@ -9,7 +9,6 @@ import (
 	"golang.org/x/net/context"
 
 	"github.com/motki/core/cache"
-	"github.com/motki/core/log"
 )
 
 var ErrCorpNotRegistered = errors.New("ceo or director is not registered for the given corporation")
@@ -23,7 +22,7 @@ type CorporationConfig struct {
 	CreatedAt time.Time
 }
 
-func (m *Manager) GetCorporationsOptedIn() ([]int, error) {
+func (m *CorpManager) GetCorporationsOptedIn() ([]int, error) {
 	c, err := m.pool.Open()
 	if err != nil {
 		return nil, err
@@ -49,7 +48,7 @@ func (m *Manager) GetCorporationsOptedIn() ([]int, error) {
 	return res, nil
 }
 
-func (m *Manager) GetCorporationConfig(corpID int) (*CorporationConfig, error) {
+func (m *CorpManager) GetCorporationConfig(corpID int) (*CorporationConfig, error) {
 	c, err := m.pool.Open()
 	if err != nil {
 		return nil, err
@@ -81,7 +80,7 @@ func (m *Manager) GetCorporationConfig(corpID int) (*CorporationConfig, error) {
 	return corp, nil
 }
 
-func (m *Manager) GetCorporationAuthorization(corpID int) (*Authorization, error) {
+func (m *CorpManager) GetCorporationAuthorization(corpID int) (*Authorization, error) {
 	v, err := m.cache.Memoize("corp_auth:"+strconv.Itoa(corpID), func() (cache.Value, error) {
 		config, err := m.GetCorporationConfig(corpID)
 		if err != nil {
@@ -91,7 +90,7 @@ func (m *Manager) GetCorporationAuthorization(corpID int) (*Authorization, error
 			return nil, ErrCorpNotRegistered
 		}
 		user := &User{UserID: config.OptInBy}
-		return m.GetAuthorization(user, RoleDirector)
+		return m.user.GetAuthorization(user, RoleDirector)
 	})
 	if err != nil {
 		return nil, err
@@ -101,7 +100,7 @@ func (m *Manager) GetCorporationAuthorization(corpID int) (*Authorization, error
 	return nil, errors.Errorf("expected *Authorization from cache, got %T", v)
 }
 
-func (m *Manager) SaveCorporationConfig(corpID int, detail *CorporationConfig) error {
+func (m *CorpManager) SaveCorporationConfig(corpID int, detail *CorporationConfig) error {
 	db, err := m.pool.Open()
 	if err != nil {
 		return err
@@ -133,7 +132,7 @@ func (m *Manager) SaveCorporationConfig(corpID int, detail *CorporationConfig) e
 	return err
 }
 
-func (m *Manager) corporationAuthContext(ctx context.Context, corpID int) (context.Context, error) {
+func (m *CorpManager) authContext(ctx context.Context, corpID int) (context.Context, error) {
 	if authctx, ok := ctx.(authContext); ok {
 		if authctx.CorporationID() != corpID {
 			return nil, errors.Errorf("corpID mismatch: expected %d, got %d", corpID, authctx.CorporationID())
@@ -144,57 +143,4 @@ func (m *Manager) corporationAuthContext(ctx context.Context, corpID int) (conte
 		return nil, err
 	}
 	return a.Context(), nil
-}
-
-// UpdateCorporationData fetches updated data for all opted-in corporations.
-//
-// The function returned by this method is intended to be invoke in regular intervals.
-func (m *Manager) UpdateCorporationDataFunc(logger log.Logger) func() error {
-	return func() error {
-		corps, err := m.GetCorporationsOptedIn()
-		if err != nil {
-			return err
-		}
-		if len(corps) == 0 {
-			logger.Debugf("no corporations opted in, not updating corp data")
-			return nil
-		}
-		for _, corpID := range corps {
-			logger.Debugf("updating data for corp %d", corpID)
-			a, err := m.GetCorporationAuthorization(corpID)
-			if err != nil {
-				logger.Errorf("error getting corp auth: %s", err.Error())
-				continue
-			}
-
-			ctx := a.Context()
-			if _, err := m.FetchCorporationDetail(ctx); err != nil {
-				logger.Errorf("error fetching corp details: %s", err.Error())
-			}
-			if res, err := m.GetCorporationAssets(ctx, a.CorporationID); err != nil {
-				logger.Errorf("error fetching corp assets: %s", err.Error())
-			} else {
-				logger.Debugf("fetched %d assets for corporation %d", len(res), a.CorporationID)
-			}
-
-			if res, err := m.GetCorporationOrders(ctx, a.CorporationID); err != nil {
-				logger.Errorf("error fetching corp orders: %s", err.Error())
-			} else {
-				logger.Debugf("fetched %d orders for corporation %d", len(res), a.CorporationID)
-			}
-
-			if res, err := m.GetCorporationBlueprints(ctx, a.CorporationID); err != nil {
-				logger.Errorf("error fetching corp blueprints: %s", err.Error())
-			} else {
-				logger.Debugf("fetched %d blueprints for corporation %d", len(res), a.CorporationID)
-			}
-
-			if res, err := m.GetCorporationStructures(ctx, a.CorporationID); err != nil {
-				logger.Errorf("error fetching corp structures: %s", err.Error())
-			} else {
-				logger.Debugf("fetched %d structures for corporation %d", len(res), a.CorporationID)
-			}
-		}
-		return nil
-	}
 }

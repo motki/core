@@ -81,8 +81,19 @@ func (l Location) ParentID() int {
 	return l.System.SystemID
 }
 
+type LocationManager struct {
+	bootstrap
+
+	asset     *AssetManager
+	structure *StructureManager
+}
+
+func newLocationManager(m bootstrap, asset *AssetManager, structure *StructureManager) *LocationManager {
+	return &LocationManager{m, asset, structure}
+}
+
 // GetLocation attempts to resolve the given location.
-func (m *Manager) GetLocation(ctx context.Context, locationID int) (*Location, error) {
+func (m *LocationManager) GetLocation(ctx context.Context, locationID int) (*Location, error) {
 	// Magic numbers here are sourced from:
 	// - http://eveonline-third-party-documentation.readthedocs.io/en/latest/xmlapi/character/char_assetlist.html
 	// - https://oldforums.eveonline.com/?a=topic&threadID=667487
@@ -122,7 +133,7 @@ func (m *Manager) GetLocation(ctx context.Context, locationID int) (*Location, e
 
 	default:
 		// locationID might be a citadel.
-		s, err := m.GetStructure(ctx, locationID)
+		s, err := m.structure.GetStructure(ctx, locationID)
 		if err == nil {
 			loc.Structure = s
 			break
@@ -130,7 +141,7 @@ func (m *Manager) GetLocation(ctx context.Context, locationID int) (*Location, e
 		// locationID is in a container somewhere.
 		if corpID != 0 {
 			// Corporation is opted-in, we can query for asset information.
-			if ca, err := m.GetCorporationAsset(ctx, corpID, locationID); err == nil {
+			if ca, err := m.asset.GetCorporationAsset(ctx, corpID, locationID); err == nil {
 				// Found an asset with the given locationID, call GetLocation on the asset's location.
 				if loc, err = m.GetLocation(ctx, ca.LocationID); err != nil {
 					return nil, errors.Wrapf(err, "unable to determine details for locationID %d", locationID)
@@ -173,7 +184,7 @@ func (m *Manager) GetLocation(ctx context.Context, locationID int) (*Location, e
 	return loc, nil
 }
 
-func (m *Manager) QueryLocations(ctx context.Context, query string) ([]*Location, error) {
+func (m *LocationManager) QueryLocations(ctx context.Context, query string) ([]*Location, error) {
 	c, err := m.pool.Open()
 	if err != nil {
 		return nil, err

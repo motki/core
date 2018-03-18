@@ -66,11 +66,21 @@ type marketStatView struct {
 	Timestamp   time.Time
 }
 
+type MarketManager struct {
+	bootstrap
+
+	corp *CorpManager
+}
+
+func newMarketManager(m bootstrap, corp *CorpManager) *MarketManager {
+	return &MarketManager{m, corp}
+}
+
 // GetMarketStat gets market information for the given types.
 //
 // Multiple typeIDs may be specified, but the method signature requires at least
 // the first is given.
-func (m *Manager) GetMarketStat(typeID int, typeIDs ...int) ([]*MarketStat, error) {
+func (m *MarketManager) GetMarketStat(typeID int, typeIDs ...int) ([]*MarketStat, error) {
 	return m.getMarketStatFromDB(0, 0, append(typeIDs, typeID)...)
 }
 
@@ -78,7 +88,7 @@ func (m *Manager) GetMarketStat(typeID int, typeIDs ...int) ([]*MarketStat, erro
 //
 // Multiple typeIDs may be specified, but the method signature requires at least
 // the first is given.
-func (m *Manager) GetMarketStatRegion(regionID int, typeID int, typeIDs ...int) ([]*MarketStat, error) {
+func (m *MarketManager) GetMarketStatRegion(regionID int, typeID int, typeIDs ...int) ([]*MarketStat, error) {
 	return m.getMarketStatFromDB(regionID, 0, append(typeIDs, typeID)...)
 }
 
@@ -86,11 +96,11 @@ func (m *Manager) GetMarketStatRegion(regionID int, typeID int, typeIDs ...int) 
 //
 // Multiple typeIDs may be specified, but the method signature requires at least
 // the first is given.
-func (m *Manager) GetMarketStatSystem(systemID int, typeID int, typeIDs ...int) ([]*MarketStat, error) {
+func (m *MarketManager) GetMarketStatSystem(systemID int, typeID int, typeIDs ...int) ([]*MarketStat, error) {
 	return m.getMarketStatFromDB(0, systemID, append(typeIDs, typeID)...)
 }
 
-func (m *Manager) getMarketStatFromDB(regionID, systemID int, typeIDs ...int) ([]*MarketStat, error) {
+func (m *MarketManager) getMarketStatFromDB(regionID, systemID int, typeIDs ...int) ([]*MarketStat, error) {
 	c, err := m.pool.Open()
 	if err != nil {
 		return nil, err
@@ -170,7 +180,7 @@ func (m *Manager) getMarketStatFromDB(regionID, systemID int, typeIDs ...int) ([
 	return res, nil
 }
 
-func (m *Manager) getMarketStatFromAPI(regionID, systemID int, typeIDs ...int) ([]*MarketStat, error) {
+func (m *MarketManager) getMarketStatFromAPI(regionID, systemID int, typeIDs ...int) ([]*MarketStat, error) {
 	var stats []*evemarketer.MarketStat
 	var err error
 	switch {
@@ -187,7 +197,7 @@ func (m *Manager) getMarketStatFromAPI(regionID, systemID int, typeIDs ...int) (
 	return m.apiMarketStatToDB(regionID, systemID, stats)
 }
 
-func (m *Manager) apiMarketStatToDB(regionID, systemID int, stats []*evemarketer.MarketStat) ([]*MarketStat, error) {
+func (m *MarketManager) apiMarketStatToDB(regionID, systemID int, stats []*evemarketer.MarketStat) ([]*MarketStat, error) {
 	db, err := m.pool.Open()
 	if err != nil {
 		return nil, err
@@ -241,7 +251,7 @@ type MarketPrice struct {
 	Base   decimal.Decimal
 }
 
-func (m *Manager) GetMarketPrice(typeID int) (*MarketPrice, error) {
+func (m *MarketManager) GetMarketPrice(typeID int) (*MarketPrice, error) {
 	res, err := m.getMarketPricesFromDB(typeID)
 	if err != nil {
 		return nil, err
@@ -252,11 +262,11 @@ func (m *Manager) GetMarketPrice(typeID int) (*MarketPrice, error) {
 	return res[0], nil
 }
 
-func (m *Manager) GetMarketPrices(typeID int, typeIDs ...int) ([]*MarketPrice, error) {
+func (m *MarketManager) GetMarketPrices(typeID int, typeIDs ...int) ([]*MarketPrice, error) {
 	return m.getMarketPricesFromDB(append(typeIDs, typeID)...)
 }
 
-func (m *Manager) getMarketPricesFromDB(typeIDs ...int) ([]*MarketPrice, error) {
+func (m *MarketManager) getMarketPricesFromDB(typeIDs ...int) ([]*MarketPrice, error) {
 	c, err := m.pool.Open()
 	if err != nil {
 		return nil, err
@@ -316,7 +326,7 @@ func (m *Manager) getMarketPricesFromDB(typeIDs ...int) ([]*MarketPrice, error) 
 	return res, nil
 }
 
-func (m *Manager) getMarketPricesFromAPI(typeIDs ...int) ([]*MarketPrice, error) {
+func (m *MarketManager) getMarketPricesFromAPI(typeIDs ...int) ([]*MarketPrice, error) {
 	p, cancel, err := m.eveapi.GetMarketPrices()
 	if err != nil {
 		return nil, err
@@ -343,7 +353,7 @@ func (m *Manager) getMarketPricesFromAPI(typeIDs ...int) ([]*MarketPrice, error)
 	return results, m.apiMarketPricesToDB(prices)
 }
 
-func (m *Manager) apiMarketPricesToDB(prices []*MarketPrice) error {
+func (m *MarketManager) apiMarketPricesToDB(prices []*MarketPrice) error {
 	db, err := m.pool.Open()
 	if err != nil {
 		return err

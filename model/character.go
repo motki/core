@@ -19,7 +19,15 @@ type Character struct {
 	Description   string
 }
 
-func (m *Manager) GetCharacter(characterID int) (*Character, error) {
+type CharacterManager struct {
+	bootstrap
+}
+
+func newCharacterManager(m bootstrap) *CharacterManager {
+	return &CharacterManager{m}
+}
+
+func (m *CharacterManager) GetCharacter(characterID int) (*Character, error) {
 	c, err := m.getCharacterFromDB(characterID)
 	if err != nil {
 		return nil, err
@@ -30,7 +38,7 @@ func (m *Manager) GetCharacter(characterID int) (*Character, error) {
 	return c, nil
 }
 
-func (m *Manager) getCharacterFromDB(characterID int) (*Character, error) {
+func (m *CharacterManager) getCharacterFromDB(characterID int) (*Character, error) {
 	c, err := m.pool.Open()
 	if err != nil {
 		return nil, err
@@ -71,7 +79,7 @@ func (m *Manager) getCharacterFromDB(characterID int) (*Character, error) {
 	return char, nil
 }
 
-func (m *Manager) getCharacterFromAPI(characterID int) (*Character, error) {
+func (m *CharacterManager) getCharacterFromAPI(characterID int) (*Character, error) {
 	char, err := m.eveapi.GetCharacter(characterID)
 	if err != nil {
 		return nil, err
@@ -79,7 +87,7 @@ func (m *Manager) getCharacterFromAPI(characterID int) (*Character, error) {
 	return m.apiCharacterToDB(char)
 }
 
-func (m *Manager) apiCharacterToDB(char *eveapi.Character) (*Character, error) {
+func (m *CharacterManager) apiCharacterToDB(char *eveapi.Character) (*Character, error) {
 	db, err := m.pool.Open()
 	if err != nil {
 		return nil, err

@@ -5,45 +5,78 @@ import (
 	"net"
 	"time"
 
-	"github.com/pkg/errors"
-	"golang.org/x/net/context"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
 	"google.golang.org/grpc/test/bufconn"
 
 	"github.com/motki/core/cache"
 	"github.com/motki/core/log"
-	"github.com/motki/core/proto"
-	"github.com/motki/core/proto/server"
 )
 
 // Ensure that GRPCClient implements the Client interface.
 var _ Client = &GRPCClient{}
 
-// GRPCClient communicates with a remote MOTKI installation using GRPC.
+// bootstrap communicates with a remote MOTKI installation using GRPC.
 //
-// A GRPCClient connects to a process-local or remote GRPC server to facilitate
+// A bootstrap connects to a process-local or remote GRPC server to facilitate
 // remote procedure calls. When used with a remote GRPC server, the Client allows
 // client applications to consume MOTKI and EVESDE data without storing anything
 // on the local machine.
-type GRPCClient struct {
+type bootstrap struct {
 	serverAddr string
 	token      string
 	dialOpts   []grpc.DialOption
 	logger     log.Logger
 }
 
+// Authenticated returns true if the current session is authenticated.
+func (c *bootstrap) Authenticated() bool {
+	return c.token != ""
+}
+
+// GRPCClient is the defacto implementation of the Client interface.
+type GRPCClient struct {
+	*bootstrap
+	*AssetClient
+	*CharacterClient
+	*EVEUniverseClient
+	*InventoryClient
+	*ItemTypeClient
+	*LocationClient
+	*MarketClient
+	*ProductClient
+	*StructureClient
+	*UserClient
+}
+
 // Cache time-to-live for static data.
 const cacheTTL = 600 * time.Second
 
+func newGRPCClient(m *bootstrap) *GRPCClient {
+	return &GRPCClient{
+		bootstrap: m,
+
+		AssetClient:       &AssetClient{m},
+		CharacterClient:   &CharacterClient{m},
+		EVEUniverseClient: &EVEUniverseClient{m},
+		InventoryClient:   &InventoryClient{m},
+		ItemTypeClient:    &ItemTypeClient{m},
+		LocationClient:    &LocationClient{m},
+		MarketClient:      &MarketClient{m},
+		ProductClient:     &ProductClient{m},
+		StructureClient:   &StructureClient{m},
+		UserClient:        &UserClient{m},
+	}
+}
+
 // newRemoteGRPC creates a new GRPC client intended for use with a remote GRPC server.
 func newRemoteGRPC(serverAddr string, l log.Logger, tlsConf *tls.Config) (*cachingGRPCClient, error) {
-	return &cachingGRPCClient{
-		&GRPCClient{
-			serverAddr: serverAddr,
-			dialOpts:   []grpc.DialOption{grpc.WithTransportCredentials(credentials.NewTLS(tlsConf))},
-			logger:     l,
-		}, cache.New(cacheTTL)}, nil
+	m := &bootstrap{
+		serverAddr: serverAddr,
+		dialOpts:   []grpc.DialOption{grpc.WithTransportCredentials(credentials.NewTLS(tlsConf))},
+		logger:     l,
+	}
+	return &cachingGRPCClient{newGRPCClient(m), cache.New(cacheTTL)}, nil
 }
 
 // newLocalGRPC creates a new GRPC client for use with a process-local GRPC server.
@@ -51,45 +84,9 @@ func newRemoteGRPC(serverAddr string, l log.Logger, tlsConf *tls.Config) (*cachi
 // The bufconn.Listener passed in should be shared between both client and server. By default,
 // this is handled by the model.LocalConfig type.
 func newLocalGRPC(lis *bufconn.Listener, l log.Logger) (*cachingGRPCClient, error) {
-	cl := &cachingGRPCClient{&GRPCClient{logger: l}, cache.New(cacheTTL)}
+	cl := &cachingGRPCClient{newGRPCClient(&bootstrap{logger: l}), cache.New(cacheTTL)}
 	cl.dialOpts = append(cl.dialOpts, grpc.WithDialer(func(string, time.Duration) (net.Conn, error) {
 		return lis.Dial()
 	}), grpc.WithInsecure())
 	return cl, nil
-}
-
-// Authenticate attempts to authenticate with the GRPC server.
-//
-// If authentication is successful, a token is stored in the client. The token is passed
-// along with subsequent operations and used to authorize the user's access for things
-// such as corporation-related functionality.
-func (c *GRPCClient) Authenticate(username, password string) error {
-	conn, err := grpc.Dial(c.serverAddr, c.dialOpts...)
-	if err != nil {
-		return err
-	}
-	defer conn.Close()
-	service := proto.NewAuthenticationServiceClient(conn)
-	res, err := service.Authenticate(
-		context.Background(),
-		&proto.AuthenticateRequest{Username: username, Password: password})
-	if err != nil {
-		return err
-	}
-	if res.Result.Status == proto.Status_FAILURE {
-		if res.Result.Description == server.ErrBadCredentials.Error() {
-			return ErrBadCredentials
-		}
-		return errors.New(res.Result.Description)
-	}
-	if res.Token == nil || res.Token.Identifier == "" {
-		return errors.New("expected token to be not empty, got nothing")
-	}
-	c.token = res.Token.Identifier
-	return nil
-}
-
-// Authenticated returns true if the current session is authenticated.
-func (c *GRPCClient) Authenticated() bool {
-	return c.token != ""
 }

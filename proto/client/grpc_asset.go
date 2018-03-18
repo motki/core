@@ -9,8 +9,15 @@ import (
 	"github.com/motki/core/proto"
 )
 
+// AssetClient handles asset related functionality.
+type AssetClient struct {
+	*bootstrap
+}
+
 // GetCorpBlueprints returns the current session's corporation's blueprints.
-func (c *GRPCClient) GetCorpBlueprints() ([]*model.Blueprint, error) {
+//
+// This method requires that the user's corporation has opted-in to data collection.
+func (c *AssetClient) GetCorpBlueprints() ([]*model.Blueprint, error) {
 	conn, err := grpc.Dial(c.serverAddr, c.dialOpts...)
 	if err != nil {
 		return nil, err

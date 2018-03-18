@@ -9,8 +9,13 @@ import (
 	"github.com/motki/core/proto"
 )
 
+// MarketClient retrieves market price information about types in the EVE universe.
+type MarketClient struct {
+	*bootstrap
+}
+
 // GetMarketPrices returns a slice of market prices for each of the given type IDs.
-func (c *GRPCClient) GetMarketPrices(typeID int, typeIDs ...int) ([]*model.MarketPrice, error) {
+func (c *MarketClient) GetMarketPrices(typeID int, typeIDs ...int) ([]*model.MarketPrice, error) {
 	conn, err := grpc.Dial(c.serverAddr, c.dialOpts...)
 	if err != nil {
 		return nil, err
@@ -38,7 +43,7 @@ func (c *GRPCClient) GetMarketPrices(typeID int, typeIDs ...int) ([]*model.Marke
 }
 
 // GetMarketPrice returns the current market price for the given type ID.
-func (c *GRPCClient) GetMarketPrice(typeID int) (*model.MarketPrice, error) {
+func (c *MarketClient) GetMarketPrice(typeID int) (*model.MarketPrice, error) {
 	conn, err := grpc.Dial(c.serverAddr, c.dialOpts...)
 	if err != nil {
 		return nil, err

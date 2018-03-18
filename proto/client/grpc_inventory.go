@@ -9,8 +9,18 @@ import (
 	"github.com/motki/core/proto"
 )
 
+// InventoryClient is the interface for corporation inventory management.
+//
+// Functionality provided by this client requires that the user's corporation
+// is registered and opted-in to data collection.
+type InventoryClient struct {
+	*bootstrap
+}
+
 // GetInventory returns all inventory items for the current session's corporation.
-func (c *GRPCClient) GetInventory() ([]*model.InventoryItem, error) {
+//
+// This method requires that the user's corporation has opted-in to data collection.
+func (c *InventoryClient) GetInventory() ([]*model.InventoryItem, error) {
 	if c.token == "" {
 		return nil, ErrNotAuthenticated
 	}
@@ -39,7 +49,9 @@ func (c *GRPCClient) GetInventory() ([]*model.InventoryItem, error) {
 // NewInventoryItem creates a new inventory item for the given type ID and location ID.
 //
 // If an inventory item already exists for the given type and location ID, it will be returned.
-func (c *GRPCClient) NewInventoryItem(typeID, locationID int) (*model.InventoryItem, error) {
+//
+// This method requires that the user's corporation has opted-in to data collection.
+func (c *InventoryClient) NewInventoryItem(typeID, locationID int) (*model.InventoryItem, error) {
 	if c.token == "" {
 		return nil, ErrNotAuthenticated
 	}
@@ -68,7 +80,9 @@ func (c *GRPCClient) NewInventoryItem(typeID, locationID int) (*model.InventoryI
 }
 
 // SaveInventoryItem attempts to save the given inventory item to the backend database.
-func (c *GRPCClient) SaveInventoryItem(item *model.InventoryItem) error {
+//
+// This method requires that the user's corporation has opted-in to data collection.
+func (c *InventoryClient) SaveInventoryItem(item *model.InventoryItem) error {
 	if c.token == "" {
 		return ErrNotAuthenticated
 	}

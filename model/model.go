@@ -1,4 +1,18 @@
-// Package model encapsulates the persistence layer of the MOTKI application.
+// Package model encapsulates the persistence layer and higher level functionality in
+// a MOTKI application.
+//
+// This package is responsible for retrieving data from third-party sources, storing it,
+// manipulating it, etc. Most data is stored in the application's database and all remote
+// calls are throttled. Types are normalized in this package to provide a uniform
+// interface as well as augmentation of the raw data.
+//
+// Using This Package
+//
+// This package is meant for use by both the client and server portions of the MOTKI protocol.
+// All Manager types, however, cannot be used by the client as they require a direct database
+// connection.
+//
+// Generally, this package should be used over the evedb, eveapi, and evemarketer packages.
 package model // import "github.com/motki/core/model"
 
 import (
@@ -15,6 +29,8 @@ type bootstrap struct {
 	evedb  *evedb.EveDB
 	eveapi *eveapi.EveAPI
 	ec     *evemarketer.EveMarketer
+
+	// TODO: Pass the deps directly in to each manager, lose this.
 }
 
 // A Manager handles loading and saving of data.

@@ -9,8 +9,13 @@ import (
 	"github.com/motki/core/proto"
 )
 
+// CharacterClient retrieves character, corporation, and alliance information.
+type CharacterClient struct {
+	*bootstrap
+}
+
 // CharacterForRole returns the current session's associated character for the given role.
-func (c *GRPCClient) CharacterForRole(role model.Role) (*model.Character, error) {
+func (c *CharacterClient) CharacterForRole(role model.Role) (*model.Character, error) {
 	if c.token == "" {
 		return nil, ErrNotAuthenticated
 	}
@@ -45,7 +50,7 @@ func (c *GRPCClient) CharacterForRole(role model.Role) (*model.Character, error)
 }
 
 // GetCharacter returns a populated Character for the given character ID.
-func (c *GRPCClient) GetCharacter(charID int) (*model.Character, error) {
+func (c *CharacterClient) GetCharacter(charID int) (*model.Character, error) {
 	conn, err := grpc.Dial(c.serverAddr, c.dialOpts...)
 	if err != nil {
 		return nil, err
@@ -68,7 +73,7 @@ func (c *GRPCClient) GetCharacter(charID int) (*model.Character, error) {
 }
 
 // GetCorporation returns a populated Corporation for the given corporation ID.
-func (c *GRPCClient) GetCorporation(corpID int) (*model.Corporation, error) {
+func (c *CharacterClient) GetCorporation(corpID int) (*model.Corporation, error) {
 	conn, err := grpc.Dial(c.serverAddr, c.dialOpts...)
 	if err != nil {
 		return nil, err
@@ -92,7 +97,7 @@ func (c *GRPCClient) GetCorporation(corpID int) (*model.Corporation, error) {
 }
 
 // GetAlliance returns a populated Alliance for the given alliance ID.
-func (c *GRPCClient) GetAlliance(allianceID int) (*model.Alliance, error) {
+func (c *CharacterClient) GetAlliance(allianceID int) (*model.Alliance, error) {
 	conn, err := grpc.Dial(c.serverAddr, c.dialOpts...)
 	if err != nil {
 		return nil, err

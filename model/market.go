@@ -10,7 +10,7 @@ import (
 	"github.com/shopspring/decimal"
 )
 
-// MarketStat is reported price information for the given type.
+// MarketStat is region-specific price information for the given type.
 type MarketStat struct {
 	Kind        evemarketer.StatKind
 	TypeID      int
@@ -245,6 +245,7 @@ func (m *MarketManager) apiMarketStatToDB(regionID, systemID int, stats []*evema
 	return res, nil
 }
 
+// A MarketPrice is a universal average price for a given item.
 type MarketPrice struct {
 	TypeID int
 	Avg    decimal.Decimal

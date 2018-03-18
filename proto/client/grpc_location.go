@@ -9,7 +9,16 @@ import (
 	"github.com/motki/core/proto"
 )
 
-func (c *GRPCClient) GetLocation(locationID int) (*model.Location, error) {
+// LocationClient provides location information using denormalized location IDs.
+type LocationClient struct {
+	*bootstrap
+}
+
+// GetLocation returns the given Location using the denormalized location ID.
+//
+// If the user's corporation has opted-in, asset and structure information is used to
+// enhance the results.
+func (c *LocationClient) GetLocation(locationID int) (*model.Location, error) {
 	if c.token == "" {
 		return nil, ErrNotAuthenticated
 	}
@@ -31,7 +40,11 @@ func (c *GRPCClient) GetLocation(locationID int) (*model.Location, error) {
 	return proto.ProtoToLocation(res.Location), nil
 }
 
-func (c *GRPCClient) QueryLocations(query string) ([]*model.Location, error) {
+// QueryLocation return locations that match the input query.
+//
+// If the user's corporation has opted-in, asset and structure information is used to
+// enhance the results.
+func (c *LocationClient) QueryLocations(query string) ([]*model.Location, error) {
 	if c.token == "" {
 		return nil, ErrNotAuthenticated
 	}

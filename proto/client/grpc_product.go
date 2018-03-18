@@ -9,10 +9,20 @@ import (
 	"github.com/motki/core/proto"
 )
 
+// ProductClient is the interface for managing corporation production chains.
+//
+// Functionality in this client requires that the user's corporation is registered
+// and opted-in to data collection.
+type ProductClient struct {
+	*bootstrap
+}
+
 // NewProduct creates a new Production Chain for the given type ID.
 //
 // If a production chain already exists for the given type ID, it will be returned.
-func (c *GRPCClient) NewProduct(typeID int) (*model.Product, error) {
+//
+// This method requires that the user's corporation has opted-in to data collection.
+func (c *ProductClient) NewProduct(typeID int) (*model.Product, error) {
 	if c.token == "" {
 		return nil, ErrNotAuthenticated
 	}
@@ -40,7 +50,9 @@ func (c *GRPCClient) NewProduct(typeID int) (*model.Product, error) {
 }
 
 // GetProduct attempts to load an existing production chain using its unique product ID.
-func (c *GRPCClient) GetProduct(productID int) (*model.Product, error) {
+//
+// This method requires that the user's corporation has opted-in to data collection.
+func (c *ProductClient) GetProduct(productID int) (*model.Product, error) {
 	if c.token == "" {
 		return nil, ErrNotAuthenticated
 	}
@@ -68,7 +80,9 @@ func (c *GRPCClient) GetProduct(productID int) (*model.Product, error) {
 }
 
 // GetProducts gets all production chains for the current session's corporation.
-func (c *GRPCClient) GetProducts() ([]*model.Product, error) {
+//
+// This method requires that the user's corporation has opted-in to data collection.
+func (c *ProductClient) GetProducts() ([]*model.Product, error) {
 	if c.token == "" {
 		return nil, ErrNotAuthenticated
 	}
@@ -95,7 +109,9 @@ func (c *GRPCClient) GetProducts() ([]*model.Product, error) {
 }
 
 // SaveProduct attempts to save the given production chain to the backend database.
-func (c *GRPCClient) SaveProduct(product *model.Product) error {
+//
+// This method requires that the user's corporation has opted-in to data collection.
+func (c *ProductClient) SaveProduct(product *model.Product) error {
 	if c.token == "" {
 		return ErrNotAuthenticated
 	}
@@ -120,7 +136,9 @@ func (c *GRPCClient) SaveProduct(product *model.Product) error {
 }
 
 // UpdateProductPrices updates all items in a production chain with the latest market sell price.
-func (c *GRPCClient) UpdateProductPrices(product *model.Product) (*model.Product, error) {
+//
+// This method requires that the user's corporation has opted-in to data collection.
+func (c *ProductClient) UpdateProductPrices(product *model.Product) (*model.Product, error) {
 	if c.token == "" {
 		return nil, ErrNotAuthenticated
 	}

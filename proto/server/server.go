@@ -1,7 +1,7 @@
 // Package server contains an implementation of the MOTKI GRPC server.
 //
 // Much of the Server interface is generated using the protocol buffer definitions in
-// the proto package.
+// the proto package. As such, this package is mainly intended for internal use.
 package server // import "github.com/motki/core/proto/server"
 
 import (

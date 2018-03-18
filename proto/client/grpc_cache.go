@@ -9,8 +9,11 @@ import (
 	"github.com/pkg/errors"
 )
 
+// cachingGRPCClient wraps a GRPC client and provides short-lived, in-memory
+// caching for static data retrieved from a remote GRPC server.
 type cachingGRPCClient struct {
 	*GRPCClient
+
 	cache *cache.Bucket
 }
 
@@ -18,6 +21,7 @@ func cacheKey(prefix string, id int) string {
 	return prefix + strconv.Itoa(id)
 }
 
+// GetRegion returns information about the given region ID.
 func (c *cachingGRPCClient) GetRegion(regionID int) (*evedb.Region, error) {
 	v, err := c.cache.Memoize(cacheKey("region:", regionID), func() (cache.Value, error) {
 		return c.GRPCClient.GetRegion(regionID)
@@ -171,6 +175,7 @@ func (c *cachingGRPCClient) GetMaterialSheet(typeID int) (*evedb.MaterialSheet, 
 	return nil, errors.Errorf("expected *evedb.MaterialSheet from cache, got %T", v)
 }
 
+// GetLocation returns location information for a denormalized location ID.
 func (c *cachingGRPCClient) GetLocation(locationID int) (*model.Location, error) {
 	v, err := c.cache.Memoize(cacheKey("location:", locationID), func() (cache.Value, error) {
 		return c.GRPCClient.GetLocation(locationID)

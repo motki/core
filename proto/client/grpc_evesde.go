@@ -9,8 +9,13 @@ import (
 	"github.com/motki/core/proto"
 )
 
+// EVEUniverseClient provides information about the EVE universe.
+type EVEUniverseClient struct {
+	*bootstrap
+}
+
 // GetRegion returns information about the given region ID.
-func (c *GRPCClient) GetRegion(regionID int) (*evedb.Region, error) {
+func (c *EVEUniverseClient) GetRegion(regionID int) (*evedb.Region, error) {
 	conn, err := grpc.Dial(c.serverAddr, c.dialOpts...)
 	if err != nil {
 		return nil, err
@@ -34,7 +39,7 @@ func (c *GRPCClient) GetRegion(regionID int) (*evedb.Region, error) {
 }
 
 // GetRegions returns a slice containing information about all regions in the EVE universe.
-func (c *GRPCClient) GetRegions() ([]*evedb.Region, error) {
+func (c *EVEUniverseClient) GetRegions() ([]*evedb.Region, error) {
 	conn, err := grpc.Dial(c.serverAddr, c.dialOpts...)
 	if err != nil {
 		return nil, err
@@ -58,7 +63,7 @@ func (c *GRPCClient) GetRegions() ([]*evedb.Region, error) {
 }
 
 // GetSystem returns information about the given system ID.
-func (c *GRPCClient) GetSystem(systemID int) (*evedb.System, error) {
+func (c *EVEUniverseClient) GetSystem(systemID int) (*evedb.System, error) {
 	conn, err := grpc.Dial(c.serverAddr, c.dialOpts...)
 	if err != nil {
 		return nil, err
@@ -82,7 +87,7 @@ func (c *GRPCClient) GetSystem(systemID int) (*evedb.System, error) {
 }
 
 // GetConstellation returns information about the given constellation ID.
-func (c *GRPCClient) GetConstellation(constellationID int) (*evedb.Constellation, error) {
+func (c *EVEUniverseClient) GetConstellation(constellationID int) (*evedb.Constellation, error) {
 	conn, err := grpc.Dial(c.serverAddr, c.dialOpts...)
 	if err != nil {
 		return nil, err
@@ -106,7 +111,7 @@ func (c *GRPCClient) GetConstellation(constellationID int) (*evedb.Constellation
 }
 
 // GetRace returns information about the given race ID.
-func (c *GRPCClient) GetRace(raceID int) (*evedb.Race, error) {
+func (c *EVEUniverseClient) GetRace(raceID int) (*evedb.Race, error) {
 	conn, err := grpc.Dial(c.serverAddr, c.dialOpts...)
 	if err != nil {
 		return nil, err
@@ -130,7 +135,7 @@ func (c *GRPCClient) GetRace(raceID int) (*evedb.Race, error) {
 }
 
 // GetRaces returns information about all races in the EVE universe.
-func (c *GRPCClient) GetRaces() ([]*evedb.Race, error) {
+func (c *EVEUniverseClient) GetRaces() ([]*evedb.Race, error) {
 	conn, err := grpc.Dial(c.serverAddr, c.dialOpts...)
 	if err != nil {
 		return nil, err
@@ -154,7 +159,7 @@ func (c *GRPCClient) GetRaces() ([]*evedb.Race, error) {
 }
 
 // GetBloodline returns information about the given bloodline ID.
-func (c *GRPCClient) GetBloodline(bloodlineID int) (*evedb.Bloodline, error) {
+func (c *EVEUniverseClient) GetBloodline(bloodlineID int) (*evedb.Bloodline, error) {
 	conn, err := grpc.Dial(c.serverAddr, c.dialOpts...)
 	if err != nil {
 		return nil, err
@@ -178,7 +183,7 @@ func (c *GRPCClient) GetBloodline(bloodlineID int) (*evedb.Bloodline, error) {
 }
 
 // GetAncestry returns information about the given ancestry ID.
-func (c *GRPCClient) GetAncestry(ancestryID int) (*evedb.Ancestry, error) {
+func (c *EVEUniverseClient) GetAncestry(ancestryID int) (*evedb.Ancestry, error) {
 	conn, err := grpc.Dial(c.serverAddr, c.dialOpts...)
 	if err != nil {
 		return nil, err

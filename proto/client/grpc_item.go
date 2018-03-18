@@ -9,8 +9,13 @@ import (
 	"github.com/motki/core/proto"
 )
 
+// ItemTypeClient retrieves type information for items in the EVE universe.
+type ItemTypeClient struct {
+	*bootstrap
+}
+
 // GetItemType returns information about the given type ID.
-func (c *GRPCClient) GetItemType(typeID int) (*evedb.ItemType, error) {
+func (c *ItemTypeClient) GetItemType(typeID int) (*evedb.ItemType, error) {
 	conn, err := grpc.Dial(c.serverAddr, c.dialOpts...)
 	if err != nil {
 		return nil, err
@@ -34,7 +39,7 @@ func (c *GRPCClient) GetItemType(typeID int) (*evedb.ItemType, error) {
 }
 
 // GetItemTypeDetail returns detailed information about the given type ID.
-func (c *GRPCClient) GetItemTypeDetail(typeID int) (*evedb.ItemTypeDetail, error) {
+func (c *ItemTypeClient) GetItemTypeDetail(typeID int) (*evedb.ItemTypeDetail, error) {
 	conn, err := grpc.Dial(c.serverAddr, c.dialOpts...)
 	if err != nil {
 		return nil, err
@@ -58,7 +63,7 @@ func (c *GRPCClient) GetItemTypeDetail(typeID int) (*evedb.ItemTypeDetail, error
 }
 
 // QueryItemTypes searches for matching item types given a search query and optional category IDs.
-func (c *GRPCClient) QueryItemTypes(query string, catIDs ...int) ([]*evedb.ItemType, error) {
+func (c *ItemTypeClient) QueryItemTypes(query string, catIDs ...int) ([]*evedb.ItemType, error) {
 	conn, err := grpc.Dial(c.serverAddr, c.dialOpts...)
 	if err != nil {
 		return nil, err
@@ -89,7 +94,7 @@ func (c *GRPCClient) QueryItemTypes(query string, catIDs ...int) ([]*evedb.ItemT
 }
 
 // QueryItemTypeDetails searches for matching item types, returning detail type information for each match.
-func (c *GRPCClient) QueryItemTypeDetails(query string, catIDs ...int) ([]*evedb.ItemTypeDetail, error) {
+func (c *ItemTypeClient) QueryItemTypeDetails(query string, catIDs ...int) ([]*evedb.ItemTypeDetail, error) {
 	conn, err := grpc.Dial(c.serverAddr, c.dialOpts...)
 	if err != nil {
 		return nil, err
@@ -120,7 +125,7 @@ func (c *GRPCClient) QueryItemTypeDetails(query string, catIDs ...int) ([]*evedb
 }
 
 // GetMaterialSheet returns manufacturing information about the given type ID.
-func (c *GRPCClient) GetMaterialSheet(typeID int) (*evedb.MaterialSheet, error) {
+func (c *ItemTypeClient) GetMaterialSheet(typeID int) (*evedb.MaterialSheet, error) {
 	conn, err := grpc.Dial(c.serverAddr, c.dialOpts...)
 	if err != nil {
 		return nil, err

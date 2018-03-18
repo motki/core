@@ -9,7 +9,13 @@ import (
 	"github.com/motki/core/proto"
 )
 
-func (c *GRPCClient) GetStructure(structureID int) (*eveapi.Structure, error) {
+// StructureClient retrieves information about player-owned Citadels in EVE.
+type StructureClient struct {
+	*bootstrap
+}
+
+// GetStructure returns public information about the given structure.
+func (c *StructureClient) GetStructure(structureID int) (*eveapi.Structure, error) {
 	if c.token == "" {
 		return nil, ErrNotAuthenticated
 	}
@@ -31,7 +37,10 @@ func (c *GRPCClient) GetStructure(structureID int) (*eveapi.Structure, error) {
 	return proto.ProtoToStructure(res.Structure), nil
 }
 
-func (c *GRPCClient) GetCorpStructures() ([]*eveapi.CorporationStructure, error) {
+// GetCorpStructures returns detailed information about corporation structures.
+//
+// This method requires that the user's corporation has opted-in to data collection.
+func (c *StructureClient) GetCorpStructures() ([]*eveapi.CorporationStructure, error) {
 	if c.token == "" {
 		return nil, ErrNotAuthenticated
 	}

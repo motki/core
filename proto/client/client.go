@@ -4,8 +4,56 @@
 // or a specialized client (such as the ProductClient or InventoryClient) should be used
 // in code that consumes this package.
 //
+// Usage
+//
 // When used with a remote MOTKI application server, this package can operate without any additional
-// services installed on the local machine.
+// services installed on the local machine. By default, this client will connect to the public
+// MOTKI server at motki.org:18443.
+//
+// The APIs defined in this package are intended to be the outward-facing interface for a MOTKI
+// installation.
+//
+// Minimal Example
+//
+// Below is an example of the bare minimum needed to connect to and query information from
+// the public application.
+//
+//  package main
+//
+//  import (
+//   	"fmt"
+//
+//   	"github.com/motki/core/log"
+//   	"github.com/motki/core/proto"
+//   	"github.com/motki/core/proto/client"
+//  )
+//
+//  func main() {
+//  	c := proto.Config{
+//  		Kind:       proto.BackendRemoteGRPC,
+//  		RemoteGRPC: proto.RemoteConfig{ServerAddr: "motki.org:18443"},
+//  	}
+//  	l := log.New(log.Config{Level: "debug"})
+//  	cl, err := client.New(c, l)
+//  	if err != nil {
+//  		panic(err)
+//  	}
+//
+//  	it, err := cl.GetItemType(2281)
+//  	if err != nil {
+//  		panic(err)
+//  	}
+//
+//  	fmt.Println(it.Name)
+//
+//  	// Output:
+//    // Adaptive Invulnerability Field II
+//  }
+//
+// Running the Server
+//
+// See https://github.com/motki/motki-server for information on running your own MOTKI application server.
+//
 package client // import "github.com/motki/core/proto/client"
 
 import (

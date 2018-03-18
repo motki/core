@@ -77,9 +77,13 @@ func newRemoteGRPC(serverAddr string, l log.Logger, tlsConf *tls.Config) (*cachi
 // The bufconn.Listener passed in should be shared between both client and server. By default,
 // this is handled by the model.LocalConfig type.
 func newLocalGRPC(lis *bufconn.Listener, l log.Logger) (*cachingGRPCClient, error) {
-	cl := &cachingGRPCClient{newGRPCClient(&bootstrap{logger: l}), cache.New(cacheTTL)}
-	cl.dialOpts = append(cl.dialOpts, grpc.WithDialer(func(string, time.Duration) (net.Conn, error) {
-		return lis.Dial()
-	}), grpc.WithInsecure())
+	m := &bootstrap{
+		logger: l,
+		dialOpts: []grpc.DialOption{
+			grpc.WithDialer(func(string, time.Duration) (net.Conn, error) {
+				return lis.Dial()
+			}),
+			grpc.WithInsecure()}}
+	cl := &cachingGRPCClient{newGRPCClient(m), cache.New(cacheTTL)}
 	return cl, nil
 }

@@ -4,7 +4,7 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/antihax/goesi/eveapi"
+	"github.com/antihax/goesi/esi"
 	"golang.org/x/net/context"
 )
 
@@ -69,31 +69,28 @@ type CorporationSheet struct {
 	Shares          int
 }
 
-func xmlToCorporationSheet(sheet *eveapi.CorporationSheetXML) CorporationSheet {
+func corpResponseToSheet(corpID int, sheet esi.GetCorporationsCorporationIdOk) CorporationSheet {
 	return CorporationSheet{
-		CorporationID:   int(sheet.CorporationID),
-		CorporationName: sheet.CorporationName,
+		CorporationID:   corpID,
+		CorporationName: sheet.Name,
 		Ticker:          sheet.Ticker,
-		CEOID:           int(sheet.CEOID),
-		CEOName:         sheet.CEOName,
-		StationID:       int(sheet.StationID),
-		StationName:     sheet.StationName,
+		CEOID:           int(sheet.CeoId),
+		StationID:       int(sheet.HomeStationId),
 		Description:     sheet.Description,
-		AllianceID:      int(sheet.AllianceID),
-		AllianceName:    sheet.AllianceName,
-		FactionID:       int(sheet.FactionID),
-		URL:             sheet.URL,
+		AllianceID:      int(sheet.AllianceId),
+		FactionID:       int(sheet.FactionId),
+		URL:             sheet.Url,
 		MemberCount:     int(sheet.MemberCount),
 		Shares:          int(sheet.Shares),
 	}
 }
 
 func (api *EveAPI) GetPublicCorporationSheet(corpID int) (*CorporationSheet, error) {
-	sheet, err := api.client.EVEAPI.CorporationPublicSheetXML(int64(corpID))
+	sheet, _, err := api.client.ESI.CorporationApi.GetCorporationsCorporationId(context.Background(), int32(corpID), nil)
 	if err != nil {
 		return nil, err
 	}
-	res := xmlToCorporationSheet(sheet)
+	res := corpResponseToSheet(corpID, sheet)
 	return &res, nil
 }
 
@@ -114,38 +111,34 @@ type CorporationSheetDetail struct {
 	Hangars Divisions
 }
 
-func (api *EveAPI) GetCorporationSheet(ctx context.Context) (*CorporationSheetDetail, error) {
-	tok, err := TokenFromContext(ctx)
+func (api *EveAPI) GetCorporationSheet(ctx context.Context, corpID int) (*CorporationSheetDetail, error) {
+	_, err := TokenFromContext(ctx)
 	if err != nil {
 		return nil, err
 	}
-	sheet, err := api.client.EVEAPI.CorporationSheetXML(tok)
+	sheet, _, err := api.client.ESI.CorporationApi.GetCorporationsCorporationId(ctx, int32(corpID), nil)
 	if err != nil {
 		return nil, err
 	}
 	res := &CorporationSheetDetail{
-		CorporationSheet: xmlToCorporationSheet(&sheet.CorporationSheetXML),
+		CorporationSheet: corpResponseToSheet(corpID, sheet),
 		Wallets:          make(Divisions),
 		Hangars:          make(Divisions),
 	}
-	for _, set := range sheet.Divisions {
-		switch set.Name {
-		case "walletDivisions":
-			for _, div := range set.Accounts {
-				if div.Key == "1000" {
-					res.Wallets["1000"] = "Master Wallet"
-					continue
-				}
-				res.Wallets[div.Key] = div.Description
-			}
-		case "divisions":
-			for _, div := range set.Accounts {
-				res.Hangars[div.Key] = div.Description
-			}
-
-		default:
-			// do nothing
+	divs, _, err := api.client.ESI.CorporationApi.GetCorporationsCorporationIdDivisions(ctx, int32(corpID), nil)
+	if err != nil {
+		return nil, err
+	}
+	for _, div := range divs.Hangar {
+		res.Hangars[strconv.Itoa(int(div.Division))] = div.Name
+	}
+	for _, div := range divs.Wallet {
+		key := strconv.Itoa(int(div.Division))
+		if key == "1" {
+			res.Wallets["1"] = "Master Wallet"
+			continue
 		}
+		res.Wallets[key] = div.Name
 	}
 	return res, nil
 }

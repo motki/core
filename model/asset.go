@@ -11,27 +11,27 @@ import (
 )
 
 type Asset struct {
-	ItemID      int
-	LocationID  int
-	TypeID      int
-	Quantity    int
-	FlagID      int
-	Singleton   bool
-	RawQuantity int
+	ItemID       int
+	LocationID   int
+	LocationType string
+	LocationFlag string
+	TypeID       int
+	Quantity     int
+	Singleton    bool
 
 	corpID    int
 	fetchedAt time.Time
 }
 
-func assetFromEveAPI(bp *eveapi.Asset) *Asset {
+func assetFromEveAPI(a *eveapi.Asset) *Asset {
 	return &Asset{
-		ItemID:      bp.ItemID,
-		LocationID:  bp.LocationID,
-		TypeID:      bp.TypeID,
-		FlagID:      bp.FlagID,
-		Quantity:    bp.Quantity,
-		Singleton:   bp.Singleton,
-		RawQuantity: bp.RawQuantity,
+		ItemID:       a.ItemID,
+		LocationID:   a.LocationID,
+		TypeID:       a.TypeID,
+		LocationFlag: a.LocationFlag,
+		LocationType: a.LocationType,
+		Quantity:     a.Quantity,
+		Singleton:    a.Singleton,
 	}
 }
 
@@ -76,11 +76,11 @@ func (m *AssetManager) GetCorporationAssetsByTypeAndLocationID(ctx context.Conte
 		`SELECT
 			  a.item_id
 			, a.location_id
+			, a.location_type
+			, a.location_flag
 			, a.type_id
 			, a.quantity
 			, a.singleton
-			, a.raw_quantity
-			, a.flag_id
 			, a.corporation_id
 			, a.fetched_at
 			FROM app.assets a
@@ -98,11 +98,11 @@ func (m *AssetManager) GetCorporationAssetsByTypeAndLocationID(ctx context.Conte
 		err := rs.Scan(
 			&r.ItemID,
 			&r.LocationID,
+			&r.LocationType,
+			&r.LocationFlag,
 			&r.TypeID,
 			&r.Quantity,
 			&r.Singleton,
-			&r.RawQuantity,
-			&r.FlagID,
 			&r.corpID,
 			&r.fetchedAt,
 		)
@@ -169,11 +169,11 @@ func (m *AssetManager) getCorporationAssetFromDB(corpID int, itemID int) (*Asset
 		`SELECT
 			  a.item_id
 			, a.location_id
+			, a.location_type
+			, a.location_flag
 			, a.type_id
 			, a.quantity
 			, a.singleton
-			, a.raw_quantity
-			, a.flag_id
 			, a.fetched_at
 			, (a.fetched_at > (NOW() - INTERVAL '12 hours')) status
 			, (a.valid = TRUE) validity
@@ -192,11 +192,11 @@ func (m *AssetManager) getCorporationAssetFromDB(corpID int, itemID int) (*Asset
 	err = rs.Scan(
 		&r.ItemID,
 		&r.LocationID,
+		&r.LocationType,
+		&r.LocationFlag,
 		&r.TypeID,
 		&r.Quantity,
 		&r.Singleton,
-		&r.RawQuantity,
-		&r.FlagID,
 		&r.fetchedAt,
 		&status,
 		&valid,
@@ -224,11 +224,11 @@ func (m *AssetManager) getCorporationAssetsFromDB(corpID int) ([]*Asset, error) 
 		`SELECT
 			  a.item_id
 			, a.location_id
+			, a.location_type
+			, a.location_flag
 			, a.type_id
 			, a.quantity
 			, a.singleton
-			, a.raw_quantity
-			, a.flag_id
 			, a.corporation_id
 			, a.fetched_at
 			FROM app.assets a
@@ -245,11 +245,11 @@ func (m *AssetManager) getCorporationAssetsFromDB(corpID int) ([]*Asset, error) 
 		err := rs.Scan(
 			&r.ItemID,
 			&r.LocationID,
+			&r.LocationType,
+			&r.LocationFlag,
 			&r.TypeID,
 			&r.Quantity,
 			&r.Singleton,
-			&r.RawQuantity,
-			&r.FlagID,
 			&r.corpID,
 			&r.fetchedAt,
 		)
@@ -289,7 +289,7 @@ func (m *AssetManager) apiCorporationAssetsToDB(corpID int, bps []*Asset) ([]*As
 	for _, bp := range bps {
 		_, err = db.Exec(
 			`INSERT INTO app.assets
-					(corporation_id, character_id, item_id, location_id, type_id, quantity, singleton, raw_quantity, flag_id, fetched_at, valid)
+					(corporation_id, character_id, item_id, location_id, type_id, quantity, singleton, location_type, location_flag, fetched_at, valid)
 					VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, DEFAULT, DEFAULT)`,
 			corpID,
 			0,
@@ -298,8 +298,8 @@ func (m *AssetManager) apiCorporationAssetsToDB(corpID int, bps []*Asset) ([]*As
 			bp.TypeID,
 			bp.Quantity,
 			bp.Singleton,
-			bp.RawQuantity,
-			bp.FlagID,
+			bp.LocationType,
+			bp.LocationFlag,
 		)
 		if err != nil {
 			return nil, err

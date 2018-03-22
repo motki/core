@@ -431,8 +431,7 @@ func ProtoToBlueprint(p *Blueprint) *model.Blueprint {
 		ItemID:             int(p.ItemId),
 		LocationID:         int(p.LocationId),
 		TypeID:             int(p.TypeId),
-		TypeName:           p.TypeName,
-		FlagID:             int(p.FlagId),
+		LocationFlag:       p.LocationFlag,
 		TimeEfficiency:     int(p.TimeEff),
 		MaterialEfficiency: int(p.MaterialEff),
 		Kind:               kind,
@@ -447,16 +446,15 @@ func BlueprintToProto(m *model.Blueprint) *Blueprint {
 		kind = Blueprint_COPY
 	}
 	return &Blueprint{
-		ItemId:      int64(m.ItemID),
-		LocationId:  int64(m.LocationID),
-		TypeId:      int64(m.TypeID),
-		TypeName:    m.TypeName,
-		FlagId:      int64(m.FlagID),
-		TimeEff:     int64(m.TimeEfficiency),
-		MaterialEff: int64(m.MaterialEfficiency),
-		Kind:        kind,
-		Quantity:    int64(m.Quantity),
-		Runs:        int64(m.Runs),
+		ItemId:       int64(m.ItemID),
+		LocationId:   int64(m.LocationID),
+		TypeId:       int64(m.TypeID),
+		LocationFlag: m.LocationFlag,
+		TimeEff:      int64(m.TimeEfficiency),
+		MaterialEff:  int64(m.MaterialEfficiency),
+		Kind:         kind,
+		Quantity:     int64(m.Quantity),
+		Runs:         int64(m.Runs),
 	}
 }
 

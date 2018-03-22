@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/jackc/pgx"
+	"github.com/pkg/errors"
 	"golang.org/x/net/context"
 
 	"github.com/motki/core/cache"
@@ -18,12 +19,13 @@ type CorpManager struct {
 	bootstrap
 
 	user *UserManager
+	char *CharacterManager
 
 	cache *cache.Bucket
 }
 
-func newCorpManager(m bootstrap, user *UserManager) *CorpManager {
-	return &CorpManager{m, user, cache.New(10 * time.Second)}
+func newCorpManager(m bootstrap, user *UserManager, char *CharacterManager) *CorpManager {
+	return &CorpManager{m, user, char, cache.New(10 * time.Second)}
 }
 
 type Corporation struct {
@@ -222,16 +224,32 @@ func (m *CorpManager) getCorporationDetailFromDB(corporationID int) (*Corporatio
 }
 
 func (m *CorpManager) getCorporationDetailFromAPI(ctx context.Context) (*CorporationDetail, error) {
-	sheet, err := m.eveapi.GetCorporationSheet(ctx)
+	corpID, ok := m.corpID(ctx)
+	if !ok {
+		return nil, errors.New("unable to get corpID from context")
+	}
+	actx, err := m.authContext(ctx, corpID)
+	if err != nil {
+		return nil, err
+	}
+	sheet, err := m.eveapi.GetCorporationSheet(actx, corpID)
+	if err != nil {
+		return nil, err
+	}
+	ceo, err := m.char.GetCharacter(sheet.CEOID)
+	if err != nil {
+		return nil, err
+	}
+	sta, err := m.evedb.GetStation(sheet.StationID)
 	if err != nil {
 		return nil, err
 	}
 	return m.apiCorporationDetailToDB(&CorporationDetail{
 		CorporationID: sheet.CorporationID,
 		CEOID:         sheet.CEOID,
-		CEOName:       sheet.CEOName,
+		CEOName:       ceo.Name,
 		StationID:     sheet.StationID,
-		StationName:   sheet.StationName,
+		StationName:   sta.Name,
 		FactionID:     sheet.FactionID,
 		MemberCount:   sheet.MemberCount,
 		Shares:        sheet.Shares,

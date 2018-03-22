@@ -40,15 +40,11 @@ func (m *IndustryManager) getCorporationIndustryJobsFromDB(corpID int) ([]*eveap
 		`SELECT
 			  c.job_id
 			, c.installer_id
-			, c.installer_name
 			, c.facility_id
-			, c.solar_system_name
-			, c.solar_system_id
-			, c.station_id
+			, c.location_id
 			, c.activity_id
 			, c.blueprint_id
 			, c.blueprint_type_id
-			, c.blueprint_type_name
 			, c.blueprint_location_id
 			, c.output_location_id
 			, c.product_type_id
@@ -56,9 +52,7 @@ func (m *IndustryManager) getCorporationIndustryJobsFromDB(corpID int) ([]*eveap
 			, c.cost
 			, c.licensed_runs
 			, c.probability
-			, c.product_type_name
 			, c.status
-			, c.time_in_seconds
 			, c.start_date
 			, c.end_date
 			, c.pause_date
@@ -78,15 +72,11 @@ func (m *IndustryManager) getCorporationIndustryJobsFromDB(corpID int) ([]*eveap
 		err := rs.Scan(
 			&r.JobID,
 			&r.InstallerID,
-			&r.InstallerName,
 			&r.FacilityID,
-			&r.SolarSystemName,
-			&r.SolarSystemID,
-			&r.StationID,
+			&r.LocationID,
 			&r.ActivityID,
 			&r.BlueprintID,
 			&r.BlueprintTypeID,
-			&r.BlueprintTypeName,
 			&r.BlueprintLocationID,
 			&r.OutputLocationID,
 			&r.ProductTypeID,
@@ -94,9 +84,7 @@ func (m *IndustryManager) getCorporationIndustryJobsFromDB(corpID int) ([]*eveap
 			&r.Cost,
 			&r.LicensedRuns,
 			&r.Probability,
-			&r.ProductTypeName,
 			&r.Status,
-			&r.TimeInSeconds,
 			&r.StartDate,
 			&r.EndDate,
 			&r.PauseDate,
@@ -137,7 +125,7 @@ func (m *IndustryManager) apiCorporationIndustryJobsToDB(corpID int, jobs []*eve
 	for _, j := range jobs {
 		_, err = db.Exec(
 			`INSERT INTO app.industry_jobs
-					VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24, $25, $26, $27, $28, DEFAULT)
+					VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, DEFAULT)
 					ON CONFLICT ON CONSTRAINT "industry_jobs_pkey" DO
 						UPDATE SET completed_date = EXCLUDED.completed_date,
 							     completed_character_id = EXCLUDED.completed_character_id,
@@ -147,15 +135,11 @@ func (m *IndustryManager) apiCorporationIndustryJobsToDB(corpID int, jobs []*eve
 			j.JobID,
 			corpID,
 			j.InstallerID,
-			j.InstallerName,
 			j.FacilityID,
-			j.SolarSystemName,
-			j.SolarSystemID,
-			j.StationID,
+			j.LocationID,
 			j.ActivityID,
 			j.BlueprintID,
 			j.BlueprintTypeID,
-			j.BlueprintTypeName,
 			j.BlueprintLocationID,
 			j.OutputLocationID,
 			j.ProductTypeID,
@@ -163,9 +147,7 @@ func (m *IndustryManager) apiCorporationIndustryJobsToDB(corpID int, jobs []*eve
 			j.Cost,
 			j.LicensedRuns,
 			j.Probability,
-			j.ProductTypeName,
 			j.Status,
-			j.TimeInSeconds,
 			j.StartDate,
 			j.EndDate,
 			j.PauseDate,

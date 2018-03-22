@@ -124,6 +124,13 @@ func (srv *grpcServer) NewProduct(ctx context.Context, req *proto.NewProductRequ
 	return productResponse(prod), nil
 }
 
+func setCorpID(p *model.Product, corpID int) {
+	p.CorporationID = corpID
+	for _, pr := range p.Materials {
+		setCorpID(pr, corpID)
+	}
+}
+
 func (srv *grpcServer) SaveProduct(ctx context.Context, req *proto.SaveProductRequest) (resp *proto.ProductResponse, err error) {
 	defer func() {
 		if err != nil {
@@ -160,14 +167,7 @@ func (srv *grpcServer) SaveProduct(ctx context.Context, req *proto.SaveProductRe
 			return nil, err
 		}
 	}
-	var setCorpID func(p *model.Product)
-	setCorpID = func(p *model.Product) {
-		p.CorporationID = corp.CorporationID
-		for _, pr := range p.Materials {
-			setCorpID(pr)
-		}
-	}
-	setCorpID(prod)
+	setCorpID(prod, char.CorporationID)
 	err = srv.model.SaveProduct(prod)
 	if err != nil {
 		return nil, err
@@ -191,12 +191,13 @@ func (srv *grpcServer) UpdateProductPrices(ctx context.Context, req *proto.Updat
 	if err != nil {
 		return nil, err
 	}
-	_, err = srv.model.GetAuthorization(user, model.RoleLogistics)
+	a, err := srv.model.GetAuthorization(user, model.RoleLogistics)
 	if err != nil {
 		return nil, err
 	}
 	prod := proto.ProtoToProduct(req.Product)
-	err = srv.model.UpdateProductMarketPrices(prod, prod.MarketRegionID)
+	setCorpID(prod, a.CorporationID)
+	err = srv.model.UpdateProductMarketPrices(a.Context(), prod, prod.MarketRegionID)
 	if err != nil {
 		return nil, err
 	}

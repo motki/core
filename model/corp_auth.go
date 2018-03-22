@@ -132,6 +132,13 @@ func (m *CorpManager) SaveCorporationConfig(corpID int, detail *CorporationConfi
 	return err
 }
 
+func (m *CorpManager) corpID(ctx context.Context) (int, bool) {
+	if authctx, ok := ctx.(authContext); ok {
+		return authctx.CorporationID(), true
+	}
+	return 0, false
+}
+
 func (m *CorpManager) authContext(ctx context.Context, corpID int) (context.Context, error) {
 	if authctx, ok := ctx.(authContext); ok {
 		if authctx.CorporationID() != corpID {

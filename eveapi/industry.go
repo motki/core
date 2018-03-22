@@ -1,6 +1,7 @@
 package eveapi
 
 import (
+	"strconv"
 	"time"
 
 	"github.com/shopspring/decimal"
@@ -10,15 +11,11 @@ import (
 type IndustryJob struct {
 	JobID                int
 	InstallerID          int
-	InstallerName        string
 	FacilityID           int
-	SolarSystemName      string
-	SolarSystemID        int
-	StationID            int
+	LocationID           int
 	ActivityID           int
 	BlueprintID          int
 	BlueprintTypeID      int
-	BlueprintTypeName    string
 	BlueprintLocationID  int
 	OutputLocationID     int
 	ProductTypeID        int
@@ -26,9 +23,7 @@ type IndustryJob struct {
 	Cost                 decimal.Decimal
 	LicensedRuns         int
 	Probability          decimal.Decimal
-	ProductTypeName      string
-	Status               int
-	TimeInSeconds        int
+	Status               string
 	StartDate            time.Time
 	EndDate              time.Time
 	PauseDate            time.Time
@@ -38,89 +33,51 @@ type IndustryJob struct {
 }
 
 func (api *EveAPI) GetCorporationIndustryJobs(ctx context.Context, corpID int) (jobs []*IndustryJob, err error) {
-	tok, err := TokenFromContext(ctx)
+	_, err = TokenFromContext(ctx)
 	if err != nil {
 		return nil, err
 	}
-	res, err := api.client.EVEAPI.CorporationIndustryJobsXML(tok, int64(corpID))
-	if err != nil {
-		return nil, err
-	}
-	for _, j := range res.Entries {
-		job := &IndustryJob{
-			JobID:                int(j.JobID),
-			InstallerID:          int(j.InstallerID),
-			InstallerName:        j.InstallerName,
-			FacilityID:           int(j.FacilityID),
-			SolarSystemName:      j.SolarSystemName,
-			SolarSystemID:        int(j.SolarSystemID),
-			StationID:            int(j.StationID),
-			ActivityID:           int(j.ActivityID),
-			BlueprintID:          int(j.BlueprintID),
-			BlueprintTypeID:      int(j.BlueprintTypeID),
-			BlueprintTypeName:    j.BlueprintTypeName,
-			BlueprintLocationID:  int(j.BlueprintLocationID),
-			OutputLocationID:     int(j.OutputLocationID),
-			ProductTypeID:        int(j.ProductTypeID),
-			Runs:                 int(j.Runs),
-			Cost:                 decimal.NewFromFloat(j.Cost),
-			LicensedRuns:         int(j.LicensedRuns),
-			Probability:          decimal.NewFromFloat(j.Probability),
-			ProductTypeName:      j.ProductTypeName,
-			Status:               int(j.Status),
-			TimeInSeconds:        int(j.TimeInSeconds),
-			StartDate:            j.StartDate.Time,
-			EndDate:              j.EndDate.Time,
-			PauseDate:            j.PauseDate.Time,
-			CompletedDate:        j.CompletedDate.Time,
-			CompletedCharacterID: int(j.CompletedCharacterID),
-			SuccessfulRuns:       int(j.SuccessfulRuns),
+	var max int
+	for p := 0; p <= max; p++ {
+		res, resp, err := api.client.ESI.IndustryApi.GetCorporationsCorporationIdIndustryJobs(ctx, int32(corpID), map[string]interface{}{"includeCompleted": true, "page": int32(p)})
+		if err != nil {
+			return nil, err
 		}
-		jobs = append(jobs, job)
+		max, err = strconv.Atoi(resp.Header.Get("X-Pages"))
+		if err != nil {
+			api.logger.Debugf("error reading X-Pages header: ", err.Error())
+		}
+		for _, j := range res {
+			job := &IndustryJob{
+				JobID:                int(j.JobId),
+				InstallerID:          int(j.InstallerId),
+				FacilityID:           int(j.FacilityId),
+				LocationID:           int(j.LocationId),
+				ActivityID:           int(j.ActivityId),
+				BlueprintID:          int(j.BlueprintId),
+				BlueprintTypeID:      int(j.BlueprintTypeId),
+				BlueprintLocationID:  int(j.BlueprintLocationId),
+				OutputLocationID:     int(j.OutputLocationId),
+				ProductTypeID:        int(j.ProductTypeId),
+				Runs:                 int(j.Runs),
+				Cost:                 decimal.NewFromFloat(j.Cost),
+				LicensedRuns:         int(j.LicensedRuns),
+				Probability:          decimal.NewFromFloat(float64(j.Probability)),
+				Status:               j.Status,
+				StartDate:            j.StartDate,
+				EndDate:              j.EndDate,
+				PauseDate:            j.PauseDate,
+				CompletedDate:        j.CompletedDate,
+				CompletedCharacterID: int(j.CompletedCharacterId),
+				SuccessfulRuns:       int(j.SuccessfulRuns),
+			}
+			jobs = append(jobs, job)
+		}
 	}
+
 	return jobs, nil
 }
 
 func (api *EveAPI) GetCorporationIndustryJobHistory(ctx context.Context, corpID int) (jobs []*IndustryJob, err error) {
-	tok, err := TokenFromContext(ctx)
-	if err != nil {
-		return nil, err
-	}
-	res, err := api.client.EVEAPI.CorporationIndustryJobsHistoryXML(tok, int64(corpID))
-	if err != nil {
-		return nil, err
-	}
-	for _, j := range res.Entries {
-		job := &IndustryJob{
-			JobID:                int(j.JobID),
-			InstallerID:          int(j.InstallerID),
-			InstallerName:        j.InstallerName,
-			FacilityID:           int(j.FacilityID),
-			SolarSystemName:      j.SolarSystemName,
-			SolarSystemID:        int(j.SolarSystemID),
-			StationID:            int(j.StationID),
-			ActivityID:           int(j.ActivityID),
-			BlueprintID:          int(j.BlueprintID),
-			BlueprintTypeID:      int(j.BlueprintTypeID),
-			BlueprintTypeName:    j.BlueprintTypeName,
-			BlueprintLocationID:  int(j.BlueprintLocationID),
-			OutputLocationID:     int(j.OutputLocationID),
-			ProductTypeID:        int(j.ProductTypeID),
-			Runs:                 int(j.Runs),
-			Cost:                 decimal.NewFromFloat(j.Cost),
-			LicensedRuns:         int(j.LicensedRuns),
-			Probability:          decimal.NewFromFloat(j.Probability),
-			ProductTypeName:      j.ProductTypeName,
-			Status:               int(j.Status),
-			TimeInSeconds:        int(j.TimeInSeconds),
-			StartDate:            j.StartDate.Time,
-			EndDate:              j.EndDate.Time,
-			PauseDate:            j.PauseDate.Time,
-			CompletedDate:        j.CompletedDate.Time,
-			CompletedCharacterID: int(j.CompletedCharacterID),
-			SuccessfulRuns:       int(j.SuccessfulRuns),
-		}
-		jobs = append(jobs, job)
-	}
-	return jobs, nil
+	return api.GetCorporationIndustryJobs(ctx, corpID)
 }

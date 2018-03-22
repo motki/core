@@ -16,9 +16,8 @@ var (
 type Blueprint struct {
 	ItemID             int
 	LocationID         int
+	LocationFlag       string
 	TypeID             int
-	TypeName           string
-	FlagID             int
 	TimeEfficiency     int
 	MaterialEfficiency int
 	Kind               BlueprintKind
@@ -38,9 +37,8 @@ func blueprintFromEveAPI(bp *eveapi.Blueprint) *Blueprint {
 	return &Blueprint{
 		ItemID:             int(bp.ItemID),
 		LocationID:         int(bp.LocationID),
+		LocationFlag:       bp.LocationFlag,
 		TypeID:             int(bp.TypeID),
-		TypeName:           bp.TypeName,
-		FlagID:             int(bp.FlagID),
 		TimeEfficiency:     int(bp.TimeEfficiency),
 		MaterialEfficiency: int(bp.MaterialEfficiency),
 		Kind:               kind,
@@ -83,11 +81,10 @@ func (m *BlueprintManager) getCorporationBlueprintsFromDB(corpID int) ([]*Bluepr
 		`SELECT
 			  c.item_id
 			, c.location_id
+			, c.location_flag
 			, c.type_id
-			, c.type_name
 			, c.quantity
 			, c.kind
-			, c.flag_id
 			, c.time_efficiency
 			, c.material_efficiency
 			, c.runs
@@ -104,11 +101,10 @@ func (m *BlueprintManager) getCorporationBlueprintsFromDB(corpID int) ([]*Bluepr
 		err := rs.Scan(
 			&r.ItemID,
 			&r.LocationID,
+			&r.LocationFlag,
 			&r.TypeID,
-			&r.TypeName,
 			&r.Quantity,
 			&r.Kind,
-			&r.FlagID,
 			&r.TimeEfficiency,
 			&r.MaterialEfficiency,
 			&r.Runs,
@@ -145,16 +141,15 @@ func (m *BlueprintManager) apiCorporationBlueprintsToDB(corpID int, bps []*Bluep
 	for _, bp := range bps {
 		_, err = db.Exec(
 			`INSERT INTO app.blueprints
-					VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, DEFAULT)`,
+					VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, DEFAULT)`,
 			corpID,
 			0,
 			bp.ItemID,
 			bp.LocationID,
+			bp.LocationFlag,
 			bp.TypeID,
-			bp.TypeName,
 			bp.Quantity,
 			bp.Kind,
-			bp.FlagID,
 			bp.TimeEfficiency,
 			bp.MaterialEfficiency,
 			bp.Runs,

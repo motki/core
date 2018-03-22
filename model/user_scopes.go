@@ -4,31 +4,31 @@ import "github.com/motki/core/eveapi"
 
 var (
 	userScopes = []string{
-		eveapi.ScopePublicData,
 		eveapi.ScopeESISkillsReadSkills,
-		eveapi.ScopeESISkillsReadSkillQueue,
+		eveapi.ScopeESISkillsReadSkillqueue,
 		eveapi.ScopeESIKillmailsReadKillmails,
+		eveapi.ScopeESICharactersReadCorporationRoles,
 	}
 	logisticsScopes = []string{
-		eveapi.ScopeCharacterAssetsRead,
-		eveapi.ScopeCharacterIndustryJobsRead,
-		eveapi.ScopeCharacterMarketOrdersRead,
-		eveapi.ScopeCharacterWalletRead,
-		eveapi.ScopeCorporationMarketOrdersRead,
-		eveapi.ScopeCorporationIndustryJobsRead,
-		eveapi.ScopeCorporationWalletRead,
 		eveapi.ScopeESISkillsReadSkills,
 		eveapi.ScopeESIUniverseReadStructures,
 		eveapi.ScopeESIAssetsReadAssets,
 		eveapi.ScopeESIWalletReadCharacterWallet,
-		eveapi.ScopeESIMarketsStructureMarkets,
+		eveapi.ScopeESIMarketReadStructureMarkets,
+		eveapi.ScopeESIMarketReadCharacterOrders,
+		eveapi.ScopeESIMarketReadStructureMarkets,
 		eveapi.ScopeESIIndustryReadCharacterJobs,
-		eveapi.ScopeESIMarketsReadCharacterOrders,
 		eveapi.ScopeESICharactersReadBlueprints,
+		eveapi.ScopeESICharactersReadCorporationRoles,
 	}
 	directorScopes = []string{
+		eveapi.ScopeESIIndustryReadCorporationJobs,
 		eveapi.ScopeESICorporationsReadStructures,
-		eveapi.ScopeESICorporationsWriteStructures,
+		eveapi.ScopeESIMarketReadCorporationOrders,
+		eveapi.ScopeESICorporationsReadBlueprints,
+		eveapi.ScopeESIAssetsReadCorporationAssets,
+		eveapi.ScopeESICorporationsReadDivisions,
+		eveapi.ScopeESIWalletReadCorporationWallet,
 	}
 )
 

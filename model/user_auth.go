@@ -152,7 +152,7 @@ func (m *UserManager) GetAuthorization(user *User, role Role) (*Authorization, e
 		return nil, err
 	}
 	if int(info.CharacterID) != a.CharacterID {
-		return nil, errors.New("expected character IDs to match!")
+		return nil, errors.Errorf("expected character ID %d from API, got %d", a.CharacterID, info.CharacterID)
 	}
 	a.source = source
 	// Force retrieval of current char info from the API

@@ -233,13 +233,13 @@ message Blueprint {
 	int64 item_id = 1;
 	int64 location_id = 2;
 	int64 type_id = 3;
-	string type_name = 4;
-	int64 flag_id = 5;
-	int64 time_eff = 6;
-	int64 material_eff = 7;
-    Kind kind = 8;
-	int64 quantity = 9;
-	int64 runs = 10;
+	string location_flag = 4;
+	int64 flag_id = 6;
+	int64 time_eff = 7;
+	int64 material_eff = 8;
+    Kind kind = 9;
+	int64 quantity = 10;
+	int64 runs = 11;
 }
 
 message GetCorpBlueprintsRequest {

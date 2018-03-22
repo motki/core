@@ -133,8 +133,8 @@ func (m *ProductManager) NewProduct(corpID int, typeID int) (*Product, error) {
 // current regionID in.
 //
 //   err := m.UpdateProductMarketPrices(prod, prod.RegionID)
-func (m *ProductManager) UpdateProductMarketPrices(product *Product, regionID int) error {
-	if _, err := m.corp.authContext(context.Background(), product.CorporationID); err != nil {
+func (m *ProductManager) UpdateProductMarketPrices(ctx context.Context, product *Product, regionID int) error {
+	if _, err := m.corp.authContext(ctx, product.CorporationID); err != nil {
 		return err
 	}
 	return m.updateProductsMarketPrices(regionID, product)

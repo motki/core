@@ -27,6 +27,8 @@ type Config struct {
 type EveAPI struct {
 	client  *goesi.APIClient
 	ssoAuth *goesi.SSOAuthenticator
+
+	logger log.Logger
 }
 
 // New creates a new EveAPI with the given configuration.
@@ -40,6 +42,8 @@ func New(c Config, l log.Logger) *EveAPI {
 	return &EveAPI{
 		client:  goesi.NewAPIClient(hc, c.UserAgent),
 		ssoAuth: goesi.NewSSOAuthenticator(hc, c.ClientID, c.SecretKey, c.ReturnURL, AllScopes),
+
+		logger: l,
 	}
 }
 

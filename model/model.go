@@ -60,7 +60,7 @@ func NewManager(pool *db.ConnPool, evedb *evedb.EveDB, api *eveapi.EveAPI, ec *e
 
 	char := newCharacterManager(m)
 	user := newUserManager(m, char)
-	corp := newCorpManager(m, user)
+	corp := newCorpManager(m, user, char)
 	asset := newAssetManager(m, corp)
 	market := newMarketManager(m, corp)
 	structure := newStructureManager(m, corp)
@@ -103,9 +103,17 @@ func (m *Manager) UpdateCorporationDataFunc(logger log.Logger) func() error {
 			}
 
 			ctx := a.Context()
+
 			if _, err := m.FetchCorporationDetail(ctx); err != nil {
 				logger.Errorf("error fetching corp details: %s", err.Error())
 			}
+
+			if res, err := m.GetCorporationIndustryJobs(ctx, a.CorporationID); err != nil {
+				logger.Errorf("error fetching corp industry jobs: %s", err.Error())
+			} else {
+				logger.Debugf("fetched %d industry jobs for corporation %d", len(res), a.CorporationID)
+			}
+
 			if res, err := m.GetCorporationAssets(ctx, a.CorporationID); err != nil {
 				logger.Errorf("error fetching corp assets: %s", err.Error())
 			} else {

@@ -12,8 +12,9 @@ Subpackage Overview
 | Name               | Description
 | ------------------ | -----------
 | [app][1]           | Integration package that wires up all the dependencies in a MOTKI application. Use this package to bootstrap your own MOTKI client application.
+| [cache][12]        | Short-lived, in-memory cache.
 | [db][2]            | PostgreSQL database integration. Light wrapper around [jackc/pgx](https://github.com/jackc/pgx).
-| [eveapi][3]        | EVE API integration. Handles EVE SSO and fetching data from both ESI and XML APIs using [antihax/goesi](https://github.com/antihax/goesi).
+| [eveapi][3]        | EVE API integration. Handles EVE SSO and fetching data from ESI using [antihax/goesi](https://github.com/antihax/goesi).
 | [evedb][4]         | EVE Static Data Export interface. Queries the SDE for static type/universe information. MOTKI uses [Fuzzwork's Postgres dump](https://www.fuzzwork.co.uk/dump/).
 | [evemarketer][5]   | Provides region- and system-specific market statistics using [evemarketer.com](https://evemarketer.com).
 | [log][6]           | Wrapper around [sirupsen/logrus](https://github.com/sirupsen/logrus) providing a configuration API and a defacto `Logger` type.
@@ -21,6 +22,7 @@ Subpackage Overview
 | [proto][8]         | Defines the protocol buffer (and [gRPC](https://grpc.io)) interface for MOTKI at large.
 | [proto/client][9]  | A golang gRPC client for interacting with a remote MOTKI application server.
 | [proto/server][10] | A golang gRPC server for handling MOTKI client requests.
+| [worker][11] | In-memory background task scheduler.
 
 [1]: https://godoc.org/github.com/motki/core/app
 [2]: https://godoc.org/github.com/motki/core/db
@@ -32,3 +34,5 @@ Subpackage Overview
 [8]: https://godoc.org/github.com/motki/core/proto
 [9]: https://godoc.org/github.com/motki/core/proto/client
 [10]: https://godoc.org/github.com/motki/core/proto/server
+[11]: https://godoc.org/github.com/motki/core/worker
+[12]: https://godoc.org/github.com/motki/core/cache

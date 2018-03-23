@@ -1,10 +1,19 @@
-// Package cache is a short-lived in-memory cache.
-package cache
+// Package cache is a short-lived, in-memory cache.
+//
+// This package is designed to provide a very short-term (minutes, at most)
+// value cache. Each lightweight cache bucket can be used to drop-in caching
+// around expensive functionality.
+//
+// A cache bucket will remove cache entries at a regular interval
+package cache // import "github.com/motki/core/cache"
 
 import (
 	"sync"
 	"time"
 )
+
+// The default interval between background removal of expired values.
+const expungeInterval = 60 * time.Second
 
 // A Value is some cached value.
 type Value interface{}
@@ -102,7 +111,7 @@ func (c *Bucket) Memoize(ky string, vfn func() (Value, error)) (v Value, err err
 	return vfn()
 }
 
-// remove removes all the keys from the cache.
+// remove removes the given keys from the cache.
 func (c *Bucket) remove(keys ...key) {
 	c.mu.Lock()
 	defer c.mu.Unlock()
@@ -113,6 +122,19 @@ func (c *Bucket) remove(keys ...key) {
 
 // expunger tracks items in the cache and removes expired values from
 // the cache at regular intervals.
+//
+// The expunger is designed to group values by the specified interval. For example,
+// if the interval is specified as 60 seconds, each item tagged by the expunger will
+// be bucketed by its expiration time truncated to the nearest 60 seconds.
+//
+// Due to the large disparity between cache TTL and expunge interval, most cache entries
+// will be placed into the very next expunger bucket. To avoid lock contention, a
+// buffered channel is used to accept tags while actually processing them in a
+// separate goroutine.
+//
+// - A value is guaranteed to not get removed before its expiration.
+// - All values for a given interval are removed in a single lock on the bucket.
+// - Tagging a new cache item will almost never block.
 type expunger struct {
 	b *Bucket
 
@@ -129,8 +151,7 @@ type tag struct {
 	T time.Time
 }
 
-const expungeInterval = 60 * time.Second
-
+// newExpunger creates a new expired value remover for the given bucket.
 func newExpunger(b *Bucket) *expunger {
 	return &expunger{
 		b:        b,
@@ -156,6 +177,7 @@ func (c *expunger) processTags() {
 			c.mu.Unlock()
 
 		case <-c.b.quit:
+			// Bucket has shut down.
 			return
 		}
 	}
@@ -177,6 +199,7 @@ func (c *expunger) expungeExpiredEntries() {
 			continue
 
 		case <-c.b.quit:
+			// Bucket has shut down.
 			return
 		}
 	}

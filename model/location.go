@@ -1,7 +1,6 @@
 package model
 
 import (
-	"github.com/motki/core/eveapi"
 	"github.com/motki/core/evedb"
 	"github.com/pkg/errors"
 	"golang.org/x/net/context"
@@ -33,7 +32,7 @@ type Location struct {
 	Station *evedb.Station
 
 	// The player-owned structure at this location. May be nil.
-	Structure *eveapi.Structure
+	Structure *Structure
 
 	// Prevent other packages from creating this type.
 	noexport struct{}
@@ -71,7 +70,7 @@ func (l Location) IsSystem() bool {
 	return l.Station == nil && l.Structure == nil
 }
 
-// ParentID returns the StationID, StructureID, or SystemID that this location exists in.
+// ParentID returns the LocationID, StructureID, or SystemID that this location exists in.
 func (l Location) ParentID() int {
 	if l.IsStation() {
 		return l.Station.StationID

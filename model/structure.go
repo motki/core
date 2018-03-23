@@ -6,8 +6,32 @@ import (
 
 	"golang.org/x/net/context"
 
+	"time"
+
 	"github.com/motki/core/eveapi"
 )
+
+// A Structure is a player-owned citadel.
+type Structure struct {
+	StructureID int64
+	Name        string
+	SystemID    int64
+	TypeID      int64
+}
+
+// A CorporationStructure contains additional, sensitive information about a citadel.
+type CorporationStructure struct {
+	Structure
+	ProfileID   int64
+	Services    []string
+	FuelExpires time.Time
+	StateStart  time.Time
+	StateEnd    time.Time
+	UnanchorsAt time.Time
+	VulnWeekday int64
+	VulnHour    int64
+	State       string
+}
 
 type StructureManager struct {
 	bootstrap
@@ -19,7 +43,7 @@ func newStructureManager(m bootstrap, corp *CorpManager) *StructureManager {
 	return &StructureManager{m, corp}
 }
 
-func (m *StructureManager) GetCorporationStructures(ctx context.Context, corpID int) ([]*eveapi.CorporationStructure, error) {
+func (m *StructureManager) GetCorporationStructures(ctx context.Context, corpID int) ([]*CorporationStructure, error) {
 	var err error
 	if ctx, err = m.corp.authContext(ctx, corpID); err != nil {
 		return nil, err
@@ -32,7 +56,7 @@ func (m *StructureManager) GetCorporationStructures(ctx context.Context, corpID 
 	return m.getCorporationStructuresFromAPI(ctx, corpID)
 }
 
-func (m *StructureManager) GetStructure(ctx context.Context, structureID int) (*eveapi.Structure, error) {
+func (m *StructureManager) GetStructure(ctx context.Context, structureID int) (*Structure, error) {
 	c, err := m.pool.Open()
 	if err != nil {
 		return nil, err
@@ -47,7 +71,7 @@ func (m *StructureManager) GetStructure(ctx context.Context, structureID int) (*
 			FROM app.structures c
 			WHERE c.structure_id = $1 
  			  AND c.fetched_at > (NOW() - INTERVAL '12 hours')`, structureID)
-	s := &eveapi.Structure{}
+	s := &Structure{}
 	err = r.Scan(&s.StructureID, &s.Name, &s.SystemID, &s.TypeID)
 	if err != nil {
 		if err == sql.ErrNoRows {
@@ -58,7 +82,7 @@ func (m *StructureManager) GetStructure(ctx context.Context, structureID int) (*
 	return s, nil
 }
 
-func (m *StructureManager) getCorporationStructuresFromDB(corpID int) ([]*eveapi.CorporationStructure, error) {
+func (m *StructureManager) getCorporationStructuresFromDB(corpID int) ([]*CorporationStructure, error) {
 	c, err := m.pool.Open()
 	if err != nil {
 		return nil, err
@@ -86,9 +110,9 @@ func (m *StructureManager) getCorporationStructuresFromDB(corpID int) ([]*eveapi
 		return nil, err
 	}
 	defer rs.Close()
-	var res []*eveapi.CorporationStructure
+	var res []*CorporationStructure
 	for rs.Next() {
-		r := &eveapi.CorporationStructure{}
+		r := &CorporationStructure{}
 		var s []byte
 		err := rs.Scan(
 			&r.StructureID,
@@ -121,7 +145,7 @@ func (m *StructureManager) getCorporationStructuresFromDB(corpID int) ([]*eveapi
 	return res, nil
 }
 
-func (m *StructureManager) getCorporationStructuresFromAPI(ctx context.Context, corpID int) ([]*eveapi.CorporationStructure, error) {
+func (m *StructureManager) getCorporationStructuresFromAPI(ctx context.Context, corpID int) ([]*CorporationStructure, error) {
 	strucs, err := m.eveapi.GetCorporationStructures(ctx, corpID)
 	if err != nil {
 		return nil, err
@@ -129,13 +153,14 @@ func (m *StructureManager) getCorporationStructuresFromAPI(ctx context.Context, 
 	return m.apiCorporationStructuresToDB(corpID, strucs)
 }
 
-func (m *StructureManager) apiCorporationStructuresToDB(corpID int, strucs []*eveapi.CorporationStructure) ([]*eveapi.CorporationStructure, error) {
+func (m *StructureManager) apiCorporationStructuresToDB(corpID int, strucs []*eveapi.CorporationStructure) ([]*CorporationStructure, error) {
 	db, err := m.pool.Open()
 	if err != nil {
 		return nil, err
 	}
 	defer m.pool.Release(db)
-	for _, struc := range strucs {
+	res := make([]*CorporationStructure, len(strucs))
+	for i, struc := range strucs {
 		b, err := json.Marshal(struc.Services)
 		if err != nil {
 			return nil, err
@@ -178,11 +203,23 @@ func (m *StructureManager) apiCorporationStructuresToDB(corpID int, strucs []*ev
 		if err != nil {
 			return nil, err
 		}
+		res[i] = &CorporationStructure{
+			Structure:   (Structure)(struc.Structure),
+			ProfileID:   struc.ProfileID,
+			Services:    struc.Services,
+			FuelExpires: struc.FuelExpires,
+			StateStart:  struc.StateStart,
+			StateEnd:    struc.StateEnd,
+			UnanchorsAt: struc.UnanchorsAt,
+			VulnWeekday: struc.VulnWeekday,
+			VulnHour:    struc.VulnHour,
+			State:       struc.State,
+		}
 	}
-	return strucs, nil
+	return res, nil
 }
 
-func (m *StructureManager) getStructureFromAPI(ctx context.Context, structureID int) (*eveapi.Structure, error) {
+func (m *StructureManager) getStructureFromAPI(ctx context.Context, structureID int) (*Structure, error) {
 	s, err := m.eveapi.GetStructure(ctx, int64(structureID))
 	if err != nil {
 		return nil, err
@@ -190,7 +227,7 @@ func (m *StructureManager) getStructureFromAPI(ctx context.Context, structureID 
 	return m.apiStructureToDB(s)
 }
 
-func (m *StructureManager) apiStructureToDB(struc *eveapi.Structure) (*eveapi.Structure, error) {
+func (m *StructureManager) apiStructureToDB(struc *eveapi.Structure) (*Structure, error) {
 	db, err := m.pool.Open()
 	if err != nil {
 		return nil, err
@@ -211,5 +248,5 @@ func (m *StructureManager) apiStructureToDB(struc *eveapi.Structure) (*eveapi.St
 	if err != nil {
 		return nil, err
 	}
-	return struc, nil
+	return (*Structure)(struc), nil
 }

@@ -4,7 +4,6 @@ import (
 	"time"
 
 	"github.com/golang/protobuf/ptypes/timestamp"
-	"github.com/motki/core/eveapi"
 	"github.com/motki/core/evedb"
 	"github.com/motki/core/model"
 	"github.com/shopspring/decimal"
@@ -480,8 +479,8 @@ func InventoryItemToProto(m *model.InventoryItem) *InventoryItem {
 	}
 }
 
-func ProtoToStructure(p *Structure) *eveapi.Structure {
-	return &eveapi.Structure{
+func ProtoToStructure(p *Structure) *model.Structure {
+	return &model.Structure{
 		StructureID: p.Id,
 		TypeID:      p.TypeId,
 		Name:        p.Name,
@@ -489,7 +488,7 @@ func ProtoToStructure(p *Structure) *eveapi.Structure {
 	}
 }
 
-func StructureToProto(m *eveapi.Structure) *Structure {
+func StructureToProto(m *model.Structure) *Structure {
 	return &Structure{
 		Id:       m.StructureID,
 		TypeId:   m.TypeID,
@@ -498,7 +497,7 @@ func StructureToProto(m *eveapi.Structure) *Structure {
 	}
 }
 
-func CorpStructureToProto(m *eveapi.CorporationStructure) *CorporationStructure {
+func CorpStructureToProto(m *model.CorporationStructure) *CorporationStructure {
 	return &CorporationStructure{
 		Id:        m.StructureID,
 		Name:      m.Name,
@@ -524,9 +523,9 @@ func CorpStructureToProto(m *eveapi.CorporationStructure) *CorporationStructure 
 	}
 }
 
-func ProtoToCorpStructure(p *CorporationStructure) *eveapi.CorporationStructure {
-	return &eveapi.CorporationStructure{
-		Structure: eveapi.Structure{
+func ProtoToCorpStructure(p *CorporationStructure) *model.CorporationStructure {
+	return &model.CorporationStructure{
+		Structure: model.Structure{
 			StructureID: p.Id,
 			Name:        p.Name,
 			SystemID:    p.SystemId,
@@ -571,7 +570,7 @@ func LocationToProto(m *model.Location) *Location {
 	var sta *Station
 	var str *Structure
 	if m.Structure != nil {
-		str = StructureToProto(m.Structure)
+		str = StructureToProto((*model.Structure)(m.Structure))
 	}
 	if m.Station != nil {
 		sta = StationToProto(m.Station)
@@ -588,7 +587,7 @@ func LocationToProto(m *model.Location) *Location {
 
 func ProtoToLocation(p *Location) *model.Location {
 	var sta *evedb.Station
-	var str *eveapi.Structure
+	var str *model.Structure
 	if p.Station != nil {
 		sta = ProtoToStation(p.Station)
 	}

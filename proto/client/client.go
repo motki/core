@@ -22,7 +22,6 @@ package client // import "github.com/motki/core/proto/client"
 import (
 	"github.com/pkg/errors"
 
-	"github.com/motki/core/eveapi"
 	"github.com/motki/core/evedb"
 	"github.com/motki/core/log"
 	"github.com/motki/core/model"
@@ -110,9 +109,9 @@ type Client interface {
 	UpdateProductPrices(*model.Product) (*model.Product, error)
 
 	// GetStructure gets basic information about the given structure.
-	GetStructure(structureID int) (*eveapi.Structure, error)
+	GetStructure(structureID int) (*model.Structure, error)
 	// GetCorpStructures gets detailed information about corporation structures.
-	GetCorpStructures() ([]*eveapi.CorporationStructure, error)
+	GetCorpStructures() ([]*model.CorporationStructure, error)
 
 	// GetLocation returns information about the denormalized locationID.
 	GetLocation(locationID int) (*model.Location, error)

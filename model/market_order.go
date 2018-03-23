@@ -1,33 +1,64 @@
 package model
 
 import (
+	"database/sql/driver"
 	"time"
 
+	"fmt"
+
 	"github.com/jackc/pgx"
+	"github.com/pkg/errors"
 	"github.com/shopspring/decimal"
 	"golang.org/x/net/context"
 )
 
+// One of: open, expired, cancelled
+type OrderState string
+
+const (
+	OrderStateOpen      OrderState = "open"
+	OrderStateExpired              = "expired"
+	OrderStateCancelled            = "cancelled"
+)
+
+func (r OrderState) Value() (driver.Value, error) {
+	return string(r), nil
+}
+
+func (r *OrderState) Scan(src interface{}) error {
+	s, ok := src.(string)
+	if !ok {
+		return fmt.Errorf("invalid %t for order state: %v", src, src)
+	}
+	switch OrderState(s) {
+	case OrderStateOpen:
+		*r = OrderStateOpen
+	case OrderStateCancelled:
+		*r = OrderStateCancelled
+	case OrderStateExpired:
+		*r = OrderStateExpired
+	default:
+		return fmt.Errorf("invalid value for order state: %v", s)
+	}
+	return nil
+}
+
 type MarketOrder struct {
 	OrderID      int
 	CharID       int
-	StationID    int
+	LocationID   int
 	TypeID       int
 	VolEntered   int
 	VolRemaining int
 	MinVolume    int
-	OrderState   int
-	Range        int
+	OrderState   OrderState
+	Range        string
 	AccountKey   int
 	Duration     int
 	Escrow       decimal.Decimal
 	Price        decimal.Decimal
 	Bid          bool
 	Issued       time.Time
-
-	// loner is used to denote an order that was fetched alone.
-	// loner orders will not be considered when fetching all of a corporation's orders.
-	loner bool
 }
 
 func (m *MarketManager) GetCorporationOrder(ctx context.Context, corpID, orderID int) (*MarketOrder, error) {
@@ -35,99 +66,16 @@ func (m *MarketManager) GetCorporationOrder(ctx context.Context, corpID, orderID
 	if ctx, err = m.corp.authContext(ctx, corpID); err != nil {
 		return nil, err
 	}
-	order, err := m.getCorporationOrderFromDB(corpID, orderID)
+	orders, err := m.GetCorporationOrders(ctx, corpID)
 	if err != nil && err != pgx.ErrNoRows {
 		return nil, err
 	}
-	if order != nil {
-		return order, nil
+	for _, o := range orders {
+		if o.OrderID == orderID {
+			return o, nil
+		}
 	}
-	return m.getCorporationOrderFromAPI(ctx, corpID, orderID)
-}
-
-func (m *MarketManager) getCorporationOrderFromDB(corpID, orderID int) (*MarketOrder, error) {
-	c, err := m.pool.Open()
-	if err != nil {
-		return nil, err
-	}
-	defer m.pool.Release(c)
-	r := c.QueryRow(
-		`SELECT
-			  c.order_id
-			, c.station_id
-			, c.type_id
-			, c.volume_entered
-			, c.volume_remaining
-			, c.min_volume
-			, c.order_state
-			, c.range
-			, c.account_key
-			, c.duration
-			, c.escrow
-			, c.price
-			, c.bid
-			, c.issued
-			, c.character_id
-			FROM app.market_orders c
-			WHERE c.corporation_id = $1
-			  AND c.order_id = $2
-			  AND c.fetched_at > (NOW() - INTERVAL '6 hours')`, corpID, orderID)
-	o := &MarketOrder{}
-	bid := 0
-	err = r.Scan(
-		&o.OrderID,
-		&o.StationID,
-		&o.TypeID,
-		&o.VolEntered,
-		&o.VolRemaining,
-		&o.MinVolume,
-		&o.OrderState,
-		&o.Range,
-		&o.AccountKey,
-		&o.Duration,
-		&o.Escrow,
-		&o.Price,
-		&bid,
-		&o.Issued,
-		&o.CharID,
-	)
-	if err != nil {
-		return nil, err
-	}
-	if bid > 0 {
-		o.Bid = true
-	}
-	return o, nil
-}
-
-func (m *MarketManager) getCorporationOrderFromAPI(ctx context.Context, corpID, orderID int) (*MarketOrder, error) {
-	o, err := m.eveapi.GetCorporationOrder(ctx, corpID, orderID)
-	if err != nil {
-		return nil, err
-	}
-	res := &MarketOrder{
-		OrderID:      o.OrderID,
-		CharID:       o.CharID,
-		StationID:    o.StationID,
-		TypeID:       o.TypeID,
-		VolEntered:   o.VolEntered,
-		VolRemaining: o.VolRemaining,
-		MinVolume:    o.MinVolume,
-		OrderState:   o.OrderState,
-		Range:        o.Range,
-		AccountKey:   o.AccountKey,
-		Duration:     o.Duration,
-		Bid:          o.Bid,
-		Escrow:       o.Escrow,
-		Price:        o.Price,
-		Issued:       o.Issued,
-		loner:        true,
-	}
-	_, err = m.apiCorporationOrdersToDB(corpID, []*MarketOrder{res})
-	if err != nil {
-		return nil, err
-	}
-	return res, nil
+	return nil, errors.New("order not found")
 }
 
 func (m *MarketManager) GetCorporationOrders(ctx context.Context, corpID int) (orders []*MarketOrder, err error) {
@@ -153,7 +101,7 @@ func (m *MarketManager) getCorporationOrdersFromDB(corporationID int) ([]*Market
 	rs, err := c.Query(
 		`SELECT
 			  c.order_id
-			, c.station_id
+			, c.location_id
 			, c.type_id
 			, c.volume_entered
 			, c.volume_remaining
@@ -169,7 +117,6 @@ func (m *MarketManager) getCorporationOrdersFromDB(corporationID int) ([]*Market
 			, c.character_id
 			FROM app.market_orders c
 			WHERE c.corporation_id = $1
-			  AND c.loner = 0
 			  AND c.fetched_at > (NOW() - INTERVAL '6 hours')`, corporationID)
 	if err != nil {
 		return nil, err
@@ -178,10 +125,9 @@ func (m *MarketManager) getCorporationOrdersFromDB(corporationID int) ([]*Market
 	var res []*MarketOrder
 	for rs.Next() {
 		o := &MarketOrder{}
-		bid := 0
 		err = rs.Scan(
 			&o.OrderID,
-			&o.StationID,
+			&o.LocationID,
 			&o.TypeID,
 			&o.VolEntered,
 			&o.VolRemaining,
@@ -192,15 +138,12 @@ func (m *MarketManager) getCorporationOrdersFromDB(corporationID int) ([]*Market
 			&o.Duration,
 			&o.Escrow,
 			&o.Price,
-			&bid,
+			&o.Bid,
 			&o.Issued,
 			&o.CharID,
 		)
 		if err != nil {
 			return nil, err
-		}
-		if bid > 0 {
-			o.Bid = true
 		}
 		res = append(res, o)
 	}
@@ -217,12 +160,12 @@ func (m *MarketManager) getCorporationOrdersFromAPI(ctx context.Context, corpID 
 		res = append(res, &MarketOrder{
 			OrderID:      o.OrderID,
 			CharID:       o.CharID,
-			StationID:    o.StationID,
+			LocationID:   o.LocationID,
 			TypeID:       o.TypeID,
 			VolEntered:   o.VolEntered,
 			VolRemaining: o.VolRemaining,
 			MinVolume:    o.MinVolume,
-			OrderState:   o.OrderState,
+			OrderState:   OrderState(o.OrderState),
 			Range:        o.Range,
 			AccountKey:   o.AccountKey,
 			Duration:     o.Duration,
@@ -242,19 +185,11 @@ func (m *MarketManager) apiCorporationOrdersToDB(corpID int, orders []*MarketOrd
 	}
 	defer m.pool.Release(db)
 	for _, o := range orders {
-		bid := 0
-		if o.Bid {
-			bid = 1
-		}
-		loner := 0
-		if o.loner {
-			loner = 1
-		}
 		_, err = db.Exec(
 			`INSERT INTO app.market_orders
 			 (
 			     order_id
-			   , station_id
+			   , location_id
 			   , type_id
 			   , volume_entered
 			   , volume_remaining
@@ -269,9 +204,8 @@ func (m *MarketManager) apiCorporationOrdersToDB(corpID int, orders []*MarketOrd
 			   , issued
 			   , corporation_id
 			   , character_id
-			   , loner
 			 )
-			 VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17)
+			 VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16)
 			 ON CONFLICT
 			   ON CONSTRAINT "market_orders_pkey"
 			 DO UPDATE
@@ -280,12 +214,9 @@ func (m *MarketManager) apiCorporationOrdersToDB(corpID int, orders []*MarketOrd
 			     , range = EXCLUDED.range
 			     , escrow = EXCLUDED.escrow
 			     , price = EXCLUDED.price
-			     , bid = EXCLUDED.bid
-			     , issued = EXCLUDED.issued
-			     , loner = EXCLUDED.loner
 			     , fetched_at = DEFAULT`,
 			o.OrderID,
-			o.StationID,
+			o.LocationID,
 			o.TypeID,
 			o.VolEntered,
 			o.VolRemaining,
@@ -296,11 +227,10 @@ func (m *MarketManager) apiCorporationOrdersToDB(corpID int, orders []*MarketOrd
 			o.Duration,
 			o.Escrow,
 			o.Price,
-			bid,
+			o.Bid,
 			o.Issued,
 			corpID,
 			o.CharID,
-			loner,
 		)
 		if err != nil {
 			return nil, err

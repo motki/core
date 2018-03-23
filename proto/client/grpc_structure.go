@@ -5,7 +5,7 @@ import (
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
 
-	"github.com/motki/core/eveapi"
+	"github.com/motki/core/model"
 	"github.com/motki/core/proto"
 )
 
@@ -17,7 +17,7 @@ type StructureClient struct {
 }
 
 // GetStructure returns public information about the given structure.
-func (c *StructureClient) GetStructure(structureID int) (*eveapi.Structure, error) {
+func (c *StructureClient) GetStructure(structureID int) (*model.Structure, error) {
 	if c.token == "" {
 		return nil, ErrNotAuthenticated
 	}
@@ -42,7 +42,7 @@ func (c *StructureClient) GetStructure(structureID int) (*eveapi.Structure, erro
 // GetCorpStructures returns detailed information about corporation structures.
 //
 // This method requires that the user's corporation has opted-in to data collection.
-func (c *StructureClient) GetCorpStructures() ([]*eveapi.CorporationStructure, error) {
+func (c *StructureClient) GetCorpStructures() ([]*model.CorporationStructure, error) {
 	if c.token == "" {
 		return nil, ErrNotAuthenticated
 	}
@@ -61,7 +61,7 @@ func (c *StructureClient) GetCorpStructures() ([]*eveapi.CorporationStructure, e
 	if res.Result.Status == proto.Status_FAILURE {
 		return nil, errors.New(res.Result.Description)
 	}
-	var strucs []*eveapi.CorporationStructure
+	var strucs []*model.CorporationStructure
 	for _, k := range res.Structures {
 		strucs = append(strucs, proto.ProtoToCorpStructure(k))
 	}

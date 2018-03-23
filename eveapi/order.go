@@ -1,23 +1,23 @@
 package eveapi
 
 import (
+	"strconv"
 	"time"
 
-	"github.com/pkg/errors"
 	"github.com/shopspring/decimal"
 	"golang.org/x/net/context"
 )
 
 type MarketOrder struct {
 	OrderID      int
-	CharID       int
-	StationID    int
+	CharID       int // TODO: Doesn't exist in the ESI response
+	LocationID   int
 	TypeID       int
 	VolEntered   int
 	VolRemaining int
 	MinVolume    int
-	OrderState   int
-	Range        int
+	OrderState   string
+	Range        string
 	AccountKey   int
 	Duration     int
 	Escrow       decimal.Decimal
@@ -27,64 +27,81 @@ type MarketOrder struct {
 }
 
 func (api *EveAPI) GetCorporationOrders(ctx context.Context, corpID int) (orders []*MarketOrder, err error) {
-	tok, err := TokenFromContext(ctx)
+	_, err = TokenFromContext(ctx)
 	if err != nil {
 		return nil, err
 	}
-	res, err := api.client.EVEAPI.CorporationMarketOrdersXML(tok, int64(corpID))
-	if err != nil {
-		return nil, err
-	}
-	for _, j := range res.Entries {
-		order := &MarketOrder{
-			OrderID:      int(j.OrderID),
-			CharID:       int(j.CharID),
-			StationID:    int(j.StationID),
-			TypeID:       int(j.TypeID),
-			VolEntered:   int(j.VolEntered),
-			VolRemaining: int(j.VolRemaining),
-			MinVolume:    int(j.MinVolume),
-			OrderState:   int(j.OrderState),
-			Range:        int(j.Range),
-			AccountKey:   int(j.AccountKey),
-			Duration:     int(j.Duration),
-			Escrow:       decimal.NewFromFloat(j.Escrow),
-			Price:        decimal.NewFromFloat(j.Price),
-			Bid:          j.Bid,
-			Issued:       j.Issued.Time,
+	var max int
+	for p := 0; p <= max; p++ {
+		res, resp, err := api.client.ESI.MarketApi.GetCorporationsCorporationIdOrders(ctx, int32(corpID), map[string]interface{}{"page": int32(p)})
+		if err != nil {
+			return nil, err
 		}
-		orders = append(orders, order)
+		max, err = strconv.Atoi(resp.Header.Get("X-Pages"))
+		if err != nil {
+			api.logger.Debugf("error reading X-Pages header: ", err.Error())
+		}
+		for _, j := range res {
+			order := &MarketOrder{
+				OrderID: int(j.OrderId),
+				//CharID:       int(j.CharId),
+				LocationID:   int(j.LocationId),
+				TypeID:       int(j.TypeId),
+				VolEntered:   int(j.VolumeTotal),
+				VolRemaining: int(j.VolumeRemain),
+				MinVolume:    int(j.MinVolume),
+				OrderState:   "open",
+				Range:        j.Range_,
+				AccountKey:   int(j.WalletDivision),
+				Duration:     int(j.Duration),
+				Escrow:       decimal.NewFromFloat(j.Escrow),
+				Price:        decimal.NewFromFloat(j.Price),
+				Bid:          j.IsBuyOrder,
+				Issued:       j.Issued,
+			}
+			orders = append(orders, order)
+		}
 	}
+
 	return orders, nil
 }
 
-func (api *EveAPI) GetCorporationOrder(ctx context.Context, corpID, orderID int) (*MarketOrder, error) {
-	tok, err := TokenFromContext(ctx)
+func (api *EveAPI) GetCorporationOrdersHistory(ctx context.Context, corpID int) (orders []*MarketOrder, err error) {
+	_, err = TokenFromContext(ctx)
 	if err != nil {
 		return nil, err
 	}
-	res, err := api.client.EVEAPI.CorporationMarketOrderXML(tok, int64(corpID), int64(orderID))
-	if err != nil {
-		return nil, err
+	var max int
+	for p := 0; p <= max; p++ {
+		res, resp, err := api.client.ESI.MarketApi.GetCorporationsCorporationIdOrdersHistory(ctx, int32(corpID), map[string]interface{}{"page": int32(p)})
+		if err != nil {
+			return nil, err
+		}
+		max, err = strconv.Atoi(resp.Header.Get("X-Pages"))
+		if err != nil {
+			api.logger.Debugf("error reading X-Pages header: ", err.Error())
+		}
+		for _, j := range res {
+			order := &MarketOrder{
+				OrderID: int(j.OrderId),
+				//CharID:       int(j.CharId),
+				LocationID:   int(j.LocationId),
+				TypeID:       int(j.TypeId),
+				VolEntered:   int(j.VolumeTotal),
+				VolRemaining: int(j.VolumeRemain),
+				MinVolume:    int(j.MinVolume),
+				OrderState:   j.State,
+				Range:        j.Range_,
+				AccountKey:   int(j.WalletDivision),
+				Duration:     int(j.Duration),
+				Escrow:       decimal.NewFromFloat(j.Escrow),
+				Price:        decimal.NewFromFloat(j.Price),
+				Bid:          j.IsBuyOrder,
+				Issued:       j.Issued,
+			}
+			orders = append(orders, order)
+		}
 	}
-	for _, j := range res.Entries {
-		return &MarketOrder{
-			OrderID:      int(j.OrderID),
-			CharID:       int(j.CharID),
-			StationID:    int(j.StationID),
-			TypeID:       int(j.TypeID),
-			VolEntered:   int(j.VolEntered),
-			VolRemaining: int(j.VolRemaining),
-			MinVolume:    int(j.MinVolume),
-			OrderState:   int(j.OrderState),
-			Range:        int(j.Range),
-			AccountKey:   int(j.AccountKey),
-			Duration:     int(j.Duration),
-			Escrow:       decimal.NewFromFloat(j.Escrow),
-			Price:        decimal.NewFromFloat(j.Price),
-			Bid:          j.Bid,
-			Issued:       j.Issued.Time,
-		}, nil
-	}
-	return nil, errors.New("not found")
+
+	return orders, nil
 }

@@ -143,7 +143,7 @@ func (m *AssetManager) GetAssetSystem(a *Asset) (*evedb.System, error) {
 		// LocationID is a SystemID
 		return m.evedb.GetSystem(a.LocationID)
 	case a.LocationID < 66000000:
-		// LocationID is a StationID
+		// LocationID is a LocationID
 	case a.LocationID < 67000000:
 		// LocationID is a conquerable station or outpost
 

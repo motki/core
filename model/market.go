@@ -26,7 +26,7 @@ type MarketStat struct {
 	Timestamp   time.Time
 }
 
-func (m MarketStat) View() marketStatView {
+func (m MarketStat) View() StatView {
 	wavg, _ := m.WAvg.Float64()
 	avg, _ := m.Avg.Float64()
 	variance, _ := m.Variance.Float64()
@@ -35,7 +35,7 @@ func (m MarketStat) View() marketStatView {
 	fivePercent, _ := m.FivePercent.Float64()
 	max, _ := m.Max.Float64()
 	min, _ := m.Min.Float64()
-	return marketStatView{
+	return StatView{
 		Kind:        string(m.Kind),
 		TypeID:      m.TypeID,
 		Volume:      m.Volume,
@@ -51,7 +51,7 @@ func (m MarketStat) View() marketStatView {
 	}
 }
 
-type marketStatView struct {
+type StatView struct {
 	Kind        string
 	TypeID      int
 	Volume      int
@@ -64,6 +64,8 @@ type marketStatView struct {
 	Max         float64
 	Min         float64
 	Timestamp   time.Time
+
+	unexported struct{}
 }
 
 type MarketManager struct {

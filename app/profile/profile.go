@@ -1,5 +1,5 @@
 // Package profile provides configuration-less profiling enabled with a command-line flag.
-package profile
+package profile // import "github.com/motki/core/app/profile"
 
 import (
 	"flag"

@@ -157,9 +157,9 @@ func (env *ClientEnv) BlockUntilSignalWith(signals chan os.Signal, fns ...Shutdo
 // a signal.
 //
 // See BlockUntilSignalWith for more details.
-func (env *ClientEnv) BlockUntilSignal(abort chan os.Signal) {
+func (env *ClientEnv) BlockUntilSignal(abort chan os.Signal) error {
 	env.signals = abort
-	env.BlockUntilSignalWith(abort, env.shutdownFuncs()...)
+	return env.BlockUntilSignalWith(abort, env.shutdownFuncs()...)
 }
 
 // Shutdown begins a graceful shutdown process.

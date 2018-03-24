@@ -1,8 +1,7 @@
 // Package db manages interaction with an underlying database store.
 //
-// This package is designed to abstract the actual library used for interacting
-// with the database. The exported API returns standard database/sql
-// structures.
+// This package is a thin layer around pgx that provides a configuration
+// interface.
 package db // import "github.com/motki/core/db"
 
 import (

@@ -4,7 +4,8 @@
 // value cache. Each lightweight cache bucket can be used to drop-in caching
 // around expensive functionality.
 //
-// A cache bucket will remove cache entries at a regular interval
+// A cache bucket will remove expired entries at a regular interval in a separate
+// goroutine.
 package cache // import "github.com/motki/core/cache"
 
 import (
@@ -13,7 +14,7 @@ import (
 )
 
 // The default interval between background removal of expired values.
-const expungeInterval = 60 * time.Second
+const ExpungeInterval = 60 * time.Second
 
 // A Value is some cached value.
 type Value interface{}
@@ -155,7 +156,7 @@ type tag struct {
 func newExpunger(b *Bucket) *expunger {
 	return &expunger{
 		b:        b,
-		interval: expungeInterval,
+		interval: ExpungeInterval,
 		recs:     make(map[time.Time][]key),
 		tags:     make(chan tag, 10),
 		mu:       sync.Mutex{},

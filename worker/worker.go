@@ -26,6 +26,8 @@ func (j JobFunc) Perform() error {
 
 // Scheduler is the entry-point for scheduling jobs to run asynchronously.
 type Scheduler struct {
+	workers int64 // Number of active worker goroutines.
+
 	delay time.Duration // Delay between ticks.
 
 	waiting chan Job // Jobs ready to be performed.
@@ -39,8 +41,6 @@ type Scheduler struct {
 
 	quit chan struct{} // Closed when shutting down.
 	done chan struct{} // Closed when finished shutting down.
-
-	workers int64 // Number of active worker goroutines.
 
 	logger log.Logger
 

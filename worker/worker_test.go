@@ -17,10 +17,14 @@ import (
 
 var delay = 100 * time.Microsecond
 
-// TestScheduler tests basic functionality
+// TestScheduler tests basic functionality.
 func TestScheduler(t *testing.T) {
 	sched := worker.NewWithTick(log.New(log.Config{Level: "fatal"}), delay)
-	defer sched.Shutdown()
+	defer func() {
+		if err := sched.Shutdown(); err != nil {
+			t.Errorf("unexpected error: %s", err.Error())
+		}
+	}()
 
 	var i int64
 	err := sched.ScheduleFunc(func() error {
@@ -32,6 +36,40 @@ func TestScheduler(t *testing.T) {
 	}
 
 	for j := 0; atomic.LoadInt64(&i) != 42; j++ {
+		if j >= 10 {
+			t.Errorf("did not process func in time")
+			return
+		}
+		time.Sleep(delay)
+	}
+}
+
+// TestManyWorkers tests the scheduler with many worker goroutines.
+func TestManyWorkers(t *testing.T) {
+	sched := worker.NewWithTick(log.New(log.Config{Level: "fatal"}), delay)
+	defer func() {
+		if err := sched.Shutdown(); err != nil {
+			t.Errorf("unexpected error: %s", err.Error())
+		}
+	}()
+
+	workers := 100
+	for i := 0; i < workers; i++ {
+		go sched.Loop()
+	}
+
+	var v int64
+	for i := 0; i < workers; i++ {
+		err := sched.ScheduleFunc(func() error {
+			atomic.AddInt64(&v, 1)
+			return nil
+		})
+		if err != nil {
+			t.Errorf("unexpected error: %s", err.Error())
+		}
+	}
+
+	for j := 0; atomic.LoadInt64(&v) != int64(workers); j++ {
 		if j >= 10 {
 			t.Errorf("did not process func in time")
 			return

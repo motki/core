@@ -3,6 +3,7 @@ package worker
 
 import (
 	"sync"
+	"sync/atomic"
 	"time"
 
 	"github.com/pkg/errors"
@@ -39,8 +40,7 @@ type Scheduler struct {
 	quit chan struct{} // Closed when shutting down.
 	done chan struct{} // Closed when finished shutting down.
 
-	workers    int64      // Number of active worker goroutines.
-	countMutex sync.Mutex // Guards workers.
+	workers int64 // Number of active worker goroutines.
 
 	logger log.Logger
 
@@ -68,8 +68,7 @@ func NewWithTick(logger log.Logger, delay time.Duration) *Scheduler {
 		quit: make(chan struct{}, 0),
 		done: make(chan struct{}, 0),
 
-		workers:    0,
-		countMutex: sync.Mutex{},
+		workers: 0,
 
 		logger: logger,
 
@@ -131,9 +130,7 @@ func (s *Scheduler) RepeatFuncEvery(j func() error, d time.Duration) Job {
 
 // inc atomically increments the number of workers.
 func (s *Scheduler) inc() {
-	s.countMutex.Lock()
-	defer s.countMutex.Unlock()
-	s.workers += 1
+	atomic.AddInt64(&s.workers, 1)
 }
 
 // dec atomically decrements the number of workers.
@@ -141,10 +138,7 @@ func (s *Scheduler) inc() {
 // The first time workers is reduced to 0, the done channel is closed, allowing
 // the scheduler to shut down gracefully.
 func (s *Scheduler) dec() {
-	s.countMutex.Lock()
-	defer s.countMutex.Unlock()
-	s.workers -= 1
-	if s.workers == 0 {
+	if atomic.AddInt64(&s.workers, -1) == 0 {
 		select {
 		case <-s.done:
 			// Select on s.done to guard from closing the channel twice.

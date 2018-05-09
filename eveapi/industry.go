@@ -4,6 +4,8 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/antihax/goesi/esi"
+	"github.com/antihax/goesi/optional"
 	"github.com/shopspring/decimal"
 	"golang.org/x/net/context"
 )
@@ -39,7 +41,12 @@ func (api *EveAPI) GetCorporationIndustryJobs(ctx context.Context, corpID int) (
 	}
 	var max int
 	for p := 0; p <= max; p++ {
-		res, resp, err := api.client.ESI.IndustryApi.GetCorporationsCorporationIdIndustryJobs(ctx, int32(corpID), map[string]interface{}{"includeCompleted": true, "page": int32(p)})
+		res, resp, err := api.client.ESI.IndustryApi.GetCorporationsCorporationIdIndustryJobs(
+			ctx,
+			int32(corpID),
+			&esi.GetCorporationsCorporationIdIndustryJobsOpts{
+				IncludeCompleted: optional.NewBool(true),
+				Page:             optional.NewInt32(int32(p))})
 		if err != nil {
 			return nil, err
 		}

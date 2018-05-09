@@ -3,6 +3,8 @@ package eveapi
 import (
 	"strconv"
 
+	"github.com/antihax/goesi/esi"
+	"github.com/antihax/goesi/optional"
 	"golang.org/x/net/context"
 )
 
@@ -31,7 +33,10 @@ func (api *EveAPI) GetCorporationBlueprints(ctx context.Context, corpID int) ([]
 	var bps []*Blueprint
 	var max int
 	for p := 0; p <= max; p++ {
-		res, resp, err := api.client.ESI.CorporationApi.GetCorporationsCorporationIdBlueprints(ctx, int32(corpID), map[string]interface{}{"page": int32(p)})
+		res, resp, err := api.client.ESI.CorporationApi.GetCorporationsCorporationIdBlueprints(
+			ctx,
+			int32(corpID),
+			&esi.GetCorporationsCorporationIdBlueprintsOpts{Page: optional.NewInt32(int32(p))})
 		if err != nil {
 			return nil, err
 		}

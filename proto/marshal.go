@@ -9,6 +9,17 @@ import (
 	"github.com/shopspring/decimal"
 )
 
+func timeToProto(t time.Time) *timestamp.Timestamp {
+	return &timestamp.Timestamp{
+		Seconds: t.Unix(),
+		Nanos:   int32(t.UnixNano()),
+	}
+}
+
+func protoToTime(t *timestamp.Timestamp) time.Time {
+	return time.Unix(t.Seconds, int64(t.Nanos))
+}
+
 func ProtoToCharacter(char *Character) *model.Character {
 	return &model.Character{
 		CharacterID:   int(char.Id),
@@ -19,7 +30,7 @@ func ProtoToCharacter(char *Character) *model.Character {
 		AncestryID:    int(char.AncestryId),
 		BloodlineID:   int(char.BloodlineId),
 		Description:   char.Description,
-		BirthDate:     time.Unix(char.BirthDate.Seconds, int64(char.BirthDate.Nanos)),
+		BirthDate:     protoToTime(char.BirthDate),
 	}
 }
 
@@ -32,11 +43,8 @@ func CharacterToProto(char *model.Character) *Character {
 		AncestryId:    int32(char.AncestryID),
 		RaceId:        int32(char.RaceID),
 		BloodlineId:   int32(char.BloodlineID),
-		BirthDate: &timestamp.Timestamp{
-			Seconds: char.BirthDate.Unix(),
-			Nanos:   int32(char.BirthDate.UnixNano()),
-		},
-		Description: char.Description,
+		BirthDate:     timeToProto(char.BirthDate),
+		Description:   char.Description,
 	}
 }
 
@@ -45,7 +53,7 @@ func ProtoToCorporation(corp *Corporation) *model.Corporation {
 		Name:          corp.Name,
 		CorporationID: int(corp.Id),
 		AllianceID:    int(corp.AllianceId),
-		CreationDate:  time.Unix(corp.CreationDate.Seconds, int64(corp.CreationDate.Nanos)),
+		CreationDate:  protoToTime(corp.CreationDate),
 		Description:   corp.Description,
 		Ticker:        corp.Ticker,
 	}
@@ -53,15 +61,12 @@ func ProtoToCorporation(corp *Corporation) *model.Corporation {
 
 func CorporationToProto(corp *model.Corporation) *Corporation {
 	return &Corporation{
-		Id:         int64(corp.CorporationID),
-		Name:       corp.Name,
-		AllianceId: int64(corp.AllianceID),
-		Ticker:     corp.Ticker,
-		CreationDate: &timestamp.Timestamp{
-			Seconds: corp.CreationDate.Unix(),
-			Nanos:   int32(corp.CreationDate.UnixNano()),
-		},
-		Description: corp.Description,
+		Id:           int64(corp.CorporationID),
+		Name:         corp.Name,
+		AllianceId:   int64(corp.AllianceID),
+		Ticker:       corp.Ticker,
+		CreationDate: timeToProto(corp.CreationDate),
+		Description:  corp.Description,
 	}
 }
 
@@ -70,19 +75,16 @@ func ProtoToAlliance(alliance *Alliance) *model.Alliance {
 		AllianceID:  int(alliance.Id),
 		Name:        alliance.Name,
 		Ticker:      alliance.Ticker,
-		DateFounded: time.Unix(alliance.DateFounded.Seconds, int64(alliance.DateFounded.Nanos)),
+		DateFounded: protoToTime(alliance.DateFounded),
 	}
 }
 
 func AllianceToProto(alliance *model.Alliance) *Alliance {
 	return &Alliance{
-		Id:     int64(alliance.AllianceID),
-		Name:   alliance.Name,
-		Ticker: alliance.Ticker,
-		DateFounded: &timestamp.Timestamp{
-			Seconds: alliance.DateFounded.Unix(),
-			Nanos:   int32(alliance.DateFounded.UnixNano()),
-		},
+		Id:          int64(alliance.AllianceID),
+		Name:        alliance.Name,
+		Ticker:      alliance.Ticker,
+		DateFounded: timeToProto(alliance.DateFounded),
 	}
 }
 
@@ -463,7 +465,7 @@ func ProtoToInventoryItem(p *InventoryItem) *model.InventoryItem {
 		LocationID:   int(p.LocationId),
 		CurrentLevel: int(p.CurrentLevel),
 		MinimumLevel: int(p.MinLevel),
-		FetchedAt:    time.Unix(p.FetchedAt.Seconds, int64(p.FetchedAt.Nanos)),
+		FetchedAt:    protoToTime(p.FetchedAt),
 	}
 }
 
@@ -473,9 +475,7 @@ func InventoryItemToProto(m *model.InventoryItem) *InventoryItem {
 		LocationId:   int64(m.LocationID),
 		CurrentLevel: int64(m.CurrentLevel),
 		MinLevel:     int64(m.MinimumLevel),
-		FetchedAt: &timestamp.Timestamp{
-			m.FetchedAt.Unix(),
-			int32(m.FetchedAt.UnixNano())},
+		FetchedAt:    timeToProto(m.FetchedAt),
 	}
 }
 
@@ -499,24 +499,16 @@ func StructureToProto(m *model.Structure) *Structure {
 
 func CorpStructureToProto(m *model.CorporationStructure) *CorporationStructure {
 	return &CorporationStructure{
-		Id:        m.StructureID,
-		Name:      m.Name,
-		SystemId:  m.SystemID,
-		TypeId:    m.TypeID,
-		ProfileId: m.ProfileID,
-		Services:  m.Services,
-		FuelExpires: &timestamp.Timestamp{
-			m.FuelExpires.Unix(),
-			int32(m.FuelExpires.UnixNano())},
-		StateStart: &timestamp.Timestamp{
-			m.StateStart.Unix(),
-			int32(m.StateStart.UnixNano())},
-		StateEnd: &timestamp.Timestamp{
-			m.StateEnd.Unix(),
-			int32(m.StateEnd.UnixNano())},
-		UnanchorsAt: &timestamp.Timestamp{
-			m.UnanchorsAt.Unix(),
-			int32(m.UnanchorsAt.UnixNano())},
+		Id:                   m.StructureID,
+		Name:                 m.Name,
+		SystemId:             m.SystemID,
+		TypeId:               m.TypeID,
+		ProfileId:            m.ProfileID,
+		Services:             m.Services,
+		FuelExpires:          timeToProto(m.FuelExpires),
+		StateStart:           timeToProto(m.StateStart),
+		StateEnd:             timeToProto(m.StateEnd),
+		UnanchorsAt:          timeToProto(m.UnanchorsAt),
 		VulnerabilityWeekday: m.VulnWeekday,
 		VulnerabilityHour:    m.VulnHour,
 		State:                m.State,
@@ -533,10 +525,10 @@ func ProtoToCorpStructure(p *CorporationStructure) *model.CorporationStructure {
 		},
 		ProfileID:   p.ProfileId,
 		Services:    p.Services,
-		FuelExpires: time.Unix(p.FuelExpires.Seconds, int64(p.FuelExpires.Nanos)),
-		StateStart:  time.Unix(p.StateStart.Seconds, int64(p.StateStart.Nanos)),
-		StateEnd:    time.Unix(p.StateEnd.Seconds, int64(p.StateEnd.Nanos)),
-		UnanchorsAt: time.Unix(p.UnanchorsAt.Seconds, int64(p.UnanchorsAt.Nanos)),
+		FuelExpires: protoToTime(p.FuelExpires),
+		StateStart:  protoToTime(p.StateStart),
+		StateEnd:    protoToTime(p.StateEnd),
+		UnanchorsAt: protoToTime(p.UnanchorsAt),
 		VulnWeekday: p.VulnerabilityWeekday,
 		VulnHour:    p.VulnerabilityHour,
 	}

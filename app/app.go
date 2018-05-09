@@ -31,6 +31,7 @@ import (
 	"github.com/pkg/errors"
 	"google.golang.org/grpc/test/bufconn"
 
+	_ "github.com/motki/core/cache"
 	"github.com/motki/core/db"
 	"github.com/motki/core/eveapi"
 	"github.com/motki/core/evedb"

@@ -1,50 +1,6 @@
 package eveapi
 
 const (
-	ScopeCorporationContactsRead              = "corporationContactsRead"
-	ScopePublicData                           = "publicData"
-	ScopeCharacterStatsRead                   = "characterStatsRead"
-	ScopeCharacterFittingsRead                = "characterFittingsRead"
-	ScopeCharacterFittingsWrite               = "characterFittingsWrite"
-	ScopeCharacterContactsRead                = "characterContactsRead"
-	ScopeCharacterContactsWrite               = "characterContactsWrite"
-	ScopeCharacterLocationRead                = "characterLocationRead"
-	ScopeCharacterNavigationWrite             = "characterNavigationWrite"
-	ScopeCharacterWalletRead                  = "characterWalletRead"
-	ScopeCharacterAssetsRead                  = "characterAssetsRead"
-	ScopeCharacterCalendarRead                = "characterCalendarRead"
-	ScopeCharacterFactionalWarfareRead        = "characterFactionalWarfareRead"
-	ScopeCharacterIndustryJobsRead            = "characterIndustryJobsRead"
-	ScopeCharacterKillsRead                   = "characterKillsRead"
-	ScopeCharacterMailRead                    = "characterMailRead"
-	ScopeCharacterMarketOrdersRead            = "characterMarketOrdersRead"
-	ScopeCharacterMedalsRead                  = "characterMedalsRead"
-	ScopeCharacterNotificationsRead           = "characterNotificationsRead"
-	ScopeCharacterResearchRead                = "characterResearchRead"
-	ScopeCharacterSkillsRead                  = "characterSkillsRead"
-	ScopeCharacterAccountRead                 = "characterAccountRead"
-	ScopeCharacterContractsRead               = "characterContractsRead"
-	ScopeCharacterBookmarksRead               = "characterBookmarksRead"
-	ScopeCharacterChatChannelsRead            = "characterChatChannelsRead"
-	ScopeCharacterClonesRead                  = "characterClonesRead"
-	ScopeCharacterOpportunitiesRead           = "characterOpportunitiesRead"
-	ScopeCharacterLoyaltyPointsRead           = "characterLoyaltyPointsRead"
-	ScopeCorporationWalletRead                = "corporationWalletRead"
-	ScopeCorporationAssetsRead                = "corporationAssetsRead"
-	ScopeCorporationMedalsRead                = "corporationMedalsRead"
-	ScopeCorporationFactionalWarfareRead      = "corporationFactionalWarfareRead"
-	ScopeCorporationIndustryJobsRead          = "corporationIndustryJobsRead"
-	ScopeCorporationKillsRead                 = "corporationKillsRead"
-	ScopeCorporationMembersRead               = "corporationMembersRead"
-	ScopeCorporationMarketOrdersRead          = "corporationMarketOrdersRead"
-	ScopeCorporationStructuresRead            = "corporationStructuresRead"
-	ScopeCorporationShareholdersRead          = "corporationShareholdersRead"
-	ScopeCorporationContractsRead             = "corporationContractsRead"
-	ScopeCorporationBookmarksRead             = "corporationBookmarksRead"
-	ScopeFleetRead                            = "fleetRead"
-	ScopeFleetWrite                           = "fleetWrite"
-	ScopeStructureVulnUpdate                  = "structureVulnUpdate"
-	ScopeRemoteClientUI                       = "remoteClientUI"
 	ScopeESIAlliancesReadContacts             = "esi-alliances.read_contacts.v1"                  // EVE SSO scope esi-alliances.read_contacts.v1
 	ScopeESIAssetsReadAssets                  = "esi-assets.read_assets.v1"                       // EVE SSO scope esi-assets.read_assets.v1
 	ScopeESIAssetsReadCorporationAssets       = "esi-assets.read_corporation_assets.v1"           // EVE SSO scope esi-assets.read_corporation_assets.v1
@@ -117,50 +73,6 @@ const (
 )
 
 var AllScopes = []string{
-	//ScopeCorporationContactsRead,
-	//ScopePublicData,
-	//ScopeCharacterStatsRead,
-	//ScopeCharacterFittingsRead,
-	//ScopeCharacterFittingsWrite,
-	//ScopeCharacterContactsRead,
-	//ScopeCharacterContactsWrite,
-	//ScopeCharacterLocationRead,
-	//ScopeCharacterNavigationWrite,
-	//ScopeCharacterWalletRead,
-	ScopeCharacterAssetsRead,
-	//ScopeCharacterCalendarRead,
-	//ScopeCharacterFactionalWarfareRead,
-	ScopeCharacterIndustryJobsRead,
-	//ScopeCharacterKillsRead,
-	//ScopeCharacterMailRead,
-	//ScopeCharacterMarketOrdersRead,
-	//ScopeCharacterMedalsRead,
-	//ScopeCharacterNotificationsRead,
-	//ScopeCharacterResearchRead,
-	//ScopeCharacterSkillsRead,
-	//ScopeCharacterAccountRead,
-	//ScopeCharacterContractsRead,
-	//ScopeCharacterBookmarksRead,
-	//ScopeCharacterChatChannelsRead,
-	//ScopeCharacterClonesRead,
-	//ScopeCharacterOpportunitiesRead,
-	//ScopeCharacterLoyaltyPointsRead,
-	//ScopeCorporationWalletRead,
-	ScopeCorporationAssetsRead,
-	//ScopeCorporationMedalsRead,
-	//ScopeCorporationFactionalWarfareRead,
-	ScopeCorporationIndustryJobsRead,
-	//ScopeCorporationKillsRead,
-	//ScopeCorporationMembersRead,
-	//ScopeCorporationMarketOrdersRead,
-	//ScopeCorporationStructuresRead,
-	//ScopeCorporationShareholdersRead,
-	//ScopeCorporationContractsRead,
-	//ScopeCorporationBookmarksRead,
-	//ScopeFleetRead,
-	//ScopeFleetWrite,
-	//ScopeStructureVulnUpdate,
-	//ScopeRemoteClientUI,
 	ScopeESICalendarRespondCalendarEvents,
 	ScopeESICalendarReadCalendarEvents,
 	ScopeESILocationsReadLocation,

@@ -24,8 +24,7 @@ func (api *EveAPI) GetCorporationAssets(ctx context.Context, corpID int) ([]*Ass
 		return nil, err
 	}
 	var assets []*Asset
-	var max int
-	for p := 0; p <= max; p++ {
+	for max, p := 1, 1; p <= max; p++ {
 		res, resp, err := api.client.ESI.AssetsApi.GetCorporationsCorporationIdAssets(
 			ctx,
 			int32(corpID),

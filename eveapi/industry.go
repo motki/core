@@ -39,8 +39,7 @@ func (api *EveAPI) GetCorporationIndustryJobs(ctx context.Context, corpID int) (
 	if err != nil {
 		return nil, err
 	}
-	var max int
-	for p := 0; p <= max; p++ {
+	for max, p := 1, 1; p <= max; p++ {
 		res, resp, err := api.client.ESI.IndustryApi.GetCorporationsCorporationIdIndustryJobs(
 			ctx,
 			int32(corpID),

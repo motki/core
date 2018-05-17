@@ -7,8 +7,8 @@ import (
 )
 
 type MailingListSubscriber struct {
-	Name  string
-	Email string
+	Name  string `json:"name"`
+	Email string `json:"email"`
 }
 
 type MailManager struct {

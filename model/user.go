@@ -57,9 +57,9 @@ var (
 )
 
 type User struct {
-	UserID int
-	Name   string
-	Email  string
+	UserID int    `json:"user_id"`
+	Name   string `json:"name"`
+	Email  string `json:"email"`
 }
 
 type UserManager struct {

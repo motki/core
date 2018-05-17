@@ -17,22 +17,22 @@ import (
 // solar system. Otherwise, Station OR Structure will be populated, but never both.
 type Location struct {
 	// The original LocationID this location represents.
-	LocationID int
+	LocationID int `json:"location_id"`
 
 	// The solar system this location is found in.
-	System *evedb.System
+	System *evedb.System `json:"system"`
 
 	// The constellation this location is found in.
-	Constellation *evedb.Constellation
+	Constellation *evedb.Constellation `json:"constellation"`
 
 	// The region this location is found in.
-	Region *evedb.Region
+	Region *evedb.Region `json:"region"`
 
 	// The NPC station at this location. May be nil.
-	Station *evedb.Station
+	Station *evedb.Station `json:"station"`
 
 	// The player-owned structure at this location. May be nil.
-	Structure *Structure
+	Structure *Structure `json:"structure"`
 
 	// Prevent other packages from creating this type.
 	noexport struct{}

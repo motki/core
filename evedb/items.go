@@ -9,29 +9,29 @@ import (
 
 // An ItemType is a type of item in EVE.
 type ItemType struct {
-	ID          int
-	Name        string
-	Description string
+	ID          int    `json:"id"`
+	Name        string `json:"name"`
+	Description string `json:"description"`
 }
 
 type ItemTypeDetail struct {
 	*ItemType
 
-	GroupID   int
-	GroupName string
+	GroupID   int    `json:"group_id"`
+	GroupName string `json:"group_name"`
 
-	CategoryID   int
-	CategoryName string
+	CategoryID   int    `json:"category_id"`
+	CategoryName string `json:"category_name"`
 
-	Mass        decimal.Decimal
-	Volume      decimal.Decimal
-	Capacity    decimal.Decimal
-	PortionSize int
-	BasePrice   decimal.Decimal
+	Mass        decimal.Decimal `json:"mass"`
+	Volume      decimal.Decimal `json:"volume"`
+	Capacity    decimal.Decimal `json:"capacity"`
+	PortionSize int             `json:"portion_size"`
+	BasePrice   decimal.Decimal `json:"base_price"`
 
-	ParentTypeID      int
-	BlueprintID       int
-	DerivativeTypeIDs []int
+	ParentTypeID      int   `json:"parent_type_id"`
+	BlueprintID       int   `json:"blueprint_id"`
+	DerivativeTypeIDs []int `json:"derivative_type_i_ds"`
 }
 
 const baseQueryItemType = `SELECT
@@ -210,14 +210,14 @@ func (e *EveDB) QueryItemTypeDetails(query string, catIDs ...int) ([]*ItemTypeDe
 // A MaterialSheet describes what is necessary to build an item.
 type MaterialSheet struct {
 	*ItemType
-	Materials   []*Material
-	ProducesQty int
+	Materials   []*Material `json:"materials"`
+	ProducesQty int         `json:"produces_qty"`
 }
 
 // A Material is a type and quantity of an item used for manufacturing.
 type Material struct {
 	*ItemType
-	Quantity int
+	Quantity int `json:"quantity"`
 }
 
 // GetBlueprint fetches a MaterialSheet from the database.

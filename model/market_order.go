@@ -44,21 +44,21 @@ func (r *OrderState) Scan(src interface{}) error {
 }
 
 type MarketOrder struct {
-	OrderID      int
-	CharID       int
-	LocationID   int
-	TypeID       int
-	VolEntered   int
-	VolRemaining int
-	MinVolume    int
-	OrderState   OrderState
-	Range        string
-	AccountKey   int
-	Duration     int
-	Escrow       decimal.Decimal
-	Price        decimal.Decimal
-	Bid          bool
-	Issued       time.Time
+	OrderID      int             `json:"order_id"`
+	CharID       int             `json:"char_id"`
+	LocationID   int             `json:"location_id"`
+	TypeID       int             `json:"type_id"`
+	VolEntered   int             `json:"vol_entered"`
+	VolRemaining int             `json:"vol_remaining"`
+	MinVolume    int             `json:"min_volume"`
+	OrderState   OrderState      `json:"order_state"`
+	Range        string          `json:"range"`
+	AccountKey   int             `json:"account_key"`
+	Duration     int             `json:"duration"`
+	Escrow       decimal.Decimal `json:"escrow"`
+	Price        decimal.Decimal `json:"price"`
+	Bid          bool            `json:"bid"`
+	Issued       time.Time       `json:"issued"`
 }
 
 func (m *MarketManager) GetCorporationOrder(ctx context.Context, corpID, orderID int) (*MarketOrder, error) {

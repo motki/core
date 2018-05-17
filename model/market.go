@@ -12,18 +12,18 @@ import (
 
 // MarketStat is region-specific price information for the given type.
 type MarketStat struct {
-	Kind        evemarketer.StatKind
-	TypeID      int
-	Volume      int
-	WAvg        decimal.Decimal
-	Avg         decimal.Decimal
-	Variance    decimal.Decimal
-	StdDev      decimal.Decimal
-	Median      decimal.Decimal
-	FivePercent decimal.Decimal
-	Max         decimal.Decimal
-	Min         decimal.Decimal
-	Timestamp   time.Time
+	Kind        evemarketer.StatKind `json:"kind"`
+	TypeID      int                  `json:"type_id"`
+	Volume      int                  `json:"volume"`
+	WAvg        decimal.Decimal      `json:"w_avg"`
+	Avg         decimal.Decimal      `json:"avg"`
+	Variance    decimal.Decimal      `json:"variance"`
+	StdDev      decimal.Decimal      `json:"std_dev"`
+	Median      decimal.Decimal      `json:"median"`
+	FivePercent decimal.Decimal      `json:"five_percent"`
+	Max         decimal.Decimal      `json:"max"`
+	Min         decimal.Decimal      `json:"min"`
+	Timestamp   time.Time            `json:"timestamp"`
 }
 
 func (m MarketStat) View() StatView {
@@ -52,18 +52,18 @@ func (m MarketStat) View() StatView {
 }
 
 type StatView struct {
-	Kind        string
-	TypeID      int
-	Volume      int
-	WAvg        float64
-	Avg         float64
-	Variance    float64
-	StdDev      float64
-	Median      float64
-	FivePercent float64
-	Max         float64
-	Min         float64
-	Timestamp   time.Time
+	Kind        string    `json:"kind"`
+	TypeID      int       `json:"type_id"`
+	Volume      int       `json:"volume"`
+	WAvg        float64   `json:"w_avg"`
+	Avg         float64   `json:"avg"`
+	Variance    float64   `json:"variance"`
+	StdDev      float64   `json:"std_dev"`
+	Median      float64   `json:"median"`
+	FivePercent float64   `json:"five_percent"`
+	Max         float64   `json:"max"`
+	Min         float64   `json:"min"`
+	Timestamp   time.Time `json:"timestamp"`
 
 	unexported struct{}
 }
@@ -249,9 +249,9 @@ func (m *MarketManager) apiMarketStatToDB(regionID, systemID int, stats []*evema
 
 // A MarketPrice is a universal average price for a given item.
 type MarketPrice struct {
-	TypeID int
-	Avg    decimal.Decimal
-	Base   decimal.Decimal
+	TypeID int             `json:"type_id"`
+	Avg    decimal.Decimal `json:"avg"`
+	Base   decimal.Decimal `json:"base"`
 }
 
 func (m *MarketManager) GetMarketPrice(typeID int) (*MarketPrice, error) {

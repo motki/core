@@ -11,13 +11,13 @@ import (
 )
 
 type Asset struct {
-	ItemID       int
-	LocationID   int
-	LocationType string
-	LocationFlag string
-	TypeID       int
-	Quantity     int
-	Singleton    bool
+	ItemID       int    `json:"item_id"`
+	LocationID   int    `json:"location_id"`
+	LocationType string `json:"location_type"`
+	LocationFlag string `json:"location_flag"`
+	TypeID       int    `json:"type_id"`
+	Quantity     int    `json:"quantity"`
+	Singleton    bool   `json:"singleton"`
 
 	corpID    int
 	fetchedAt time.Time

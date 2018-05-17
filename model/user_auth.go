@@ -201,11 +201,11 @@ func (r *oAuth2Token) Scan(src interface{}) error {
 }
 
 type Authorization struct {
-	UserID        int
-	CharacterID   int
-	CorporationID int
-	Role          Role
-	Token         *oauth2.Token
+	UserID        int           `json:"user_id"`
+	CharacterID   int           `json:"character_id"`
+	CorporationID int           `json:"corporation_id"`
+	Role          Role          `json:"role"`
+	Token         *oauth2.Token `json:"token"`
 	source        oauth2.TokenSource
 }
 

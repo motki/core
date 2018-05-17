@@ -29,12 +29,12 @@ func newCorpManager(m bootstrap, user *UserManager, char *CharacterManager) *Cor
 }
 
 type Corporation struct {
-	CorporationID int
-	Name          string
-	AllianceID    int
-	CreationDate  time.Time
-	Description   string
-	Ticker        string
+	CorporationID int       `json:"corporation_id"`
+	Name          string    `json:"name"`
+	AllianceID    int       `json:"alliance_id"`
+	CreationDate  time.Time `json:"creation_date"`
+	Description   string    `json:"description"`
+	Ticker        string    `json:"ticker"`
 }
 
 func (m *CorpManager) GetCorporation(corporationID int) (*Corporation, error) {
@@ -153,17 +153,17 @@ func (d *Divisions) Scan(src interface{}) error {
 }
 
 type CorporationDetail struct {
-	CorporationID int
-	CEOID         int
-	CEOName       string
-	StationID     int
-	StationName   string
-	FactionID     int
-	MemberCount   int
-	Shares        int
+	CorporationID int    `json:"corporation_id"`
+	CEOID         int    `json:"ceoid"`
+	CEOName       string `json:"ceo_name"`
+	StationID     int    `json:"station_id"`
+	StationName   string `json:"station_name"`
+	FactionID     int    `json:"faction_id"`
+	MemberCount   int    `json:"member_count"`
+	Shares        int    `json:"shares"`
 
-	Wallets Divisions
-	Hangars Divisions
+	Wallets Divisions `json:"wallets"`
+	Hangars Divisions `json:"hangars"`
 }
 
 func (m *CorpManager) GetCorporationDetail(corpID int) (*CorporationDetail, error) {

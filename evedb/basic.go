@@ -1,53 +1,53 @@
 package evedb
 
 type Icon struct {
-	IconID          int
-	IconFile        string
-	IconDescription string
+	IconID          int    `json:"icon_id"`
+	IconFile        string `json:"icon_file"`
+	IconDescription string `json:"icon_description"`
 }
 
 // A Race is a race in EVE.
 type Race struct {
-	ID               int
-	Name             string
-	Description      string
-	ShortDescription string
+	ID               int    `json:"id"`
+	Name             string `json:"name"`
+	Description      string `json:"description"`
+	ShortDescription string `json:"short_description"`
 
 	Icon
 }
 
 type Ancestry struct {
-	ID               int
-	Name             string
-	Description      string
-	BloodlineID      int
-	Perception       int
-	Willpower        int
-	Charisma         int
-	Memory           int
-	Intelligence     int
-	ShortDescription string
+	ID               int    `json:"id"`
+	Name             string `json:"name"`
+	Description      string `json:"description"`
+	BloodlineID      int    `json:"bloodline_id"`
+	Perception       int    `json:"perception"`
+	Willpower        int    `json:"willpower"`
+	Charisma         int    `json:"charisma"`
+	Memory           int    `json:"memory"`
+	Intelligence     int    `json:"intelligence"`
+	ShortDescription string `json:"short_description"`
 
 	Icon
 }
 
 type Bloodline struct {
-	ID                     int
-	Name                   string
-	RaceID                 int
-	Description            string
-	MaleDescription        string
-	FemaleDescription      string
-	ShipTypeID             int
-	CorporationID          int
-	Perception             int
-	Willpower              int
-	Charisma               int
-	Memory                 int
-	Intelligence           int
-	ShortDescription       string
-	ShortMaleDescription   string
-	ShortFemaleDescription string
+	ID                     int    `json:"id"`
+	Name                   string `json:"name"`
+	RaceID                 int    `json:"race_id"`
+	Description            string `json:"description"`
+	MaleDescription        string `json:"male_description"`
+	FemaleDescription      string `json:"female_description"`
+	ShipTypeID             int    `json:"ship_type_id"`
+	CorporationID          int    `json:"corporation_id"`
+	Perception             int    `json:"perception"`
+	Willpower              int    `json:"willpower"`
+	Charisma               int    `json:"charisma"`
+	Memory                 int    `json:"memory"`
+	Intelligence           int    `json:"intelligence"`
+	ShortDescription       string `json:"short_description"`
+	ShortMaleDescription   string `json:"short_male_description"`
+	ShortFemaleDescription string `json:"short_female_description"`
 
 	Icon
 }

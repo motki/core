@@ -8,15 +8,15 @@ import (
 )
 
 type Character struct {
-	CharacterID   int
-	Name          string
-	BloodlineID   int
-	RaceID        int
-	AncestryID    int
-	CorporationID int
-	AllianceID    int
-	BirthDate     time.Time
-	Description   string
+	CharacterID   int       `json:"character_id"`
+	Name          string    `json:"name"`
+	BloodlineID   int       `json:"bloodline_id"`
+	RaceID        int       `json:"race_id"`
+	AncestryID    int       `json:"ancestry_id"`
+	CorporationID int       `json:"corporation_id"`
+	AllianceID    int       `json:"alliance_id"`
+	BirthDate     time.Time `json:"birth_date"`
+	Description   string    `json:"description"`
 }
 
 type CharacterManager struct {

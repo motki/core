@@ -13,24 +13,24 @@ import (
 
 // A Structure is a player-owned citadel.
 type Structure struct {
-	StructureID int64
-	Name        string
-	SystemID    int64
-	TypeID      int64
+	StructureID int64  `json:"structure_id"`
+	Name        string `json:"name"`
+	SystemID    int64  `json:"system_id"`
+	TypeID      int64  `json:"type_id"`
 }
 
 // A CorporationStructure contains additional, sensitive information about a citadel.
 type CorporationStructure struct {
 	Structure
-	ProfileID   int64
-	Services    []string
-	FuelExpires time.Time
-	StateStart  time.Time
-	StateEnd    time.Time
-	UnanchorsAt time.Time
-	VulnWeekday int64
-	VulnHour    int64
-	State       string
+	ProfileID   int64     `json:"profile_id"`
+	Services    []string  `json:"services"`
+	FuelExpires time.Time `json:"fuel_expires"`
+	StateStart  time.Time `json:"state_start"`
+	StateEnd    time.Time `json:"state_end"`
+	UnanchorsAt time.Time `json:"unanchors_at"`
+	VulnWeekday int64     `json:"vuln_weekday"`
+	VulnHour    int64     `json:"vuln_hour"`
+	State       string    `json:"state"`
 }
 
 type StructureManager struct {

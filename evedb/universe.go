@@ -1,32 +1,32 @@
 package evedb
 
 type System struct {
-	SystemID        int
-	Name            string
-	RegionID        int
-	ConstellationID int
-	Security        float64
+	SystemID        int     `json:"system_id"`
+	Name            string  `json:"name"`
+	RegionID        int     `json:"region_id"`
+	ConstellationID int     `json:"constellation_id"`
+	Security        float64 `json:"security"`
 }
 
 type Constellation struct {
-	ConstellationID int
-	Name            string
-	RegionID        int
+	ConstellationID int    `json:"constellation_id"`
+	Name            string `json:"name"`
+	RegionID        int    `json:"region_id"`
 }
 
 type Region struct {
-	RegionID int
-	Name     string
+	RegionID int    `json:"region_id"`
+	Name     string `json:"name"`
 }
 
 type Station struct {
-	StationID       int
-	StationTypeID   int
-	CorporationID   int
-	SystemID        int
-	ConstellationID int
-	RegionID        int
-	Name            string
+	StationID       int    `json:"station_id"`
+	StationTypeID   int    `json:"station_type_id"`
+	CorporationID   int    `json:"corporation_id"`
+	SystemID        int    `json:"system_id"`
+	ConstellationID int    `json:"constellation_id"`
+	RegionID        int    `json:"region_id"`
+	Name            string `json:"name"`
 }
 
 func (e *EveDB) GetSystem(id int) (*System, error) {

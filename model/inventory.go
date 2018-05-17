@@ -8,12 +8,12 @@ import (
 )
 
 type InventoryItem struct {
-	TypeID        int
-	LocationID    int
-	MinimumLevel  int
-	CurrentLevel  int
-	CorporationID int
-	FetchedAt     time.Time
+	TypeID        int       `json:"type_id"`
+	LocationID    int       `json:"location_id"`
+	MinimumLevel  int       `json:"minimum_level"`
+	CurrentLevel  int       `json:"current_level"`
+	CorporationID int       `json:"corporation_id"`
+	FetchedAt     time.Time `json:"fetched_at"`
 }
 
 type InventoryManager struct {

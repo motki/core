@@ -8,10 +8,10 @@ import (
 )
 
 type Alliance struct {
-	AllianceID  int
-	Name        string
-	DateFounded time.Time
-	Ticker      string
+	AllianceID  int       `json:"alliance_id"`
+	Name        string    `json:"name"`
+	DateFounded time.Time `json:"date_founded"`
+	Ticker      string    `json:"ticker"`
 }
 
 func (m *CorpManager) GetAlliance(allianceID int) (*Alliance, error) {

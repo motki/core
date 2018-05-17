@@ -14,17 +14,17 @@ var (
 )
 
 type Blueprint struct {
-	ItemID             int
-	LocationID         int
-	LocationFlag       string
-	TypeID             int
-	TimeEfficiency     int
-	MaterialEfficiency int
-	Kind               BlueprintKind
-	Quantity           int
+	ItemID             int           `json:"item_id"`
+	LocationID         int           `json:"location_id"`
+	LocationFlag       string        `json:"location_flag"`
+	TypeID             int           `json:"type_id"`
+	TimeEfficiency     int           `json:"time_efficiency"`
+	MaterialEfficiency int           `json:"material_efficiency"`
+	Kind               BlueprintKind `json:"kind"`
+	Quantity           int           `json:"quantity"`
 
 	// -1 = infinite runs (a BPO)
-	Runs int
+	Runs int `json:"runs"`
 }
 
 func blueprintFromEveAPI(bp *eveapi.Blueprint) *Blueprint {

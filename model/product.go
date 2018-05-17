@@ -24,18 +24,18 @@ const (
 
 // Product represents one part of a production chain.
 type Product struct {
-	ProductID          int
-	TypeID             int
-	Materials          []*Product
-	Quantity           int
-	MarketPrice        decimal.Decimal
-	MarketRegionID     int
-	MaterialEfficiency decimal.Decimal
-	BatchSize          int
-	Kind               ProductKind
+	ProductID          int             `json:"product_id"`
+	TypeID             int             `json:"type_id"`
+	Materials          []*Product      `json:"materials"`
+	Quantity           int             `json:"quantity"`
+	MarketPrice        decimal.Decimal `json:"market_price"`
+	MarketRegionID     int             `json:"market_region_id"`
+	MaterialEfficiency decimal.Decimal `json:"material_efficiency"`
+	BatchSize          int             `json:"batch_size"`
+	Kind               ProductKind     `json:"kind"`
 
-	ParentID      int
-	CorporationID int
+	ParentID      int `json:"parent_id"`
+	CorporationID int `json:"corporation_id"`
 }
 
 // Cost returns the total cost for one single unit of the completed parent product.

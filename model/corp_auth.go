@@ -14,12 +14,12 @@ import (
 var ErrCorpNotRegistered = errors.New("ceo or director is not registered for the given corporation")
 
 type CorporationConfig struct {
-	OptIn     bool
-	OptInBy   int
-	OptInDate time.Time
+	OptIn     bool      `json:"opt_in"`
+	OptInBy   int       `json:"opt_in_by"`
+	OptInDate time.Time `json:"opt_in_date"`
 
-	CreatedBy int
-	CreatedAt time.Time
+	CreatedBy int       `json:"created_by"`
+	CreatedAt time.Time `json:"created_at"`
 }
 
 func (m *CorpManager) GetCorporationsOptedIn() ([]int, error) {

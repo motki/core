@@ -114,7 +114,12 @@ func (m *UserManager) GetAuthorization(user *User, role Role) (*Authorization, e
 	if err != nil {
 		return nil, err
 	}
-	defer m.pool.Release(db)
+	released := false
+	defer func() {
+		if !released {
+			m.pool.Release(db)
+		}
+	}()
 	a := &Authorization{}
 	token := &oAuth2Token{}
 	var b []byte
@@ -131,17 +136,19 @@ func (m *UserManager) GetAuthorization(user *User, role Role) (*Authorization, e
 		user.UserID,
 		role)
 	err = row.Scan(&a.UserID, &a.CharacterID, &ri, &b)
-	a.Role = Role(ri)
 	if err != nil {
 		if err == pgx.ErrNoRows {
 			return nil, errors.New("not authorized")
 		}
 		return nil, err
 	}
+	m.pool.Release(db)
+	released = true
 	err = token.Scan(b)
 	if err != nil {
 		return nil, err
 	}
+	a.Role = Role(ri)
 	a.Token = (*oauth2.Token)(token)
 	source, err := m.eveapi.TokenSource(a.Token)
 	if err != nil {

@@ -202,7 +202,12 @@ func (m *StructureManager) apiCorporationStructuresToDB(corpID int, strucs []*ev
 			return nil, err
 		}
 		s := &CorporationStructure{
-			Structure:   (Structure)(rs.Structure),
+			Structure: Structure{
+				StructureID: rs.StructureID,
+				SystemID:    rs.SystemID,
+				TypeID:      rs.TypeID,
+				Name:        rs.Name,
+			},
 			ProfileID:   rs.ProfileID,
 			Services:    rs.Services,
 			FuelExpires: rs.FuelExpires,

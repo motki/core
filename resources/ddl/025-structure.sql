@@ -13,8 +13,8 @@ CREATE TABLE app.structures
   state_timer_end TIMESTAMP NOT NULL,
   curr_state VARCHAR(255) NOT NULL,
   unanchors_at TIMESTAMP NOT NULL,
-  reinforce_weekday INT NOT NULL,
-  reinforce_hour INT NOT NULL,
+  curr_reinforce_window BYTEA NOT NULL DEFAULT '{}',
+  next_reinforce_window BYTEA NOT NULL DEFAULT '{}',
   fetched_at TIMESTAMP NOT NULL DEFAULT NOW(),
   PRIMARY KEY (structure_id)
 );

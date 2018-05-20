@@ -186,7 +186,29 @@ func (m *IndustryManager) apiCorporationIndustryJobsToDB(corpID int, jobs []*eve
 		if err != nil {
 			return nil, err
 		}
-		res[i] = (*IndustryJob)(j)
+		res[i] = &IndustryJob{
+			JobID:                j.JobID,
+			InstallerID:          j.InstallerID,
+			FacilityID:           j.FacilityID,
+			LocationID:           j.LocationID,
+			ActivityID:           j.ActivityID,
+			BlueprintID:          j.BlueprintID,
+			BlueprintTypeID:      j.BlueprintTypeID,
+			BlueprintLocationID:  j.BlueprintLocationID,
+			OutputLocationID:     j.OutputLocationID,
+			ProductTypeID:        j.ProductTypeID,
+			Runs:                 j.Runs,
+			Cost:                 j.Cost,
+			LicensedRuns:         j.LicensedRuns,
+			Probability:          j.Probability,
+			Status:               j.Status,
+			StartDate:            j.StartDate,
+			EndDate:              j.EndDate,
+			PauseDate:            j.PauseDate,
+			CompletedDate:        j.CompletedDate,
+			CompletedCharacterID: j.CompletedCharacterID,
+			SuccessfulRuns:       j.SuccessfulRuns,
+		}
 	}
 	return res, nil
 }

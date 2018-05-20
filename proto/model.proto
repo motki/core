@@ -64,9 +64,16 @@ message CorporationStructure {
     google.protobuf.Timestamp state_start = 8;
     google.protobuf.Timestamp state_end = 9;
     google.protobuf.Timestamp unanchors_at = 10;
-    int64 vulnerability_weekday = 11;
-    int64 vulnerability_hour = 12;
     string state = 13;
+    int32 reinforce_weekday = 14;
+    int32 reinforce_hour = 15;
+    int32 next_reinforce_weekday = 16;
+    int32 next_reinforce_hour = 17;
+    google.protobuf.Timestamp next_reinforce_time = 18;
+
+    // Removed in favor of "reinforce_*" fields.
+    reserved 11, 12;
+    reserved "vulnerability_weekday", "vulnerability_hour";
 }
 
 message GetCharacterRequest {

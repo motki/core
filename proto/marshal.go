@@ -499,19 +499,23 @@ func StructureToProto(m *model.Structure) *Structure {
 
 func CorpStructureToProto(m *model.CorporationStructure) *CorporationStructure {
 	return &CorporationStructure{
-		Id:                   m.StructureID,
-		Name:                 m.Name,
-		SystemId:             m.SystemID,
-		TypeId:               m.TypeID,
-		ProfileId:            m.ProfileID,
-		Services:             m.Services,
-		FuelExpires:          timeToProto(m.FuelExpires),
-		StateStart:           timeToProto(m.StateStart),
-		StateEnd:             timeToProto(m.StateEnd),
-		UnanchorsAt:          timeToProto(m.UnanchorsAt),
-		VulnerabilityWeekday: m.VulnWeekday,
-		VulnerabilityHour:    m.VulnHour,
-		State:                m.State,
+		Id:          m.StructureID,
+		Name:        m.Name,
+		SystemId:    m.SystemID,
+		TypeId:      m.TypeID,
+		ProfileId:   m.ProfileID,
+		Services:    m.Services,
+		FuelExpires: timeToProto(m.FuelExpires),
+		StateStart:  timeToProto(m.StateStart),
+		StateEnd:    timeToProto(m.StateEnd),
+		UnanchorsAt: timeToProto(m.UnanchorsAt),
+		State:       m.State,
+
+		ReinforceWeekday:     int32(m.CurrReinforceWindow.Weekday),
+		ReinforceHour:        int32(m.CurrReinforceWindow.Hour),
+		NextReinforceWeekday: int32(m.NextReinforceWindow.Weekday),
+		NextReinforceHour:    int32(m.NextReinforceWindow.Weekday),
+		NextReinforceTime:    timeToProto(m.NextReinforceWindow.EffectiveAt),
 	}
 }
 
@@ -529,8 +533,14 @@ func ProtoToCorpStructure(p *CorporationStructure) *model.CorporationStructure {
 		StateStart:  protoToTime(p.StateStart),
 		StateEnd:    protoToTime(p.StateEnd),
 		UnanchorsAt: protoToTime(p.UnanchorsAt),
-		VulnWeekday: p.VulnerabilityWeekday,
-		VulnHour:    p.VulnerabilityHour,
+		CurrReinforceWindow: model.ReinforceWindow{
+			Weekday:     time.Weekday(p.ReinforceWeekday),
+			Hour:        model.ReinforceHour(p.ReinforceHour),
+			EffectiveAt: time.Now()},
+		NextReinforceWindow: model.ReinforceWindow{
+			Weekday:     time.Weekday(p.NextReinforceWeekday),
+			Hour:        model.ReinforceHour(p.NextReinforceHour),
+			EffectiveAt: protoToTime(p.NextReinforceTime)},
 	}
 }
 

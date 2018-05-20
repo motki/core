@@ -8,6 +8,10 @@ import (
 
 	"time"
 
+	"fmt"
+
+	"database/sql/driver"
+
 	"github.com/motki/core/eveapi"
 )
 
@@ -19,6 +23,34 @@ type Structure struct {
 	TypeID      int64  `json:"type_id"`
 }
 
+type ReinforceHour int
+
+func (h ReinforceHour) String() string {
+	return fmt.Sprintf("%d:00 UTC", h)
+}
+
+type ReinforceWindow struct {
+	Weekday     time.Weekday  `json:"weekday"`
+	Hour        ReinforceHour `json:"hour"`
+	EffectiveAt time.Time     `json:"effective_at"`
+}
+
+func (h ReinforceWindow) String() string {
+	return fmt.Sprintf("%s at %s", h.Weekday, h.Hour)
+}
+
+func (h ReinforceWindow) Value() (driver.Value, error) {
+	return json.Marshal(h)
+}
+
+func (h *ReinforceWindow) Scan(src interface{}) error {
+	s, ok := src.([]byte)
+	if !ok {
+		return fmt.Errorf("invalid value for reinforcement window: %v", src)
+	}
+	return json.Unmarshal(s, &h)
+}
+
 // A CorporationStructure contains additional, sensitive information about a citadel.
 type CorporationStructure struct {
 	Structure
@@ -28,9 +60,10 @@ type CorporationStructure struct {
 	StateStart  time.Time `json:"state_start"`
 	StateEnd    time.Time `json:"state_end"`
 	UnanchorsAt time.Time `json:"unanchors_at"`
-	VulnWeekday int64     `json:"vuln_weekday"`
-	VulnHour    int64     `json:"vuln_hour"`
 	State       string    `json:"state"`
+
+	CurrReinforceWindow ReinforceWindow `json:"curr_reinforce_window"`
+	NextReinforceWindow ReinforceWindow `json:"next_reinforce_window"`
 }
 
 type StructureManager struct {
@@ -101,8 +134,8 @@ func (m *StructureManager) getCorporationStructuresFromDB(corpID int) ([]*Corpor
 			, c.state_timer_end
 			, c.curr_state
 			, c.unanchors_at
-			, c.reinforce_weekday
-			, c.reinforce_hour
+			, c.curr_reinforce_window
+			, c.next_reinforce_window
 			FROM app.structures c
 			WHERE c.corporation_id = $1
 			  AND c.fetched_at > (NOW() - INTERVAL '12 hours')`, corpID)
@@ -112,7 +145,10 @@ func (m *StructureManager) getCorporationStructuresFromDB(corpID int) ([]*Corpor
 	defer rs.Close()
 	var res []*CorporationStructure
 	for rs.Next() {
-		r := &CorporationStructure{}
+		r := &CorporationStructure{
+			CurrReinforceWindow: ReinforceWindow{EffectiveAt: time.Now()},
+			NextReinforceWindow: ReinforceWindow{},
+		}
 		var s []byte
 		err := rs.Scan(
 			&r.StructureID,
@@ -126,8 +162,8 @@ func (m *StructureManager) getCorporationStructuresFromDB(corpID int) ([]*Corpor
 			&r.StateEnd,
 			&r.State,
 			&r.UnanchorsAt,
-			&r.VulnWeekday,
-			&r.VulnHour,
+			&r.CurrReinforceWindow,
+			&r.NextReinforceWindow,
 		)
 		if err != nil {
 			return nil, err
@@ -160,17 +196,37 @@ func (m *StructureManager) apiCorporationStructuresToDB(corpID int, strucs []*ev
 	}
 	defer m.pool.Release(db)
 	res := make([]*CorporationStructure, len(strucs))
-	for i, struc := range strucs {
-		b, err := json.Marshal(struc.Services)
+	for i, rs := range strucs {
+		b, err := json.Marshal(rs.Services)
 		if err != nil {
 			return nil, err
+		}
+		s := &CorporationStructure{
+			Structure:   (Structure)(rs.Structure),
+			ProfileID:   rs.ProfileID,
+			Services:    rs.Services,
+			FuelExpires: rs.FuelExpires,
+			StateStart:  rs.StateStart,
+			StateEnd:    rs.StateEnd,
+			UnanchorsAt: rs.UnanchorsAt,
+			CurrReinforceWindow: ReinforceWindow{
+				Weekday:     time.Weekday(rs.ReinforceWeekday),
+				Hour:        ReinforceHour(rs.ReinforceHour),
+				EffectiveAt: time.Now(),
+			},
+			NextReinforceWindow: ReinforceWindow{
+				Weekday:     time.Weekday(rs.NextReinforceWeekday),
+				Hour:        ReinforceHour(rs.NextReinforceHour),
+				EffectiveAt: rs.NextReinforceTime,
+			},
+			State: rs.State,
 		}
 		_, err = db.Exec(
 			`INSERT INTO app.structures
 					(structure_id, corporation_id, system_id, type_id, profile_id,
 						fuel_expires, services, state_timer_start, state_timer_end,
-						curr_state, unanchors_at, reinforce_weekday, reinforce_hour,
-						name, fetched_at)
+						curr_state, unanchors_at, name, curr_reinforce_window, 
+						next_reinforce_window, fetched_at)
 					VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, DEFAULT)
 				ON CONFLICT ON CONSTRAINT "structures_pkey"
 				  DO UPDATE SET corporation_id = EXCLUDED.corporation_id,
@@ -182,39 +238,28 @@ func (m *StructureManager) apiCorporationStructuresToDB(corpID int, strucs []*ev
 					services = EXCLUDED.services,
 					fuel_expires = EXCLUDED.fuel_expires,
 					curr_state = EXCLUDED.curr_state,
-					reinforce_weekday = EXCLUDED.reinforce_weekday,
-					reinforce_hour = EXCLUDED.reinforce_hour,
+					curr_reinforce_window = EXCLUDED.curr_reinforce_window,
+					next_reinforce_window = EXCLUDED.next_reinforce_window,
 					fetched_at = DEFAULT`,
-			struc.StructureID,
+			s.StructureID,
 			corpID,
-			struc.SystemID,
-			struc.TypeID,
-			struc.ProfileID,
-			struc.FuelExpires,
+			s.SystemID,
+			s.TypeID,
+			s.ProfileID,
+			s.FuelExpires,
 			b,
-			struc.StateStart,
-			struc.StateEnd,
-			struc.State,
-			struc.UnanchorsAt,
-			struc.VulnWeekday,
-			struc.VulnHour,
-			struc.Name,
+			s.StateStart,
+			s.StateEnd,
+			s.State,
+			s.UnanchorsAt,
+			s.Name,
+			s.CurrReinforceWindow,
+			s.NextReinforceWindow,
 		)
 		if err != nil {
 			return nil, err
 		}
-		res[i] = &CorporationStructure{
-			Structure:   (Structure)(struc.Structure),
-			ProfileID:   struc.ProfileID,
-			Services:    struc.Services,
-			FuelExpires: struc.FuelExpires,
-			StateStart:  struc.StateStart,
-			StateEnd:    struc.StateEnd,
-			UnanchorsAt: struc.UnanchorsAt,
-			VulnWeekday: struc.VulnWeekday,
-			VulnHour:    struc.VulnHour,
-			State:       struc.State,
-		}
+		res[i] = s
 	}
 	return res, nil
 }
@@ -248,5 +293,10 @@ func (m *StructureManager) apiStructureToDB(struc *eveapi.Structure) (*Structure
 	if err != nil {
 		return nil, err
 	}
-	return (*Structure)(struc), nil
+	return &Structure{
+		StructureID: struc.StructureID,
+		SystemID:    struc.SystemID,
+		TypeID:      struc.TypeID,
+		Name:        struc.Name,
+	}, nil
 }

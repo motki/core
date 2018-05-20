@@ -17,15 +17,18 @@ type Structure struct {
 // A CorporationStructure contains additional, sensitive information about a citadel.
 type CorporationStructure struct {
 	Structure
-	ProfileID   int64
-	Services    []string
-	FuelExpires time.Time
-	StateStart  time.Time
-	StateEnd    time.Time
-	UnanchorsAt time.Time
-	VulnWeekday int64
-	VulnHour    int64
-	State       string
+	ProfileID            int64
+	Services             []string
+	FuelExpires          time.Time
+	StateStart           time.Time
+	StateEnd             time.Time
+	UnanchorsAt          time.Time
+	State                string
+	ReinforceWeekday     int32
+	ReinforceHour        int32
+	NextReinforceWeekday int32
+	NextReinforceHour    int32
+	NextReinforceTime    time.Time
 }
 
 func (api *EveAPI) GetCorporationStructures(ctx context.Context, corpID int) ([]*CorporationStructure, error) {
@@ -36,7 +39,7 @@ func (api *EveAPI) GetCorporationStructures(ctx context.Context, corpID int) ([]
 	var structures []*CorporationStructure
 	for _, bp := range res {
 		// ESI doesn't return the structure name in this API call for some reason.
-		// Query the Universe ESI API for the structures name.
+		// Query the Universe ESI API for the structure's name.
 		s, err := api.GetStructure(ctx, bp.StructureId)
 		if err != nil {
 			return nil, err
@@ -46,16 +49,19 @@ func (api *EveAPI) GetCorporationStructures(ctx context.Context, corpID int) ([]
 			srvs = append(srvs, r.Name)
 		}
 		structures = append(structures, &CorporationStructure{
-			Structure:   *s,
-			ProfileID:   int64(bp.ProfileId),
-			UnanchorsAt: bp.UnanchorsAt,
-			StateStart:  bp.StateTimerStart,
-			StateEnd:    bp.StateTimerEnd,
-			Services:    srvs,
-			FuelExpires: bp.FuelExpires,
-			VulnWeekday: 0,  // TODO: Update goesi
-			VulnHour:    0,  // TODO: Update goesi
-			State:       "", // TODO: Update goesi
+			Structure:            *s,
+			ProfileID:            int64(bp.ProfileId),
+			UnanchorsAt:          bp.UnanchorsAt,
+			StateStart:           bp.StateTimerStart,
+			StateEnd:             bp.StateTimerEnd,
+			Services:             srvs,
+			FuelExpires:          bp.FuelExpires,
+			State:                bp.State,
+			ReinforceWeekday:     bp.ReinforceWeekday,
+			ReinforceHour:        bp.ReinforceHour,
+			NextReinforceWeekday: bp.NextReinforceWeekday,
+			NextReinforceHour:    bp.NextReinforceHour,
+			NextReinforceTime:    bp.NextReinforceApply,
 		})
 	}
 	return structures, nil

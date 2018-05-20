@@ -3,7 +3,7 @@
 
 package proto
 
-import proto1 "github.com/golang/protobuf/proto"
+import proto "github.com/golang/protobuf/proto"
 import fmt "fmt"
 import math "math"
 
@@ -13,21 +13,49 @@ import (
 )
 
 // Reference imports to suppress errors if they are not otherwise used.
-var _ = proto1.Marshal
+var _ = proto.Marshal
 var _ = fmt.Errorf
 var _ = math.Inf
 
+// This is a compile-time assertion to ensure that this generated file
+// is compatible with the proto package it is being compiled against.
+// A compilation error at this line likely means your copy of the
+// proto package needs to be updated.
+const _ = proto.ProtoPackageIsVersion2 // please upgrade the proto package
+
 // Icon is a static icon file.
 type Icon struct {
-	IconId      int64  `protobuf:"varint,1,opt,name=icon_id,json=iconId" json:"icon_id,omitempty"`
-	ImageUrl    string `protobuf:"bytes,2,opt,name=image_url,json=imageUrl" json:"image_url,omitempty"`
-	Description string `protobuf:"bytes,3,opt,name=description" json:"description,omitempty"`
+	IconId               int64    `protobuf:"varint,1,opt,name=icon_id,json=iconId" json:"icon_id,omitempty"`
+	ImageUrl             string   `protobuf:"bytes,2,opt,name=image_url,json=imageUrl" json:"image_url,omitempty"`
+	Description          string   `protobuf:"bytes,3,opt,name=description" json:"description,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
-func (m *Icon) Reset()                    { *m = Icon{} }
-func (m *Icon) String() string            { return proto1.CompactTextString(m) }
-func (*Icon) ProtoMessage()               {}
-func (*Icon) Descriptor() ([]byte, []int) { return fileDescriptor2, []int{0} }
+func (m *Icon) Reset()         { *m = Icon{} }
+func (m *Icon) String() string { return proto.CompactTextString(m) }
+func (*Icon) ProtoMessage()    {}
+func (*Icon) Descriptor() ([]byte, []int) {
+	return fileDescriptor_evedb_b05ddaeec1c8004d, []int{0}
+}
+func (m *Icon) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_Icon.Unmarshal(m, b)
+}
+func (m *Icon) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_Icon.Marshal(b, m, deterministic)
+}
+func (dst *Icon) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_Icon.Merge(dst, src)
+}
+func (m *Icon) XXX_Size() int {
+	return xxx_messageInfo_Icon.Size(m)
+}
+func (m *Icon) XXX_DiscardUnknown() {
+	xxx_messageInfo_Icon.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_Icon proto.InternalMessageInfo
 
 func (m *Icon) GetIconId() int64 {
 	if m != nil {
@@ -52,17 +80,39 @@ func (m *Icon) GetDescription() string {
 
 // A Race is a race in EVE.
 type Race struct {
-	RaceId      int64  `protobuf:"varint,1,opt,name=race_id,json=raceId" json:"race_id,omitempty"`
-	Name        string `protobuf:"bytes,2,opt,name=name" json:"name,omitempty"`
-	Description string `protobuf:"bytes,3,opt,name=description" json:"description,omitempty"`
-	ShortDesc   string `protobuf:"bytes,4,opt,name=short_desc,json=shortDesc" json:"short_desc,omitempty"`
-	Icon        *Icon  `protobuf:"bytes,5,opt,name=icon" json:"icon,omitempty"`
+	RaceId               int64    `protobuf:"varint,1,opt,name=race_id,json=raceId" json:"race_id,omitempty"`
+	Name                 string   `protobuf:"bytes,2,opt,name=name" json:"name,omitempty"`
+	Description          string   `protobuf:"bytes,3,opt,name=description" json:"description,omitempty"`
+	ShortDesc            string   `protobuf:"bytes,4,opt,name=short_desc,json=shortDesc" json:"short_desc,omitempty"`
+	Icon                 *Icon    `protobuf:"bytes,5,opt,name=icon" json:"icon,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
-func (m *Race) Reset()                    { *m = Race{} }
-func (m *Race) String() string            { return proto1.CompactTextString(m) }
-func (*Race) ProtoMessage()               {}
-func (*Race) Descriptor() ([]byte, []int) { return fileDescriptor2, []int{1} }
+func (m *Race) Reset()         { *m = Race{} }
+func (m *Race) String() string { return proto.CompactTextString(m) }
+func (*Race) ProtoMessage()    {}
+func (*Race) Descriptor() ([]byte, []int) {
+	return fileDescriptor_evedb_b05ddaeec1c8004d, []int{1}
+}
+func (m *Race) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_Race.Unmarshal(m, b)
+}
+func (m *Race) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_Race.Marshal(b, m, deterministic)
+}
+func (dst *Race) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_Race.Merge(dst, src)
+}
+func (m *Race) XXX_Size() int {
+	return xxx_messageInfo_Race.Size(m)
+}
+func (m *Race) XXX_DiscardUnknown() {
+	xxx_messageInfo_Race.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_Race proto.InternalMessageInfo
 
 func (m *Race) GetRaceId() int64 {
 	if m != nil {
@@ -101,23 +151,45 @@ func (m *Race) GetIcon() *Icon {
 
 // Ancestry describes an ancestry in EVE.
 type Ancestry struct {
-	AncestryId   int64  `protobuf:"varint,1,opt,name=ancestry_id,json=ancestryId" json:"ancestry_id,omitempty"`
-	Name         string `protobuf:"bytes,2,opt,name=name" json:"name,omitempty"`
-	Description  string `protobuf:"bytes,3,opt,name=description" json:"description,omitempty"`
-	BloodlineId  int64  `protobuf:"varint,4,opt,name=bloodline_id,json=bloodlineId" json:"bloodline_id,omitempty"`
-	Perception   int64  `protobuf:"varint,5,opt,name=perception" json:"perception,omitempty"`
-	Willpower    int64  `protobuf:"varint,6,opt,name=willpower" json:"willpower,omitempty"`
-	Charisma     int64  `protobuf:"varint,7,opt,name=charisma" json:"charisma,omitempty"`
-	Memory       int64  `protobuf:"varint,8,opt,name=memory" json:"memory,omitempty"`
-	Intelligence int64  `protobuf:"varint,9,opt,name=intelligence" json:"intelligence,omitempty"`
-	ShortDesc    string `protobuf:"bytes,10,opt,name=short_desc,json=shortDesc" json:"short_desc,omitempty"`
-	Icon         *Icon  `protobuf:"bytes,11,opt,name=icon" json:"icon,omitempty"`
+	AncestryId           int64    `protobuf:"varint,1,opt,name=ancestry_id,json=ancestryId" json:"ancestry_id,omitempty"`
+	Name                 string   `protobuf:"bytes,2,opt,name=name" json:"name,omitempty"`
+	Description          string   `protobuf:"bytes,3,opt,name=description" json:"description,omitempty"`
+	BloodlineId          int64    `protobuf:"varint,4,opt,name=bloodline_id,json=bloodlineId" json:"bloodline_id,omitempty"`
+	Perception           int64    `protobuf:"varint,5,opt,name=perception" json:"perception,omitempty"`
+	Willpower            int64    `protobuf:"varint,6,opt,name=willpower" json:"willpower,omitempty"`
+	Charisma             int64    `protobuf:"varint,7,opt,name=charisma" json:"charisma,omitempty"`
+	Memory               int64    `protobuf:"varint,8,opt,name=memory" json:"memory,omitempty"`
+	Intelligence         int64    `protobuf:"varint,9,opt,name=intelligence" json:"intelligence,omitempty"`
+	ShortDesc            string   `protobuf:"bytes,10,opt,name=short_desc,json=shortDesc" json:"short_desc,omitempty"`
+	Icon                 *Icon    `protobuf:"bytes,11,opt,name=icon" json:"icon,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
-func (m *Ancestry) Reset()                    { *m = Ancestry{} }
-func (m *Ancestry) String() string            { return proto1.CompactTextString(m) }
-func (*Ancestry) ProtoMessage()               {}
-func (*Ancestry) Descriptor() ([]byte, []int) { return fileDescriptor2, []int{2} }
+func (m *Ancestry) Reset()         { *m = Ancestry{} }
+func (m *Ancestry) String() string { return proto.CompactTextString(m) }
+func (*Ancestry) ProtoMessage()    {}
+func (*Ancestry) Descriptor() ([]byte, []int) {
+	return fileDescriptor_evedb_b05ddaeec1c8004d, []int{2}
+}
+func (m *Ancestry) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_Ancestry.Unmarshal(m, b)
+}
+func (m *Ancestry) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_Ancestry.Marshal(b, m, deterministic)
+}
+func (dst *Ancestry) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_Ancestry.Merge(dst, src)
+}
+func (m *Ancestry) XXX_Size() int {
+	return xxx_messageInfo_Ancestry.Size(m)
+}
+func (m *Ancestry) XXX_DiscardUnknown() {
+	xxx_messageInfo_Ancestry.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_Ancestry proto.InternalMessageInfo
 
 func (m *Ancestry) GetAncestryId() int64 {
 	if m != nil {
@@ -198,29 +270,51 @@ func (m *Ancestry) GetIcon() *Icon {
 
 // Bloodline is a bloodline in EVE.
 type Bloodline struct {
-	BloodlineId     int64  `protobuf:"varint,1,opt,name=bloodline_id,json=bloodlineId" json:"bloodline_id,omitempty"`
-	Name            string `protobuf:"bytes,2,opt,name=name" json:"name,omitempty"`
-	RaceId          int64  `protobuf:"varint,3,opt,name=race_id,json=raceId" json:"race_id,omitempty"`
-	Description     string `protobuf:"bytes,4,opt,name=description" json:"description,omitempty"`
-	MaleDesc        string `protobuf:"bytes,5,opt,name=male_desc,json=maleDesc" json:"male_desc,omitempty"`
-	FemaleDesc      string `protobuf:"bytes,6,opt,name=female_desc,json=femaleDesc" json:"female_desc,omitempty"`
-	ShipTypeId      int64  `protobuf:"varint,7,opt,name=ship_type_id,json=shipTypeId" json:"ship_type_id,omitempty"`
-	CorporationId   int64  `protobuf:"varint,8,opt,name=corporation_id,json=corporationId" json:"corporation_id,omitempty"`
-	Perception      int64  `protobuf:"varint,9,opt,name=perception" json:"perception,omitempty"`
-	Willpower       int64  `protobuf:"varint,10,opt,name=willpower" json:"willpower,omitempty"`
-	Charisma        int64  `protobuf:"varint,11,opt,name=charisma" json:"charisma,omitempty"`
-	Memory          int64  `protobuf:"varint,12,opt,name=memory" json:"memory,omitempty"`
-	Intelligence    int64  `protobuf:"varint,13,opt,name=intelligence" json:"intelligence,omitempty"`
-	ShortDesc       string `protobuf:"bytes,14,opt,name=short_desc,json=shortDesc" json:"short_desc,omitempty"`
-	ShortMaleDesc   string `protobuf:"bytes,15,opt,name=short_male_desc,json=shortMaleDesc" json:"short_male_desc,omitempty"`
-	ShortFemaleDesc string `protobuf:"bytes,16,opt,name=short_female_desc,json=shortFemaleDesc" json:"short_female_desc,omitempty"`
-	Icon            *Icon  `protobuf:"bytes,17,opt,name=icon" json:"icon,omitempty"`
+	BloodlineId          int64    `protobuf:"varint,1,opt,name=bloodline_id,json=bloodlineId" json:"bloodline_id,omitempty"`
+	Name                 string   `protobuf:"bytes,2,opt,name=name" json:"name,omitempty"`
+	RaceId               int64    `protobuf:"varint,3,opt,name=race_id,json=raceId" json:"race_id,omitempty"`
+	Description          string   `protobuf:"bytes,4,opt,name=description" json:"description,omitempty"`
+	MaleDesc             string   `protobuf:"bytes,5,opt,name=male_desc,json=maleDesc" json:"male_desc,omitempty"`
+	FemaleDesc           string   `protobuf:"bytes,6,opt,name=female_desc,json=femaleDesc" json:"female_desc,omitempty"`
+	ShipTypeId           int64    `protobuf:"varint,7,opt,name=ship_type_id,json=shipTypeId" json:"ship_type_id,omitempty"`
+	CorporationId        int64    `protobuf:"varint,8,opt,name=corporation_id,json=corporationId" json:"corporation_id,omitempty"`
+	Perception           int64    `protobuf:"varint,9,opt,name=perception" json:"perception,omitempty"`
+	Willpower            int64    `protobuf:"varint,10,opt,name=willpower" json:"willpower,omitempty"`
+	Charisma             int64    `protobuf:"varint,11,opt,name=charisma" json:"charisma,omitempty"`
+	Memory               int64    `protobuf:"varint,12,opt,name=memory" json:"memory,omitempty"`
+	Intelligence         int64    `protobuf:"varint,13,opt,name=intelligence" json:"intelligence,omitempty"`
+	ShortDesc            string   `protobuf:"bytes,14,opt,name=short_desc,json=shortDesc" json:"short_desc,omitempty"`
+	ShortMaleDesc        string   `protobuf:"bytes,15,opt,name=short_male_desc,json=shortMaleDesc" json:"short_male_desc,omitempty"`
+	ShortFemaleDesc      string   `protobuf:"bytes,16,opt,name=short_female_desc,json=shortFemaleDesc" json:"short_female_desc,omitempty"`
+	Icon                 *Icon    `protobuf:"bytes,17,opt,name=icon" json:"icon,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
-func (m *Bloodline) Reset()                    { *m = Bloodline{} }
-func (m *Bloodline) String() string            { return proto1.CompactTextString(m) }
-func (*Bloodline) ProtoMessage()               {}
-func (*Bloodline) Descriptor() ([]byte, []int) { return fileDescriptor2, []int{3} }
+func (m *Bloodline) Reset()         { *m = Bloodline{} }
+func (m *Bloodline) String() string { return proto.CompactTextString(m) }
+func (*Bloodline) ProtoMessage()    {}
+func (*Bloodline) Descriptor() ([]byte, []int) {
+	return fileDescriptor_evedb_b05ddaeec1c8004d, []int{3}
+}
+func (m *Bloodline) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_Bloodline.Unmarshal(m, b)
+}
+func (m *Bloodline) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_Bloodline.Marshal(b, m, deterministic)
+}
+func (dst *Bloodline) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_Bloodline.Merge(dst, src)
+}
+func (m *Bloodline) XXX_Size() int {
+	return xxx_messageInfo_Bloodline.Size(m)
+}
+func (m *Bloodline) XXX_DiscardUnknown() {
+	xxx_messageInfo_Bloodline.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_Bloodline proto.InternalMessageInfo
 
 func (m *Bloodline) GetBloodlineId() int64 {
 	if m != nil {
@@ -343,17 +437,39 @@ func (m *Bloodline) GetIcon() *Icon {
 
 // System is a solar system in the EVE universe.
 type System struct {
-	SystemId        int64   `protobuf:"varint,1,opt,name=system_id,json=systemId" json:"system_id,omitempty"`
-	Name            string  `protobuf:"bytes,2,opt,name=name" json:"name,omitempty"`
-	RegionId        int64   `protobuf:"varint,3,opt,name=region_id,json=regionId" json:"region_id,omitempty"`
-	ConstellationId int64   `protobuf:"varint,4,opt,name=constellation_id,json=constellationId" json:"constellation_id,omitempty"`
-	Security        float64 `protobuf:"fixed64,5,opt,name=security" json:"security,omitempty"`
+	SystemId             int64    `protobuf:"varint,1,opt,name=system_id,json=systemId" json:"system_id,omitempty"`
+	Name                 string   `protobuf:"bytes,2,opt,name=name" json:"name,omitempty"`
+	RegionId             int64    `protobuf:"varint,3,opt,name=region_id,json=regionId" json:"region_id,omitempty"`
+	ConstellationId      int64    `protobuf:"varint,4,opt,name=constellation_id,json=constellationId" json:"constellation_id,omitempty"`
+	Security             float64  `protobuf:"fixed64,5,opt,name=security" json:"security,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
-func (m *System) Reset()                    { *m = System{} }
-func (m *System) String() string            { return proto1.CompactTextString(m) }
-func (*System) ProtoMessage()               {}
-func (*System) Descriptor() ([]byte, []int) { return fileDescriptor2, []int{4} }
+func (m *System) Reset()         { *m = System{} }
+func (m *System) String() string { return proto.CompactTextString(m) }
+func (*System) ProtoMessage()    {}
+func (*System) Descriptor() ([]byte, []int) {
+	return fileDescriptor_evedb_b05ddaeec1c8004d, []int{4}
+}
+func (m *System) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_System.Unmarshal(m, b)
+}
+func (m *System) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_System.Marshal(b, m, deterministic)
+}
+func (dst *System) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_System.Merge(dst, src)
+}
+func (m *System) XXX_Size() int {
+	return xxx_messageInfo_System.Size(m)
+}
+func (m *System) XXX_DiscardUnknown() {
+	xxx_messageInfo_System.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_System proto.InternalMessageInfo
 
 func (m *System) GetSystemId() int64 {
 	if m != nil {
@@ -392,15 +508,37 @@ func (m *System) GetSecurity() float64 {
 
 // Constellation is a constellation in the EVE universe.
 type Constellation struct {
-	ConstellationId int64  `protobuf:"varint,1,opt,name=constellation_id,json=constellationId" json:"constellation_id,omitempty"`
-	Name            string `protobuf:"bytes,2,opt,name=name" json:"name,omitempty"`
-	RegionId        int64  `protobuf:"varint,3,opt,name=region_id,json=regionId" json:"region_id,omitempty"`
+	ConstellationId      int64    `protobuf:"varint,1,opt,name=constellation_id,json=constellationId" json:"constellation_id,omitempty"`
+	Name                 string   `protobuf:"bytes,2,opt,name=name" json:"name,omitempty"`
+	RegionId             int64    `protobuf:"varint,3,opt,name=region_id,json=regionId" json:"region_id,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
-func (m *Constellation) Reset()                    { *m = Constellation{} }
-func (m *Constellation) String() string            { return proto1.CompactTextString(m) }
-func (*Constellation) ProtoMessage()               {}
-func (*Constellation) Descriptor() ([]byte, []int) { return fileDescriptor2, []int{5} }
+func (m *Constellation) Reset()         { *m = Constellation{} }
+func (m *Constellation) String() string { return proto.CompactTextString(m) }
+func (*Constellation) ProtoMessage()    {}
+func (*Constellation) Descriptor() ([]byte, []int) {
+	return fileDescriptor_evedb_b05ddaeec1c8004d, []int{5}
+}
+func (m *Constellation) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_Constellation.Unmarshal(m, b)
+}
+func (m *Constellation) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_Constellation.Marshal(b, m, deterministic)
+}
+func (dst *Constellation) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_Constellation.Merge(dst, src)
+}
+func (m *Constellation) XXX_Size() int {
+	return xxx_messageInfo_Constellation.Size(m)
+}
+func (m *Constellation) XXX_DiscardUnknown() {
+	xxx_messageInfo_Constellation.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_Constellation proto.InternalMessageInfo
 
 func (m *Constellation) GetConstellationId() int64 {
 	if m != nil {
@@ -425,14 +563,36 @@ func (m *Constellation) GetRegionId() int64 {
 
 // Region is a region of space in the EVE universe.
 type Region struct {
-	RegionId int64  `protobuf:"varint,1,opt,name=region_id,json=regionId" json:"region_id,omitempty"`
-	Name     string `protobuf:"bytes,2,opt,name=name" json:"name,omitempty"`
+	RegionId             int64    `protobuf:"varint,1,opt,name=region_id,json=regionId" json:"region_id,omitempty"`
+	Name                 string   `protobuf:"bytes,2,opt,name=name" json:"name,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
-func (m *Region) Reset()                    { *m = Region{} }
-func (m *Region) String() string            { return proto1.CompactTextString(m) }
-func (*Region) ProtoMessage()               {}
-func (*Region) Descriptor() ([]byte, []int) { return fileDescriptor2, []int{6} }
+func (m *Region) Reset()         { *m = Region{} }
+func (m *Region) String() string { return proto.CompactTextString(m) }
+func (*Region) ProtoMessage()    {}
+func (*Region) Descriptor() ([]byte, []int) {
+	return fileDescriptor_evedb_b05ddaeec1c8004d, []int{6}
+}
+func (m *Region) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_Region.Unmarshal(m, b)
+}
+func (m *Region) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_Region.Marshal(b, m, deterministic)
+}
+func (dst *Region) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_Region.Merge(dst, src)
+}
+func (m *Region) XXX_Size() int {
+	return xxx_messageInfo_Region.Size(m)
+}
+func (m *Region) XXX_DiscardUnknown() {
+	xxx_messageInfo_Region.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_Region proto.InternalMessageInfo
 
 func (m *Region) GetRegionId() int64 {
 	if m != nil {
@@ -450,19 +610,41 @@ func (m *Region) GetName() string {
 
 // Station is a NPC station in the EVE universe.
 type Station struct {
-	StationId       int64  `protobuf:"varint,1,opt,name=station_id,json=stationId" json:"station_id,omitempty"`
-	StationTypeId   int64  `protobuf:"varint,2,opt,name=station_type_id,json=stationTypeId" json:"station_type_id,omitempty"`
-	CorporationId   int64  `protobuf:"varint,3,opt,name=corporation_id,json=corporationId" json:"corporation_id,omitempty"`
-	SystemId        int64  `protobuf:"varint,4,opt,name=system_id,json=systemId" json:"system_id,omitempty"`
-	ConstellationId int64  `protobuf:"varint,5,opt,name=constellation_id,json=constellationId" json:"constellation_id,omitempty"`
-	RegionId        int64  `protobuf:"varint,6,opt,name=region_id,json=regionId" json:"region_id,omitempty"`
-	Name            string `protobuf:"bytes,7,opt,name=name" json:"name,omitempty"`
+	StationId            int64    `protobuf:"varint,1,opt,name=station_id,json=stationId" json:"station_id,omitempty"`
+	StationTypeId        int64    `protobuf:"varint,2,opt,name=station_type_id,json=stationTypeId" json:"station_type_id,omitempty"`
+	CorporationId        int64    `protobuf:"varint,3,opt,name=corporation_id,json=corporationId" json:"corporation_id,omitempty"`
+	SystemId             int64    `protobuf:"varint,4,opt,name=system_id,json=systemId" json:"system_id,omitempty"`
+	ConstellationId      int64    `protobuf:"varint,5,opt,name=constellation_id,json=constellationId" json:"constellation_id,omitempty"`
+	RegionId             int64    `protobuf:"varint,6,opt,name=region_id,json=regionId" json:"region_id,omitempty"`
+	Name                 string   `protobuf:"bytes,7,opt,name=name" json:"name,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
-func (m *Station) Reset()                    { *m = Station{} }
-func (m *Station) String() string            { return proto1.CompactTextString(m) }
-func (*Station) ProtoMessage()               {}
-func (*Station) Descriptor() ([]byte, []int) { return fileDescriptor2, []int{7} }
+func (m *Station) Reset()         { *m = Station{} }
+func (m *Station) String() string { return proto.CompactTextString(m) }
+func (*Station) ProtoMessage()    {}
+func (*Station) Descriptor() ([]byte, []int) {
+	return fileDescriptor_evedb_b05ddaeec1c8004d, []int{7}
+}
+func (m *Station) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_Station.Unmarshal(m, b)
+}
+func (m *Station) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_Station.Marshal(b, m, deterministic)
+}
+func (dst *Station) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_Station.Merge(dst, src)
+}
+func (m *Station) XXX_Size() int {
+	return xxx_messageInfo_Station.Size(m)
+}
+func (m *Station) XXX_DiscardUnknown() {
+	xxx_messageInfo_Station.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_Station proto.InternalMessageInfo
 
 func (m *Station) GetStationId() int64 {
 	if m != nil {
@@ -515,15 +697,37 @@ func (m *Station) GetName() string {
 
 // ItemType is basic information about an item in the EVE universe.
 type ItemType struct {
-	TypeId      int64  `protobuf:"varint,1,opt,name=type_id,json=typeId" json:"type_id,omitempty"`
-	Name        string `protobuf:"bytes,2,opt,name=name" json:"name,omitempty"`
-	Description string `protobuf:"bytes,3,opt,name=description" json:"description,omitempty"`
+	TypeId               int64    `protobuf:"varint,1,opt,name=type_id,json=typeId" json:"type_id,omitempty"`
+	Name                 string   `protobuf:"bytes,2,opt,name=name" json:"name,omitempty"`
+	Description          string   `protobuf:"bytes,3,opt,name=description" json:"description,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
-func (m *ItemType) Reset()                    { *m = ItemType{} }
-func (m *ItemType) String() string            { return proto1.CompactTextString(m) }
-func (*ItemType) ProtoMessage()               {}
-func (*ItemType) Descriptor() ([]byte, []int) { return fileDescriptor2, []int{8} }
+func (m *ItemType) Reset()         { *m = ItemType{} }
+func (m *ItemType) String() string { return proto.CompactTextString(m) }
+func (*ItemType) ProtoMessage()    {}
+func (*ItemType) Descriptor() ([]byte, []int) {
+	return fileDescriptor_evedb_b05ddaeec1c8004d, []int{8}
+}
+func (m *ItemType) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_ItemType.Unmarshal(m, b)
+}
+func (m *ItemType) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_ItemType.Marshal(b, m, deterministic)
+}
+func (dst *ItemType) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_ItemType.Merge(dst, src)
+}
+func (m *ItemType) XXX_Size() int {
+	return xxx_messageInfo_ItemType.Size(m)
+}
+func (m *ItemType) XXX_DiscardUnknown() {
+	xxx_messageInfo_ItemType.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_ItemType proto.InternalMessageInfo
 
 func (m *ItemType) GetTypeId() int64 {
 	if m != nil {
@@ -548,27 +752,49 @@ func (m *ItemType) GetDescription() string {
 
 // ItemTypeDetail is detailed information about an item in the EVE universe.
 type ItemTypeDetail struct {
-	TypeId           int64   `protobuf:"varint,1,opt,name=type_id,json=typeId" json:"type_id,omitempty"`
-	Name             string  `protobuf:"bytes,2,opt,name=name" json:"name,omitempty"`
-	Description      string  `protobuf:"bytes,3,opt,name=description" json:"description,omitempty"`
-	GroupId          int64   `protobuf:"varint,4,opt,name=group_id,json=groupId" json:"group_id,omitempty"`
-	GroupName        string  `protobuf:"bytes,5,opt,name=group_name,json=groupName" json:"group_name,omitempty"`
-	CategoryId       int64   `protobuf:"varint,6,opt,name=category_id,json=categoryId" json:"category_id,omitempty"`
-	CategoryName     string  `protobuf:"bytes,7,opt,name=category_name,json=categoryName" json:"category_name,omitempty"`
-	Mass             float64 `protobuf:"fixed64,8,opt,name=mass" json:"mass,omitempty"`
-	Volume           float64 `protobuf:"fixed64,9,opt,name=volume" json:"volume,omitempty"`
-	Capacity         float64 `protobuf:"fixed64,10,opt,name=capacity" json:"capacity,omitempty"`
-	PortionSize      int64   `protobuf:"varint,11,opt,name=portion_size,json=portionSize" json:"portion_size,omitempty"`
-	BasePrice        float64 `protobuf:"fixed64,12,opt,name=base_price,json=basePrice" json:"base_price,omitempty"`
-	ParentTypeId     int64   `protobuf:"varint,13,opt,name=parent_type_id,json=parentTypeId" json:"parent_type_id,omitempty"`
-	BlueprintId      int64   `protobuf:"varint,14,opt,name=blueprint_id,json=blueprintId" json:"blueprint_id,omitempty"`
-	DerivativeTypeId []int64 `protobuf:"varint,15,rep,packed,name=derivative_type_id,json=derivativeTypeId" json:"derivative_type_id,omitempty"`
+	TypeId               int64    `protobuf:"varint,1,opt,name=type_id,json=typeId" json:"type_id,omitempty"`
+	Name                 string   `protobuf:"bytes,2,opt,name=name" json:"name,omitempty"`
+	Description          string   `protobuf:"bytes,3,opt,name=description" json:"description,omitempty"`
+	GroupId              int64    `protobuf:"varint,4,opt,name=group_id,json=groupId" json:"group_id,omitempty"`
+	GroupName            string   `protobuf:"bytes,5,opt,name=group_name,json=groupName" json:"group_name,omitempty"`
+	CategoryId           int64    `protobuf:"varint,6,opt,name=category_id,json=categoryId" json:"category_id,omitempty"`
+	CategoryName         string   `protobuf:"bytes,7,opt,name=category_name,json=categoryName" json:"category_name,omitempty"`
+	Mass                 float64  `protobuf:"fixed64,8,opt,name=mass" json:"mass,omitempty"`
+	Volume               float64  `protobuf:"fixed64,9,opt,name=volume" json:"volume,omitempty"`
+	Capacity             float64  `protobuf:"fixed64,10,opt,name=capacity" json:"capacity,omitempty"`
+	PortionSize          int64    `protobuf:"varint,11,opt,name=portion_size,json=portionSize" json:"portion_size,omitempty"`
+	BasePrice            float64  `protobuf:"fixed64,12,opt,name=base_price,json=basePrice" json:"base_price,omitempty"`
+	ParentTypeId         int64    `protobuf:"varint,13,opt,name=parent_type_id,json=parentTypeId" json:"parent_type_id,omitempty"`
+	BlueprintId          int64    `protobuf:"varint,14,opt,name=blueprint_id,json=blueprintId" json:"blueprint_id,omitempty"`
+	DerivativeTypeId     []int64  `protobuf:"varint,15,rep,packed,name=derivative_type_id,json=derivativeTypeId" json:"derivative_type_id,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
-func (m *ItemTypeDetail) Reset()                    { *m = ItemTypeDetail{} }
-func (m *ItemTypeDetail) String() string            { return proto1.CompactTextString(m) }
-func (*ItemTypeDetail) ProtoMessage()               {}
-func (*ItemTypeDetail) Descriptor() ([]byte, []int) { return fileDescriptor2, []int{9} }
+func (m *ItemTypeDetail) Reset()         { *m = ItemTypeDetail{} }
+func (m *ItemTypeDetail) String() string { return proto.CompactTextString(m) }
+func (*ItemTypeDetail) ProtoMessage()    {}
+func (*ItemTypeDetail) Descriptor() ([]byte, []int) {
+	return fileDescriptor_evedb_b05ddaeec1c8004d, []int{9}
+}
+func (m *ItemTypeDetail) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_ItemTypeDetail.Unmarshal(m, b)
+}
+func (m *ItemTypeDetail) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_ItemTypeDetail.Marshal(b, m, deterministic)
+}
+func (dst *ItemTypeDetail) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_ItemTypeDetail.Merge(dst, src)
+}
+func (m *ItemTypeDetail) XXX_Size() int {
+	return xxx_messageInfo_ItemTypeDetail.Size(m)
+}
+func (m *ItemTypeDetail) XXX_DiscardUnknown() {
+	xxx_messageInfo_ItemTypeDetail.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_ItemTypeDetail proto.InternalMessageInfo
 
 func (m *ItemTypeDetail) GetTypeId() int64 {
 	if m != nil {
@@ -677,15 +903,37 @@ func (m *ItemTypeDetail) GetDerivativeTypeId() []int64 {
 
 // A MaterialSheet describes what is necessary to build an item.
 type MaterialSheet struct {
-	Type        *ItemType   `protobuf:"bytes,1,opt,name=type" json:"type,omitempty"`
-	Materials   []*Material `protobuf:"bytes,2,rep,name=materials" json:"materials,omitempty"`
-	ProducesQty int64       `protobuf:"varint,3,opt,name=produces_qty,json=producesQty" json:"produces_qty,omitempty"`
+	Type                 *ItemType   `protobuf:"bytes,1,opt,name=type" json:"type,omitempty"`
+	Materials            []*Material `protobuf:"bytes,2,rep,name=materials" json:"materials,omitempty"`
+	ProducesQty          int64       `protobuf:"varint,3,opt,name=produces_qty,json=producesQty" json:"produces_qty,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}    `json:"-"`
+	XXX_unrecognized     []byte      `json:"-"`
+	XXX_sizecache        int32       `json:"-"`
 }
 
-func (m *MaterialSheet) Reset()                    { *m = MaterialSheet{} }
-func (m *MaterialSheet) String() string            { return proto1.CompactTextString(m) }
-func (*MaterialSheet) ProtoMessage()               {}
-func (*MaterialSheet) Descriptor() ([]byte, []int) { return fileDescriptor2, []int{10} }
+func (m *MaterialSheet) Reset()         { *m = MaterialSheet{} }
+func (m *MaterialSheet) String() string { return proto.CompactTextString(m) }
+func (*MaterialSheet) ProtoMessage()    {}
+func (*MaterialSheet) Descriptor() ([]byte, []int) {
+	return fileDescriptor_evedb_b05ddaeec1c8004d, []int{10}
+}
+func (m *MaterialSheet) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_MaterialSheet.Unmarshal(m, b)
+}
+func (m *MaterialSheet) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_MaterialSheet.Marshal(b, m, deterministic)
+}
+func (dst *MaterialSheet) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_MaterialSheet.Merge(dst, src)
+}
+func (m *MaterialSheet) XXX_Size() int {
+	return xxx_messageInfo_MaterialSheet.Size(m)
+}
+func (m *MaterialSheet) XXX_DiscardUnknown() {
+	xxx_messageInfo_MaterialSheet.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_MaterialSheet proto.InternalMessageInfo
 
 func (m *MaterialSheet) GetType() *ItemType {
 	if m != nil {
@@ -710,14 +958,36 @@ func (m *MaterialSheet) GetProducesQty() int64 {
 
 // A Material is a type and quantity of an item used for manufacturing.
 type Material struct {
-	Type     *ItemType `protobuf:"bytes,1,opt,name=type" json:"type,omitempty"`
-	Quantity int64     `protobuf:"varint,2,opt,name=quantity" json:"quantity,omitempty"`
+	Type                 *ItemType `protobuf:"bytes,1,opt,name=type" json:"type,omitempty"`
+	Quantity             int64     `protobuf:"varint,2,opt,name=quantity" json:"quantity,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}  `json:"-"`
+	XXX_unrecognized     []byte    `json:"-"`
+	XXX_sizecache        int32     `json:"-"`
 }
 
-func (m *Material) Reset()                    { *m = Material{} }
-func (m *Material) String() string            { return proto1.CompactTextString(m) }
-func (*Material) ProtoMessage()               {}
-func (*Material) Descriptor() ([]byte, []int) { return fileDescriptor2, []int{11} }
+func (m *Material) Reset()         { *m = Material{} }
+func (m *Material) String() string { return proto.CompactTextString(m) }
+func (*Material) ProtoMessage()    {}
+func (*Material) Descriptor() ([]byte, []int) {
+	return fileDescriptor_evedb_b05ddaeec1c8004d, []int{11}
+}
+func (m *Material) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_Material.Unmarshal(m, b)
+}
+func (m *Material) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_Material.Marshal(b, m, deterministic)
+}
+func (dst *Material) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_Material.Merge(dst, src)
+}
+func (m *Material) XXX_Size() int {
+	return xxx_messageInfo_Material.Size(m)
+}
+func (m *Material) XXX_DiscardUnknown() {
+	xxx_messageInfo_Material.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_Material proto.InternalMessageInfo
 
 func (m *Material) GetType() *ItemType {
 	if m != nil {
@@ -734,13 +1004,35 @@ func (m *Material) GetQuantity() int64 {
 }
 
 type GetRegionRequest struct {
-	RegionId int64 `protobuf:"varint,1,opt,name=region_id,json=regionId" json:"region_id,omitempty"`
+	RegionId             int64    `protobuf:"varint,1,opt,name=region_id,json=regionId" json:"region_id,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
-func (m *GetRegionRequest) Reset()                    { *m = GetRegionRequest{} }
-func (m *GetRegionRequest) String() string            { return proto1.CompactTextString(m) }
-func (*GetRegionRequest) ProtoMessage()               {}
-func (*GetRegionRequest) Descriptor() ([]byte, []int) { return fileDescriptor2, []int{12} }
+func (m *GetRegionRequest) Reset()         { *m = GetRegionRequest{} }
+func (m *GetRegionRequest) String() string { return proto.CompactTextString(m) }
+func (*GetRegionRequest) ProtoMessage()    {}
+func (*GetRegionRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_evedb_b05ddaeec1c8004d, []int{12}
+}
+func (m *GetRegionRequest) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_GetRegionRequest.Unmarshal(m, b)
+}
+func (m *GetRegionRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_GetRegionRequest.Marshal(b, m, deterministic)
+}
+func (dst *GetRegionRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_GetRegionRequest.Merge(dst, src)
+}
+func (m *GetRegionRequest) XXX_Size() int {
+	return xxx_messageInfo_GetRegionRequest.Size(m)
+}
+func (m *GetRegionRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_GetRegionRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_GetRegionRequest proto.InternalMessageInfo
 
 func (m *GetRegionRequest) GetRegionId() int64 {
 	if m != nil {
@@ -750,14 +1042,36 @@ func (m *GetRegionRequest) GetRegionId() int64 {
 }
 
 type GetRegionResponse struct {
-	Result *Result `protobuf:"bytes,1,opt,name=result" json:"result,omitempty"`
-	Region *Region `protobuf:"bytes,2,opt,name=region" json:"region,omitempty"`
+	Result               *Result  `protobuf:"bytes,1,opt,name=result" json:"result,omitempty"`
+	Region               *Region  `protobuf:"bytes,2,opt,name=region" json:"region,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
-func (m *GetRegionResponse) Reset()                    { *m = GetRegionResponse{} }
-func (m *GetRegionResponse) String() string            { return proto1.CompactTextString(m) }
-func (*GetRegionResponse) ProtoMessage()               {}
-func (*GetRegionResponse) Descriptor() ([]byte, []int) { return fileDescriptor2, []int{13} }
+func (m *GetRegionResponse) Reset()         { *m = GetRegionResponse{} }
+func (m *GetRegionResponse) String() string { return proto.CompactTextString(m) }
+func (*GetRegionResponse) ProtoMessage()    {}
+func (*GetRegionResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_evedb_b05ddaeec1c8004d, []int{13}
+}
+func (m *GetRegionResponse) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_GetRegionResponse.Unmarshal(m, b)
+}
+func (m *GetRegionResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_GetRegionResponse.Marshal(b, m, deterministic)
+}
+func (dst *GetRegionResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_GetRegionResponse.Merge(dst, src)
+}
+func (m *GetRegionResponse) XXX_Size() int {
+	return xxx_messageInfo_GetRegionResponse.Size(m)
+}
+func (m *GetRegionResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_GetRegionResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_GetRegionResponse proto.InternalMessageInfo
 
 func (m *GetRegionResponse) GetResult() *Result {
 	if m != nil {
@@ -774,22 +1088,66 @@ func (m *GetRegionResponse) GetRegion() *Region {
 }
 
 type GetRegionsRequest struct {
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
-func (m *GetRegionsRequest) Reset()                    { *m = GetRegionsRequest{} }
-func (m *GetRegionsRequest) String() string            { return proto1.CompactTextString(m) }
-func (*GetRegionsRequest) ProtoMessage()               {}
-func (*GetRegionsRequest) Descriptor() ([]byte, []int) { return fileDescriptor2, []int{14} }
+func (m *GetRegionsRequest) Reset()         { *m = GetRegionsRequest{} }
+func (m *GetRegionsRequest) String() string { return proto.CompactTextString(m) }
+func (*GetRegionsRequest) ProtoMessage()    {}
+func (*GetRegionsRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_evedb_b05ddaeec1c8004d, []int{14}
+}
+func (m *GetRegionsRequest) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_GetRegionsRequest.Unmarshal(m, b)
+}
+func (m *GetRegionsRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_GetRegionsRequest.Marshal(b, m, deterministic)
+}
+func (dst *GetRegionsRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_GetRegionsRequest.Merge(dst, src)
+}
+func (m *GetRegionsRequest) XXX_Size() int {
+	return xxx_messageInfo_GetRegionsRequest.Size(m)
+}
+func (m *GetRegionsRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_GetRegionsRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_GetRegionsRequest proto.InternalMessageInfo
 
 type GetRegionsResponse struct {
-	Result *Result   `protobuf:"bytes,1,opt,name=result" json:"result,omitempty"`
-	Region []*Region `protobuf:"bytes,2,rep,name=region" json:"region,omitempty"`
+	Result               *Result   `protobuf:"bytes,1,opt,name=result" json:"result,omitempty"`
+	Region               []*Region `protobuf:"bytes,2,rep,name=region" json:"region,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}  `json:"-"`
+	XXX_unrecognized     []byte    `json:"-"`
+	XXX_sizecache        int32     `json:"-"`
 }
 
-func (m *GetRegionsResponse) Reset()                    { *m = GetRegionsResponse{} }
-func (m *GetRegionsResponse) String() string            { return proto1.CompactTextString(m) }
-func (*GetRegionsResponse) ProtoMessage()               {}
-func (*GetRegionsResponse) Descriptor() ([]byte, []int) { return fileDescriptor2, []int{15} }
+func (m *GetRegionsResponse) Reset()         { *m = GetRegionsResponse{} }
+func (m *GetRegionsResponse) String() string { return proto.CompactTextString(m) }
+func (*GetRegionsResponse) ProtoMessage()    {}
+func (*GetRegionsResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_evedb_b05ddaeec1c8004d, []int{15}
+}
+func (m *GetRegionsResponse) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_GetRegionsResponse.Unmarshal(m, b)
+}
+func (m *GetRegionsResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_GetRegionsResponse.Marshal(b, m, deterministic)
+}
+func (dst *GetRegionsResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_GetRegionsResponse.Merge(dst, src)
+}
+func (m *GetRegionsResponse) XXX_Size() int {
+	return xxx_messageInfo_GetRegionsResponse.Size(m)
+}
+func (m *GetRegionsResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_GetRegionsResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_GetRegionsResponse proto.InternalMessageInfo
 
 func (m *GetRegionsResponse) GetResult() *Result {
 	if m != nil {
@@ -806,13 +1164,35 @@ func (m *GetRegionsResponse) GetRegion() []*Region {
 }
 
 type GetConstellationRequest struct {
-	ConstellationId int64 `protobuf:"varint,1,opt,name=constellation_id,json=constellationId" json:"constellation_id,omitempty"`
+	ConstellationId      int64    `protobuf:"varint,1,opt,name=constellation_id,json=constellationId" json:"constellation_id,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
-func (m *GetConstellationRequest) Reset()                    { *m = GetConstellationRequest{} }
-func (m *GetConstellationRequest) String() string            { return proto1.CompactTextString(m) }
-func (*GetConstellationRequest) ProtoMessage()               {}
-func (*GetConstellationRequest) Descriptor() ([]byte, []int) { return fileDescriptor2, []int{16} }
+func (m *GetConstellationRequest) Reset()         { *m = GetConstellationRequest{} }
+func (m *GetConstellationRequest) String() string { return proto.CompactTextString(m) }
+func (*GetConstellationRequest) ProtoMessage()    {}
+func (*GetConstellationRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_evedb_b05ddaeec1c8004d, []int{16}
+}
+func (m *GetConstellationRequest) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_GetConstellationRequest.Unmarshal(m, b)
+}
+func (m *GetConstellationRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_GetConstellationRequest.Marshal(b, m, deterministic)
+}
+func (dst *GetConstellationRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_GetConstellationRequest.Merge(dst, src)
+}
+func (m *GetConstellationRequest) XXX_Size() int {
+	return xxx_messageInfo_GetConstellationRequest.Size(m)
+}
+func (m *GetConstellationRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_GetConstellationRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_GetConstellationRequest proto.InternalMessageInfo
 
 func (m *GetConstellationRequest) GetConstellationId() int64 {
 	if m != nil {
@@ -822,14 +1202,36 @@ func (m *GetConstellationRequest) GetConstellationId() int64 {
 }
 
 type GetConstellationResponse struct {
-	Result        *Result        `protobuf:"bytes,1,opt,name=result" json:"result,omitempty"`
-	Constellation *Constellation `protobuf:"bytes,2,opt,name=constellation" json:"constellation,omitempty"`
+	Result               *Result        `protobuf:"bytes,1,opt,name=result" json:"result,omitempty"`
+	Constellation        *Constellation `protobuf:"bytes,2,opt,name=constellation" json:"constellation,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}       `json:"-"`
+	XXX_unrecognized     []byte         `json:"-"`
+	XXX_sizecache        int32          `json:"-"`
 }
 
-func (m *GetConstellationResponse) Reset()                    { *m = GetConstellationResponse{} }
-func (m *GetConstellationResponse) String() string            { return proto1.CompactTextString(m) }
-func (*GetConstellationResponse) ProtoMessage()               {}
-func (*GetConstellationResponse) Descriptor() ([]byte, []int) { return fileDescriptor2, []int{17} }
+func (m *GetConstellationResponse) Reset()         { *m = GetConstellationResponse{} }
+func (m *GetConstellationResponse) String() string { return proto.CompactTextString(m) }
+func (*GetConstellationResponse) ProtoMessage()    {}
+func (*GetConstellationResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_evedb_b05ddaeec1c8004d, []int{17}
+}
+func (m *GetConstellationResponse) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_GetConstellationResponse.Unmarshal(m, b)
+}
+func (m *GetConstellationResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_GetConstellationResponse.Marshal(b, m, deterministic)
+}
+func (dst *GetConstellationResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_GetConstellationResponse.Merge(dst, src)
+}
+func (m *GetConstellationResponse) XXX_Size() int {
+	return xxx_messageInfo_GetConstellationResponse.Size(m)
+}
+func (m *GetConstellationResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_GetConstellationResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_GetConstellationResponse proto.InternalMessageInfo
 
 func (m *GetConstellationResponse) GetResult() *Result {
 	if m != nil {
@@ -846,13 +1248,35 @@ func (m *GetConstellationResponse) GetConstellation() *Constellation {
 }
 
 type GetSystemRequest struct {
-	SystemId int64 `protobuf:"varint,1,opt,name=system_id,json=systemId" json:"system_id,omitempty"`
+	SystemId             int64    `protobuf:"varint,1,opt,name=system_id,json=systemId" json:"system_id,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
-func (m *GetSystemRequest) Reset()                    { *m = GetSystemRequest{} }
-func (m *GetSystemRequest) String() string            { return proto1.CompactTextString(m) }
-func (*GetSystemRequest) ProtoMessage()               {}
-func (*GetSystemRequest) Descriptor() ([]byte, []int) { return fileDescriptor2, []int{18} }
+func (m *GetSystemRequest) Reset()         { *m = GetSystemRequest{} }
+func (m *GetSystemRequest) String() string { return proto.CompactTextString(m) }
+func (*GetSystemRequest) ProtoMessage()    {}
+func (*GetSystemRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_evedb_b05ddaeec1c8004d, []int{18}
+}
+func (m *GetSystemRequest) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_GetSystemRequest.Unmarshal(m, b)
+}
+func (m *GetSystemRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_GetSystemRequest.Marshal(b, m, deterministic)
+}
+func (dst *GetSystemRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_GetSystemRequest.Merge(dst, src)
+}
+func (m *GetSystemRequest) XXX_Size() int {
+	return xxx_messageInfo_GetSystemRequest.Size(m)
+}
+func (m *GetSystemRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_GetSystemRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_GetSystemRequest proto.InternalMessageInfo
 
 func (m *GetSystemRequest) GetSystemId() int64 {
 	if m != nil {
@@ -862,14 +1286,36 @@ func (m *GetSystemRequest) GetSystemId() int64 {
 }
 
 type GetSystemResponse struct {
-	Result *Result `protobuf:"bytes,1,opt,name=result" json:"result,omitempty"`
-	System *System `protobuf:"bytes,2,opt,name=system" json:"system,omitempty"`
+	Result               *Result  `protobuf:"bytes,1,opt,name=result" json:"result,omitempty"`
+	System               *System  `protobuf:"bytes,2,opt,name=system" json:"system,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
-func (m *GetSystemResponse) Reset()                    { *m = GetSystemResponse{} }
-func (m *GetSystemResponse) String() string            { return proto1.CompactTextString(m) }
-func (*GetSystemResponse) ProtoMessage()               {}
-func (*GetSystemResponse) Descriptor() ([]byte, []int) { return fileDescriptor2, []int{19} }
+func (m *GetSystemResponse) Reset()         { *m = GetSystemResponse{} }
+func (m *GetSystemResponse) String() string { return proto.CompactTextString(m) }
+func (*GetSystemResponse) ProtoMessage()    {}
+func (*GetSystemResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_evedb_b05ddaeec1c8004d, []int{19}
+}
+func (m *GetSystemResponse) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_GetSystemResponse.Unmarshal(m, b)
+}
+func (m *GetSystemResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_GetSystemResponse.Marshal(b, m, deterministic)
+}
+func (dst *GetSystemResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_GetSystemResponse.Merge(dst, src)
+}
+func (m *GetSystemResponse) XXX_Size() int {
+	return xxx_messageInfo_GetSystemResponse.Size(m)
+}
+func (m *GetSystemResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_GetSystemResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_GetSystemResponse proto.InternalMessageInfo
 
 func (m *GetSystemResponse) GetResult() *Result {
 	if m != nil {
@@ -886,13 +1332,35 @@ func (m *GetSystemResponse) GetSystem() *System {
 }
 
 type GetRaceRequest struct {
-	RaceId int64 `protobuf:"varint,1,opt,name=race_id,json=raceId" json:"race_id,omitempty"`
+	RaceId               int64    `protobuf:"varint,1,opt,name=race_id,json=raceId" json:"race_id,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
-func (m *GetRaceRequest) Reset()                    { *m = GetRaceRequest{} }
-func (m *GetRaceRequest) String() string            { return proto1.CompactTextString(m) }
-func (*GetRaceRequest) ProtoMessage()               {}
-func (*GetRaceRequest) Descriptor() ([]byte, []int) { return fileDescriptor2, []int{20} }
+func (m *GetRaceRequest) Reset()         { *m = GetRaceRequest{} }
+func (m *GetRaceRequest) String() string { return proto.CompactTextString(m) }
+func (*GetRaceRequest) ProtoMessage()    {}
+func (*GetRaceRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_evedb_b05ddaeec1c8004d, []int{20}
+}
+func (m *GetRaceRequest) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_GetRaceRequest.Unmarshal(m, b)
+}
+func (m *GetRaceRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_GetRaceRequest.Marshal(b, m, deterministic)
+}
+func (dst *GetRaceRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_GetRaceRequest.Merge(dst, src)
+}
+func (m *GetRaceRequest) XXX_Size() int {
+	return xxx_messageInfo_GetRaceRequest.Size(m)
+}
+func (m *GetRaceRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_GetRaceRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_GetRaceRequest proto.InternalMessageInfo
 
 func (m *GetRaceRequest) GetRaceId() int64 {
 	if m != nil {
@@ -902,14 +1370,36 @@ func (m *GetRaceRequest) GetRaceId() int64 {
 }
 
 type GetRaceResponse struct {
-	Result *Result `protobuf:"bytes,1,opt,name=result" json:"result,omitempty"`
-	Race   *Race   `protobuf:"bytes,2,opt,name=race" json:"race,omitempty"`
+	Result               *Result  `protobuf:"bytes,1,opt,name=result" json:"result,omitempty"`
+	Race                 *Race    `protobuf:"bytes,2,opt,name=race" json:"race,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
-func (m *GetRaceResponse) Reset()                    { *m = GetRaceResponse{} }
-func (m *GetRaceResponse) String() string            { return proto1.CompactTextString(m) }
-func (*GetRaceResponse) ProtoMessage()               {}
-func (*GetRaceResponse) Descriptor() ([]byte, []int) { return fileDescriptor2, []int{21} }
+func (m *GetRaceResponse) Reset()         { *m = GetRaceResponse{} }
+func (m *GetRaceResponse) String() string { return proto.CompactTextString(m) }
+func (*GetRaceResponse) ProtoMessage()    {}
+func (*GetRaceResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_evedb_b05ddaeec1c8004d, []int{21}
+}
+func (m *GetRaceResponse) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_GetRaceResponse.Unmarshal(m, b)
+}
+func (m *GetRaceResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_GetRaceResponse.Marshal(b, m, deterministic)
+}
+func (dst *GetRaceResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_GetRaceResponse.Merge(dst, src)
+}
+func (m *GetRaceResponse) XXX_Size() int {
+	return xxx_messageInfo_GetRaceResponse.Size(m)
+}
+func (m *GetRaceResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_GetRaceResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_GetRaceResponse proto.InternalMessageInfo
 
 func (m *GetRaceResponse) GetResult() *Result {
 	if m != nil {
@@ -926,22 +1416,66 @@ func (m *GetRaceResponse) GetRace() *Race {
 }
 
 type GetRacesRequest struct {
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
-func (m *GetRacesRequest) Reset()                    { *m = GetRacesRequest{} }
-func (m *GetRacesRequest) String() string            { return proto1.CompactTextString(m) }
-func (*GetRacesRequest) ProtoMessage()               {}
-func (*GetRacesRequest) Descriptor() ([]byte, []int) { return fileDescriptor2, []int{22} }
+func (m *GetRacesRequest) Reset()         { *m = GetRacesRequest{} }
+func (m *GetRacesRequest) String() string { return proto.CompactTextString(m) }
+func (*GetRacesRequest) ProtoMessage()    {}
+func (*GetRacesRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_evedb_b05ddaeec1c8004d, []int{22}
+}
+func (m *GetRacesRequest) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_GetRacesRequest.Unmarshal(m, b)
+}
+func (m *GetRacesRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_GetRacesRequest.Marshal(b, m, deterministic)
+}
+func (dst *GetRacesRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_GetRacesRequest.Merge(dst, src)
+}
+func (m *GetRacesRequest) XXX_Size() int {
+	return xxx_messageInfo_GetRacesRequest.Size(m)
+}
+func (m *GetRacesRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_GetRacesRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_GetRacesRequest proto.InternalMessageInfo
 
 type GetRacesResponse struct {
-	Result *Result `protobuf:"bytes,1,opt,name=result" json:"result,omitempty"`
-	Race   []*Race `protobuf:"bytes,2,rep,name=race" json:"race,omitempty"`
+	Result               *Result  `protobuf:"bytes,1,opt,name=result" json:"result,omitempty"`
+	Race                 []*Race  `protobuf:"bytes,2,rep,name=race" json:"race,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
-func (m *GetRacesResponse) Reset()                    { *m = GetRacesResponse{} }
-func (m *GetRacesResponse) String() string            { return proto1.CompactTextString(m) }
-func (*GetRacesResponse) ProtoMessage()               {}
-func (*GetRacesResponse) Descriptor() ([]byte, []int) { return fileDescriptor2, []int{23} }
+func (m *GetRacesResponse) Reset()         { *m = GetRacesResponse{} }
+func (m *GetRacesResponse) String() string { return proto.CompactTextString(m) }
+func (*GetRacesResponse) ProtoMessage()    {}
+func (*GetRacesResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_evedb_b05ddaeec1c8004d, []int{23}
+}
+func (m *GetRacesResponse) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_GetRacesResponse.Unmarshal(m, b)
+}
+func (m *GetRacesResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_GetRacesResponse.Marshal(b, m, deterministic)
+}
+func (dst *GetRacesResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_GetRacesResponse.Merge(dst, src)
+}
+func (m *GetRacesResponse) XXX_Size() int {
+	return xxx_messageInfo_GetRacesResponse.Size(m)
+}
+func (m *GetRacesResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_GetRacesResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_GetRacesResponse proto.InternalMessageInfo
 
 func (m *GetRacesResponse) GetResult() *Result {
 	if m != nil {
@@ -958,13 +1492,35 @@ func (m *GetRacesResponse) GetRace() []*Race {
 }
 
 type GetBloodlineRequest struct {
-	BloodlineId int64 `protobuf:"varint,1,opt,name=bloodline_id,json=bloodlineId" json:"bloodline_id,omitempty"`
+	BloodlineId          int64    `protobuf:"varint,1,opt,name=bloodline_id,json=bloodlineId" json:"bloodline_id,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
-func (m *GetBloodlineRequest) Reset()                    { *m = GetBloodlineRequest{} }
-func (m *GetBloodlineRequest) String() string            { return proto1.CompactTextString(m) }
-func (*GetBloodlineRequest) ProtoMessage()               {}
-func (*GetBloodlineRequest) Descriptor() ([]byte, []int) { return fileDescriptor2, []int{24} }
+func (m *GetBloodlineRequest) Reset()         { *m = GetBloodlineRequest{} }
+func (m *GetBloodlineRequest) String() string { return proto.CompactTextString(m) }
+func (*GetBloodlineRequest) ProtoMessage()    {}
+func (*GetBloodlineRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_evedb_b05ddaeec1c8004d, []int{24}
+}
+func (m *GetBloodlineRequest) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_GetBloodlineRequest.Unmarshal(m, b)
+}
+func (m *GetBloodlineRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_GetBloodlineRequest.Marshal(b, m, deterministic)
+}
+func (dst *GetBloodlineRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_GetBloodlineRequest.Merge(dst, src)
+}
+func (m *GetBloodlineRequest) XXX_Size() int {
+	return xxx_messageInfo_GetBloodlineRequest.Size(m)
+}
+func (m *GetBloodlineRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_GetBloodlineRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_GetBloodlineRequest proto.InternalMessageInfo
 
 func (m *GetBloodlineRequest) GetBloodlineId() int64 {
 	if m != nil {
@@ -974,14 +1530,36 @@ func (m *GetBloodlineRequest) GetBloodlineId() int64 {
 }
 
 type GetBloodlineResponse struct {
-	Result    *Result    `protobuf:"bytes,1,opt,name=result" json:"result,omitempty"`
-	Bloodline *Bloodline `protobuf:"bytes,2,opt,name=bloodline" json:"bloodline,omitempty"`
+	Result               *Result    `protobuf:"bytes,1,opt,name=result" json:"result,omitempty"`
+	Bloodline            *Bloodline `protobuf:"bytes,2,opt,name=bloodline" json:"bloodline,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}   `json:"-"`
+	XXX_unrecognized     []byte     `json:"-"`
+	XXX_sizecache        int32      `json:"-"`
 }
 
-func (m *GetBloodlineResponse) Reset()                    { *m = GetBloodlineResponse{} }
-func (m *GetBloodlineResponse) String() string            { return proto1.CompactTextString(m) }
-func (*GetBloodlineResponse) ProtoMessage()               {}
-func (*GetBloodlineResponse) Descriptor() ([]byte, []int) { return fileDescriptor2, []int{25} }
+func (m *GetBloodlineResponse) Reset()         { *m = GetBloodlineResponse{} }
+func (m *GetBloodlineResponse) String() string { return proto.CompactTextString(m) }
+func (*GetBloodlineResponse) ProtoMessage()    {}
+func (*GetBloodlineResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_evedb_b05ddaeec1c8004d, []int{25}
+}
+func (m *GetBloodlineResponse) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_GetBloodlineResponse.Unmarshal(m, b)
+}
+func (m *GetBloodlineResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_GetBloodlineResponse.Marshal(b, m, deterministic)
+}
+func (dst *GetBloodlineResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_GetBloodlineResponse.Merge(dst, src)
+}
+func (m *GetBloodlineResponse) XXX_Size() int {
+	return xxx_messageInfo_GetBloodlineResponse.Size(m)
+}
+func (m *GetBloodlineResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_GetBloodlineResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_GetBloodlineResponse proto.InternalMessageInfo
 
 func (m *GetBloodlineResponse) GetResult() *Result {
 	if m != nil {
@@ -998,13 +1576,35 @@ func (m *GetBloodlineResponse) GetBloodline() *Bloodline {
 }
 
 type GetAncestryRequest struct {
-	AncestryId int64 `protobuf:"varint,1,opt,name=ancestry_id,json=ancestryId" json:"ancestry_id,omitempty"`
+	AncestryId           int64    `protobuf:"varint,1,opt,name=ancestry_id,json=ancestryId" json:"ancestry_id,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
-func (m *GetAncestryRequest) Reset()                    { *m = GetAncestryRequest{} }
-func (m *GetAncestryRequest) String() string            { return proto1.CompactTextString(m) }
-func (*GetAncestryRequest) ProtoMessage()               {}
-func (*GetAncestryRequest) Descriptor() ([]byte, []int) { return fileDescriptor2, []int{26} }
+func (m *GetAncestryRequest) Reset()         { *m = GetAncestryRequest{} }
+func (m *GetAncestryRequest) String() string { return proto.CompactTextString(m) }
+func (*GetAncestryRequest) ProtoMessage()    {}
+func (*GetAncestryRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_evedb_b05ddaeec1c8004d, []int{26}
+}
+func (m *GetAncestryRequest) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_GetAncestryRequest.Unmarshal(m, b)
+}
+func (m *GetAncestryRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_GetAncestryRequest.Marshal(b, m, deterministic)
+}
+func (dst *GetAncestryRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_GetAncestryRequest.Merge(dst, src)
+}
+func (m *GetAncestryRequest) XXX_Size() int {
+	return xxx_messageInfo_GetAncestryRequest.Size(m)
+}
+func (m *GetAncestryRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_GetAncestryRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_GetAncestryRequest proto.InternalMessageInfo
 
 func (m *GetAncestryRequest) GetAncestryId() int64 {
 	if m != nil {
@@ -1014,14 +1614,36 @@ func (m *GetAncestryRequest) GetAncestryId() int64 {
 }
 
 type GetAncestryResponse struct {
-	Result   *Result   `protobuf:"bytes,1,opt,name=result" json:"result,omitempty"`
-	Ancestry *Ancestry `protobuf:"bytes,2,opt,name=ancestry" json:"ancestry,omitempty"`
+	Result               *Result   `protobuf:"bytes,1,opt,name=result" json:"result,omitempty"`
+	Ancestry             *Ancestry `protobuf:"bytes,2,opt,name=ancestry" json:"ancestry,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}  `json:"-"`
+	XXX_unrecognized     []byte    `json:"-"`
+	XXX_sizecache        int32     `json:"-"`
 }
 
-func (m *GetAncestryResponse) Reset()                    { *m = GetAncestryResponse{} }
-func (m *GetAncestryResponse) String() string            { return proto1.CompactTextString(m) }
-func (*GetAncestryResponse) ProtoMessage()               {}
-func (*GetAncestryResponse) Descriptor() ([]byte, []int) { return fileDescriptor2, []int{27} }
+func (m *GetAncestryResponse) Reset()         { *m = GetAncestryResponse{} }
+func (m *GetAncestryResponse) String() string { return proto.CompactTextString(m) }
+func (*GetAncestryResponse) ProtoMessage()    {}
+func (*GetAncestryResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_evedb_b05ddaeec1c8004d, []int{27}
+}
+func (m *GetAncestryResponse) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_GetAncestryResponse.Unmarshal(m, b)
+}
+func (m *GetAncestryResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_GetAncestryResponse.Marshal(b, m, deterministic)
+}
+func (dst *GetAncestryResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_GetAncestryResponse.Merge(dst, src)
+}
+func (m *GetAncestryResponse) XXX_Size() int {
+	return xxx_messageInfo_GetAncestryResponse.Size(m)
+}
+func (m *GetAncestryResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_GetAncestryResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_GetAncestryResponse proto.InternalMessageInfo
 
 func (m *GetAncestryResponse) GetResult() *Result {
 	if m != nil {
@@ -1038,13 +1660,35 @@ func (m *GetAncestryResponse) GetAncestry() *Ancestry {
 }
 
 type GetItemTypeRequest struct {
-	TypeId int64 `protobuf:"varint,1,opt,name=type_id,json=typeId" json:"type_id,omitempty"`
+	TypeId               int64    `protobuf:"varint,1,opt,name=type_id,json=typeId" json:"type_id,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
-func (m *GetItemTypeRequest) Reset()                    { *m = GetItemTypeRequest{} }
-func (m *GetItemTypeRequest) String() string            { return proto1.CompactTextString(m) }
-func (*GetItemTypeRequest) ProtoMessage()               {}
-func (*GetItemTypeRequest) Descriptor() ([]byte, []int) { return fileDescriptor2, []int{28} }
+func (m *GetItemTypeRequest) Reset()         { *m = GetItemTypeRequest{} }
+func (m *GetItemTypeRequest) String() string { return proto.CompactTextString(m) }
+func (*GetItemTypeRequest) ProtoMessage()    {}
+func (*GetItemTypeRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_evedb_b05ddaeec1c8004d, []int{28}
+}
+func (m *GetItemTypeRequest) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_GetItemTypeRequest.Unmarshal(m, b)
+}
+func (m *GetItemTypeRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_GetItemTypeRequest.Marshal(b, m, deterministic)
+}
+func (dst *GetItemTypeRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_GetItemTypeRequest.Merge(dst, src)
+}
+func (m *GetItemTypeRequest) XXX_Size() int {
+	return xxx_messageInfo_GetItemTypeRequest.Size(m)
+}
+func (m *GetItemTypeRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_GetItemTypeRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_GetItemTypeRequest proto.InternalMessageInfo
 
 func (m *GetItemTypeRequest) GetTypeId() int64 {
 	if m != nil {
@@ -1054,14 +1698,36 @@ func (m *GetItemTypeRequest) GetTypeId() int64 {
 }
 
 type GetItemTypeResponse struct {
-	Result *Result   `protobuf:"bytes,1,opt,name=result" json:"result,omitempty"`
-	Type   *ItemType `protobuf:"bytes,2,opt,name=type" json:"type,omitempty"`
+	Result               *Result   `protobuf:"bytes,1,opt,name=result" json:"result,omitempty"`
+	Type                 *ItemType `protobuf:"bytes,2,opt,name=type" json:"type,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}  `json:"-"`
+	XXX_unrecognized     []byte    `json:"-"`
+	XXX_sizecache        int32     `json:"-"`
 }
 
-func (m *GetItemTypeResponse) Reset()                    { *m = GetItemTypeResponse{} }
-func (m *GetItemTypeResponse) String() string            { return proto1.CompactTextString(m) }
-func (*GetItemTypeResponse) ProtoMessage()               {}
-func (*GetItemTypeResponse) Descriptor() ([]byte, []int) { return fileDescriptor2, []int{29} }
+func (m *GetItemTypeResponse) Reset()         { *m = GetItemTypeResponse{} }
+func (m *GetItemTypeResponse) String() string { return proto.CompactTextString(m) }
+func (*GetItemTypeResponse) ProtoMessage()    {}
+func (*GetItemTypeResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_evedb_b05ddaeec1c8004d, []int{29}
+}
+func (m *GetItemTypeResponse) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_GetItemTypeResponse.Unmarshal(m, b)
+}
+func (m *GetItemTypeResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_GetItemTypeResponse.Marshal(b, m, deterministic)
+}
+func (dst *GetItemTypeResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_GetItemTypeResponse.Merge(dst, src)
+}
+func (m *GetItemTypeResponse) XXX_Size() int {
+	return xxx_messageInfo_GetItemTypeResponse.Size(m)
+}
+func (m *GetItemTypeResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_GetItemTypeResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_GetItemTypeResponse proto.InternalMessageInfo
 
 func (m *GetItemTypeResponse) GetResult() *Result {
 	if m != nil {
@@ -1078,13 +1744,35 @@ func (m *GetItemTypeResponse) GetType() *ItemType {
 }
 
 type GetItemTypeDetailRequest struct {
-	TypeId int64 `protobuf:"varint,1,opt,name=type_id,json=typeId" json:"type_id,omitempty"`
+	TypeId               int64    `protobuf:"varint,1,opt,name=type_id,json=typeId" json:"type_id,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
-func (m *GetItemTypeDetailRequest) Reset()                    { *m = GetItemTypeDetailRequest{} }
-func (m *GetItemTypeDetailRequest) String() string            { return proto1.CompactTextString(m) }
-func (*GetItemTypeDetailRequest) ProtoMessage()               {}
-func (*GetItemTypeDetailRequest) Descriptor() ([]byte, []int) { return fileDescriptor2, []int{30} }
+func (m *GetItemTypeDetailRequest) Reset()         { *m = GetItemTypeDetailRequest{} }
+func (m *GetItemTypeDetailRequest) String() string { return proto.CompactTextString(m) }
+func (*GetItemTypeDetailRequest) ProtoMessage()    {}
+func (*GetItemTypeDetailRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_evedb_b05ddaeec1c8004d, []int{30}
+}
+func (m *GetItemTypeDetailRequest) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_GetItemTypeDetailRequest.Unmarshal(m, b)
+}
+func (m *GetItemTypeDetailRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_GetItemTypeDetailRequest.Marshal(b, m, deterministic)
+}
+func (dst *GetItemTypeDetailRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_GetItemTypeDetailRequest.Merge(dst, src)
+}
+func (m *GetItemTypeDetailRequest) XXX_Size() int {
+	return xxx_messageInfo_GetItemTypeDetailRequest.Size(m)
+}
+func (m *GetItemTypeDetailRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_GetItemTypeDetailRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_GetItemTypeDetailRequest proto.InternalMessageInfo
 
 func (m *GetItemTypeDetailRequest) GetTypeId() int64 {
 	if m != nil {
@@ -1094,14 +1782,36 @@ func (m *GetItemTypeDetailRequest) GetTypeId() int64 {
 }
 
 type GetItemTypeDetailResponse struct {
-	Result *Result         `protobuf:"bytes,1,opt,name=result" json:"result,omitempty"`
-	Type   *ItemTypeDetail `protobuf:"bytes,2,opt,name=type" json:"type,omitempty"`
+	Result               *Result         `protobuf:"bytes,1,opt,name=result" json:"result,omitempty"`
+	Type                 *ItemTypeDetail `protobuf:"bytes,2,opt,name=type" json:"type,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}        `json:"-"`
+	XXX_unrecognized     []byte          `json:"-"`
+	XXX_sizecache        int32           `json:"-"`
 }
 
-func (m *GetItemTypeDetailResponse) Reset()                    { *m = GetItemTypeDetailResponse{} }
-func (m *GetItemTypeDetailResponse) String() string            { return proto1.CompactTextString(m) }
-func (*GetItemTypeDetailResponse) ProtoMessage()               {}
-func (*GetItemTypeDetailResponse) Descriptor() ([]byte, []int) { return fileDescriptor2, []int{31} }
+func (m *GetItemTypeDetailResponse) Reset()         { *m = GetItemTypeDetailResponse{} }
+func (m *GetItemTypeDetailResponse) String() string { return proto.CompactTextString(m) }
+func (*GetItemTypeDetailResponse) ProtoMessage()    {}
+func (*GetItemTypeDetailResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_evedb_b05ddaeec1c8004d, []int{31}
+}
+func (m *GetItemTypeDetailResponse) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_GetItemTypeDetailResponse.Unmarshal(m, b)
+}
+func (m *GetItemTypeDetailResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_GetItemTypeDetailResponse.Marshal(b, m, deterministic)
+}
+func (dst *GetItemTypeDetailResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_GetItemTypeDetailResponse.Merge(dst, src)
+}
+func (m *GetItemTypeDetailResponse) XXX_Size() int {
+	return xxx_messageInfo_GetItemTypeDetailResponse.Size(m)
+}
+func (m *GetItemTypeDetailResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_GetItemTypeDetailResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_GetItemTypeDetailResponse proto.InternalMessageInfo
 
 func (m *GetItemTypeDetailResponse) GetResult() *Result {
 	if m != nil {
@@ -1118,14 +1828,36 @@ func (m *GetItemTypeDetailResponse) GetType() *ItemTypeDetail {
 }
 
 type QueryItemTypesRequest struct {
-	Query      string  `protobuf:"bytes,1,opt,name=query" json:"query,omitempty"`
-	CategoryId []int64 `protobuf:"varint,2,rep,packed,name=category_id,json=categoryId" json:"category_id,omitempty"`
+	Query                string   `protobuf:"bytes,1,opt,name=query" json:"query,omitempty"`
+	CategoryId           []int64  `protobuf:"varint,2,rep,packed,name=category_id,json=categoryId" json:"category_id,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
-func (m *QueryItemTypesRequest) Reset()                    { *m = QueryItemTypesRequest{} }
-func (m *QueryItemTypesRequest) String() string            { return proto1.CompactTextString(m) }
-func (*QueryItemTypesRequest) ProtoMessage()               {}
-func (*QueryItemTypesRequest) Descriptor() ([]byte, []int) { return fileDescriptor2, []int{32} }
+func (m *QueryItemTypesRequest) Reset()         { *m = QueryItemTypesRequest{} }
+func (m *QueryItemTypesRequest) String() string { return proto.CompactTextString(m) }
+func (*QueryItemTypesRequest) ProtoMessage()    {}
+func (*QueryItemTypesRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_evedb_b05ddaeec1c8004d, []int{32}
+}
+func (m *QueryItemTypesRequest) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_QueryItemTypesRequest.Unmarshal(m, b)
+}
+func (m *QueryItemTypesRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_QueryItemTypesRequest.Marshal(b, m, deterministic)
+}
+func (dst *QueryItemTypesRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_QueryItemTypesRequest.Merge(dst, src)
+}
+func (m *QueryItemTypesRequest) XXX_Size() int {
+	return xxx_messageInfo_QueryItemTypesRequest.Size(m)
+}
+func (m *QueryItemTypesRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_QueryItemTypesRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_QueryItemTypesRequest proto.InternalMessageInfo
 
 func (m *QueryItemTypesRequest) GetQuery() string {
 	if m != nil {
@@ -1142,14 +1874,36 @@ func (m *QueryItemTypesRequest) GetCategoryId() []int64 {
 }
 
 type QueryItemTypesResponse struct {
-	Result *Result     `protobuf:"bytes,1,opt,name=result" json:"result,omitempty"`
-	Types  []*ItemType `protobuf:"bytes,2,rep,name=types" json:"types,omitempty"`
+	Result               *Result     `protobuf:"bytes,1,opt,name=result" json:"result,omitempty"`
+	Types                []*ItemType `protobuf:"bytes,2,rep,name=types" json:"types,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}    `json:"-"`
+	XXX_unrecognized     []byte      `json:"-"`
+	XXX_sizecache        int32       `json:"-"`
 }
 
-func (m *QueryItemTypesResponse) Reset()                    { *m = QueryItemTypesResponse{} }
-func (m *QueryItemTypesResponse) String() string            { return proto1.CompactTextString(m) }
-func (*QueryItemTypesResponse) ProtoMessage()               {}
-func (*QueryItemTypesResponse) Descriptor() ([]byte, []int) { return fileDescriptor2, []int{33} }
+func (m *QueryItemTypesResponse) Reset()         { *m = QueryItemTypesResponse{} }
+func (m *QueryItemTypesResponse) String() string { return proto.CompactTextString(m) }
+func (*QueryItemTypesResponse) ProtoMessage()    {}
+func (*QueryItemTypesResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_evedb_b05ddaeec1c8004d, []int{33}
+}
+func (m *QueryItemTypesResponse) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_QueryItemTypesResponse.Unmarshal(m, b)
+}
+func (m *QueryItemTypesResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_QueryItemTypesResponse.Marshal(b, m, deterministic)
+}
+func (dst *QueryItemTypesResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_QueryItemTypesResponse.Merge(dst, src)
+}
+func (m *QueryItemTypesResponse) XXX_Size() int {
+	return xxx_messageInfo_QueryItemTypesResponse.Size(m)
+}
+func (m *QueryItemTypesResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_QueryItemTypesResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_QueryItemTypesResponse proto.InternalMessageInfo
 
 func (m *QueryItemTypesResponse) GetResult() *Result {
 	if m != nil {
@@ -1166,14 +1920,36 @@ func (m *QueryItemTypesResponse) GetTypes() []*ItemType {
 }
 
 type QueryItemTypeDetailsRequest struct {
-	Query      string  `protobuf:"bytes,1,opt,name=query" json:"query,omitempty"`
-	CategoryId []int64 `protobuf:"varint,2,rep,packed,name=category_id,json=categoryId" json:"category_id,omitempty"`
+	Query                string   `protobuf:"bytes,1,opt,name=query" json:"query,omitempty"`
+	CategoryId           []int64  `protobuf:"varint,2,rep,packed,name=category_id,json=categoryId" json:"category_id,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
-func (m *QueryItemTypeDetailsRequest) Reset()                    { *m = QueryItemTypeDetailsRequest{} }
-func (m *QueryItemTypeDetailsRequest) String() string            { return proto1.CompactTextString(m) }
-func (*QueryItemTypeDetailsRequest) ProtoMessage()               {}
-func (*QueryItemTypeDetailsRequest) Descriptor() ([]byte, []int) { return fileDescriptor2, []int{34} }
+func (m *QueryItemTypeDetailsRequest) Reset()         { *m = QueryItemTypeDetailsRequest{} }
+func (m *QueryItemTypeDetailsRequest) String() string { return proto.CompactTextString(m) }
+func (*QueryItemTypeDetailsRequest) ProtoMessage()    {}
+func (*QueryItemTypeDetailsRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_evedb_b05ddaeec1c8004d, []int{34}
+}
+func (m *QueryItemTypeDetailsRequest) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_QueryItemTypeDetailsRequest.Unmarshal(m, b)
+}
+func (m *QueryItemTypeDetailsRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_QueryItemTypeDetailsRequest.Marshal(b, m, deterministic)
+}
+func (dst *QueryItemTypeDetailsRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_QueryItemTypeDetailsRequest.Merge(dst, src)
+}
+func (m *QueryItemTypeDetailsRequest) XXX_Size() int {
+	return xxx_messageInfo_QueryItemTypeDetailsRequest.Size(m)
+}
+func (m *QueryItemTypeDetailsRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_QueryItemTypeDetailsRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_QueryItemTypeDetailsRequest proto.InternalMessageInfo
 
 func (m *QueryItemTypeDetailsRequest) GetQuery() string {
 	if m != nil {
@@ -1190,14 +1966,36 @@ func (m *QueryItemTypeDetailsRequest) GetCategoryId() []int64 {
 }
 
 type QueryItemTypeDetailsResponse struct {
-	Result *Result           `protobuf:"bytes,1,opt,name=result" json:"result,omitempty"`
-	Types  []*ItemTypeDetail `protobuf:"bytes,2,rep,name=types" json:"types,omitempty"`
+	Result               *Result           `protobuf:"bytes,1,opt,name=result" json:"result,omitempty"`
+	Types                []*ItemTypeDetail `protobuf:"bytes,2,rep,name=types" json:"types,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}          `json:"-"`
+	XXX_unrecognized     []byte            `json:"-"`
+	XXX_sizecache        int32             `json:"-"`
 }
 
-func (m *QueryItemTypeDetailsResponse) Reset()                    { *m = QueryItemTypeDetailsResponse{} }
-func (m *QueryItemTypeDetailsResponse) String() string            { return proto1.CompactTextString(m) }
-func (*QueryItemTypeDetailsResponse) ProtoMessage()               {}
-func (*QueryItemTypeDetailsResponse) Descriptor() ([]byte, []int) { return fileDescriptor2, []int{35} }
+func (m *QueryItemTypeDetailsResponse) Reset()         { *m = QueryItemTypeDetailsResponse{} }
+func (m *QueryItemTypeDetailsResponse) String() string { return proto.CompactTextString(m) }
+func (*QueryItemTypeDetailsResponse) ProtoMessage()    {}
+func (*QueryItemTypeDetailsResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_evedb_b05ddaeec1c8004d, []int{35}
+}
+func (m *QueryItemTypeDetailsResponse) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_QueryItemTypeDetailsResponse.Unmarshal(m, b)
+}
+func (m *QueryItemTypeDetailsResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_QueryItemTypeDetailsResponse.Marshal(b, m, deterministic)
+}
+func (dst *QueryItemTypeDetailsResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_QueryItemTypeDetailsResponse.Merge(dst, src)
+}
+func (m *QueryItemTypeDetailsResponse) XXX_Size() int {
+	return xxx_messageInfo_QueryItemTypeDetailsResponse.Size(m)
+}
+func (m *QueryItemTypeDetailsResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_QueryItemTypeDetailsResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_QueryItemTypeDetailsResponse proto.InternalMessageInfo
 
 func (m *QueryItemTypeDetailsResponse) GetResult() *Result {
 	if m != nil {
@@ -1214,13 +2012,35 @@ func (m *QueryItemTypeDetailsResponse) GetTypes() []*ItemTypeDetail {
 }
 
 type GetMaterialSheetRequest struct {
-	TypeId int64 `protobuf:"varint,1,opt,name=type_id,json=typeId" json:"type_id,omitempty"`
+	TypeId               int64    `protobuf:"varint,1,opt,name=type_id,json=typeId" json:"type_id,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
-func (m *GetMaterialSheetRequest) Reset()                    { *m = GetMaterialSheetRequest{} }
-func (m *GetMaterialSheetRequest) String() string            { return proto1.CompactTextString(m) }
-func (*GetMaterialSheetRequest) ProtoMessage()               {}
-func (*GetMaterialSheetRequest) Descriptor() ([]byte, []int) { return fileDescriptor2, []int{36} }
+func (m *GetMaterialSheetRequest) Reset()         { *m = GetMaterialSheetRequest{} }
+func (m *GetMaterialSheetRequest) String() string { return proto.CompactTextString(m) }
+func (*GetMaterialSheetRequest) ProtoMessage()    {}
+func (*GetMaterialSheetRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_evedb_b05ddaeec1c8004d, []int{36}
+}
+func (m *GetMaterialSheetRequest) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_GetMaterialSheetRequest.Unmarshal(m, b)
+}
+func (m *GetMaterialSheetRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_GetMaterialSheetRequest.Marshal(b, m, deterministic)
+}
+func (dst *GetMaterialSheetRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_GetMaterialSheetRequest.Merge(dst, src)
+}
+func (m *GetMaterialSheetRequest) XXX_Size() int {
+	return xxx_messageInfo_GetMaterialSheetRequest.Size(m)
+}
+func (m *GetMaterialSheetRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_GetMaterialSheetRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_GetMaterialSheetRequest proto.InternalMessageInfo
 
 func (m *GetMaterialSheetRequest) GetTypeId() int64 {
 	if m != nil {
@@ -1230,14 +2050,36 @@ func (m *GetMaterialSheetRequest) GetTypeId() int64 {
 }
 
 type GetMaterialSheetResponse struct {
-	Result   *Result        `protobuf:"bytes,1,opt,name=result" json:"result,omitempty"`
-	MatSheet *MaterialSheet `protobuf:"bytes,2,opt,name=mat_sheet,json=matSheet" json:"mat_sheet,omitempty"`
+	Result               *Result        `protobuf:"bytes,1,opt,name=result" json:"result,omitempty"`
+	MatSheet             *MaterialSheet `protobuf:"bytes,2,opt,name=mat_sheet,json=matSheet" json:"mat_sheet,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}       `json:"-"`
+	XXX_unrecognized     []byte         `json:"-"`
+	XXX_sizecache        int32          `json:"-"`
 }
 
-func (m *GetMaterialSheetResponse) Reset()                    { *m = GetMaterialSheetResponse{} }
-func (m *GetMaterialSheetResponse) String() string            { return proto1.CompactTextString(m) }
-func (*GetMaterialSheetResponse) ProtoMessage()               {}
-func (*GetMaterialSheetResponse) Descriptor() ([]byte, []int) { return fileDescriptor2, []int{37} }
+func (m *GetMaterialSheetResponse) Reset()         { *m = GetMaterialSheetResponse{} }
+func (m *GetMaterialSheetResponse) String() string { return proto.CompactTextString(m) }
+func (*GetMaterialSheetResponse) ProtoMessage()    {}
+func (*GetMaterialSheetResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_evedb_b05ddaeec1c8004d, []int{37}
+}
+func (m *GetMaterialSheetResponse) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_GetMaterialSheetResponse.Unmarshal(m, b)
+}
+func (m *GetMaterialSheetResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_GetMaterialSheetResponse.Marshal(b, m, deterministic)
+}
+func (dst *GetMaterialSheetResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_GetMaterialSheetResponse.Merge(dst, src)
+}
+func (m *GetMaterialSheetResponse) XXX_Size() int {
+	return xxx_messageInfo_GetMaterialSheetResponse.Size(m)
+}
+func (m *GetMaterialSheetResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_GetMaterialSheetResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_GetMaterialSheetResponse proto.InternalMessageInfo
 
 func (m *GetMaterialSheetResponse) GetResult() *Result {
 	if m != nil {
@@ -1254,13 +2096,35 @@ func (m *GetMaterialSheetResponse) GetMatSheet() *MaterialSheet {
 }
 
 type GetStationRequest struct {
-	StationId int64 `protobuf:"varint,1,opt,name=station_id,json=stationId" json:"station_id,omitempty"`
+	StationId            int64    `protobuf:"varint,1,opt,name=station_id,json=stationId" json:"station_id,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
-func (m *GetStationRequest) Reset()                    { *m = GetStationRequest{} }
-func (m *GetStationRequest) String() string            { return proto1.CompactTextString(m) }
-func (*GetStationRequest) ProtoMessage()               {}
-func (*GetStationRequest) Descriptor() ([]byte, []int) { return fileDescriptor2, []int{38} }
+func (m *GetStationRequest) Reset()         { *m = GetStationRequest{} }
+func (m *GetStationRequest) String() string { return proto.CompactTextString(m) }
+func (*GetStationRequest) ProtoMessage()    {}
+func (*GetStationRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_evedb_b05ddaeec1c8004d, []int{38}
+}
+func (m *GetStationRequest) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_GetStationRequest.Unmarshal(m, b)
+}
+func (m *GetStationRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_GetStationRequest.Marshal(b, m, deterministic)
+}
+func (dst *GetStationRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_GetStationRequest.Merge(dst, src)
+}
+func (m *GetStationRequest) XXX_Size() int {
+	return xxx_messageInfo_GetStationRequest.Size(m)
+}
+func (m *GetStationRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_GetStationRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_GetStationRequest proto.InternalMessageInfo
 
 func (m *GetStationRequest) GetStationId() int64 {
 	if m != nil {
@@ -1270,14 +2134,36 @@ func (m *GetStationRequest) GetStationId() int64 {
 }
 
 type GetStationResponse struct {
-	Result  *Result  `protobuf:"bytes,1,opt,name=result" json:"result,omitempty"`
-	Station *Station `protobuf:"bytes,2,opt,name=station" json:"station,omitempty"`
+	Result               *Result  `protobuf:"bytes,1,opt,name=result" json:"result,omitempty"`
+	Station              *Station `protobuf:"bytes,2,opt,name=station" json:"station,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
-func (m *GetStationResponse) Reset()                    { *m = GetStationResponse{} }
-func (m *GetStationResponse) String() string            { return proto1.CompactTextString(m) }
-func (*GetStationResponse) ProtoMessage()               {}
-func (*GetStationResponse) Descriptor() ([]byte, []int) { return fileDescriptor2, []int{39} }
+func (m *GetStationResponse) Reset()         { *m = GetStationResponse{} }
+func (m *GetStationResponse) String() string { return proto.CompactTextString(m) }
+func (*GetStationResponse) ProtoMessage()    {}
+func (*GetStationResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_evedb_b05ddaeec1c8004d, []int{39}
+}
+func (m *GetStationResponse) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_GetStationResponse.Unmarshal(m, b)
+}
+func (m *GetStationResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_GetStationResponse.Marshal(b, m, deterministic)
+}
+func (dst *GetStationResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_GetStationResponse.Merge(dst, src)
+}
+func (m *GetStationResponse) XXX_Size() int {
+	return xxx_messageInfo_GetStationResponse.Size(m)
+}
+func (m *GetStationResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_GetStationResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_GetStationResponse proto.InternalMessageInfo
 
 func (m *GetStationResponse) GetResult() *Result {
 	if m != nil {
@@ -1294,46 +2180,46 @@ func (m *GetStationResponse) GetStation() *Station {
 }
 
 func init() {
-	proto1.RegisterType((*Icon)(nil), "motki.evedb.Icon")
-	proto1.RegisterType((*Race)(nil), "motki.evedb.Race")
-	proto1.RegisterType((*Ancestry)(nil), "motki.evedb.Ancestry")
-	proto1.RegisterType((*Bloodline)(nil), "motki.evedb.Bloodline")
-	proto1.RegisterType((*System)(nil), "motki.evedb.System")
-	proto1.RegisterType((*Constellation)(nil), "motki.evedb.Constellation")
-	proto1.RegisterType((*Region)(nil), "motki.evedb.Region")
-	proto1.RegisterType((*Station)(nil), "motki.evedb.Station")
-	proto1.RegisterType((*ItemType)(nil), "motki.evedb.ItemType")
-	proto1.RegisterType((*ItemTypeDetail)(nil), "motki.evedb.ItemTypeDetail")
-	proto1.RegisterType((*MaterialSheet)(nil), "motki.evedb.MaterialSheet")
-	proto1.RegisterType((*Material)(nil), "motki.evedb.Material")
-	proto1.RegisterType((*GetRegionRequest)(nil), "motki.evedb.GetRegionRequest")
-	proto1.RegisterType((*GetRegionResponse)(nil), "motki.evedb.GetRegionResponse")
-	proto1.RegisterType((*GetRegionsRequest)(nil), "motki.evedb.GetRegionsRequest")
-	proto1.RegisterType((*GetRegionsResponse)(nil), "motki.evedb.GetRegionsResponse")
-	proto1.RegisterType((*GetConstellationRequest)(nil), "motki.evedb.GetConstellationRequest")
-	proto1.RegisterType((*GetConstellationResponse)(nil), "motki.evedb.GetConstellationResponse")
-	proto1.RegisterType((*GetSystemRequest)(nil), "motki.evedb.GetSystemRequest")
-	proto1.RegisterType((*GetSystemResponse)(nil), "motki.evedb.GetSystemResponse")
-	proto1.RegisterType((*GetRaceRequest)(nil), "motki.evedb.GetRaceRequest")
-	proto1.RegisterType((*GetRaceResponse)(nil), "motki.evedb.GetRaceResponse")
-	proto1.RegisterType((*GetRacesRequest)(nil), "motki.evedb.GetRacesRequest")
-	proto1.RegisterType((*GetRacesResponse)(nil), "motki.evedb.GetRacesResponse")
-	proto1.RegisterType((*GetBloodlineRequest)(nil), "motki.evedb.GetBloodlineRequest")
-	proto1.RegisterType((*GetBloodlineResponse)(nil), "motki.evedb.GetBloodlineResponse")
-	proto1.RegisterType((*GetAncestryRequest)(nil), "motki.evedb.GetAncestryRequest")
-	proto1.RegisterType((*GetAncestryResponse)(nil), "motki.evedb.GetAncestryResponse")
-	proto1.RegisterType((*GetItemTypeRequest)(nil), "motki.evedb.GetItemTypeRequest")
-	proto1.RegisterType((*GetItemTypeResponse)(nil), "motki.evedb.GetItemTypeResponse")
-	proto1.RegisterType((*GetItemTypeDetailRequest)(nil), "motki.evedb.GetItemTypeDetailRequest")
-	proto1.RegisterType((*GetItemTypeDetailResponse)(nil), "motki.evedb.GetItemTypeDetailResponse")
-	proto1.RegisterType((*QueryItemTypesRequest)(nil), "motki.evedb.QueryItemTypesRequest")
-	proto1.RegisterType((*QueryItemTypesResponse)(nil), "motki.evedb.QueryItemTypesResponse")
-	proto1.RegisterType((*QueryItemTypeDetailsRequest)(nil), "motki.evedb.QueryItemTypeDetailsRequest")
-	proto1.RegisterType((*QueryItemTypeDetailsResponse)(nil), "motki.evedb.QueryItemTypeDetailsResponse")
-	proto1.RegisterType((*GetMaterialSheetRequest)(nil), "motki.evedb.GetMaterialSheetRequest")
-	proto1.RegisterType((*GetMaterialSheetResponse)(nil), "motki.evedb.GetMaterialSheetResponse")
-	proto1.RegisterType((*GetStationRequest)(nil), "motki.evedb.GetStationRequest")
-	proto1.RegisterType((*GetStationResponse)(nil), "motki.evedb.GetStationResponse")
+	proto.RegisterType((*Icon)(nil), "motki.evedb.Icon")
+	proto.RegisterType((*Race)(nil), "motki.evedb.Race")
+	proto.RegisterType((*Ancestry)(nil), "motki.evedb.Ancestry")
+	proto.RegisterType((*Bloodline)(nil), "motki.evedb.Bloodline")
+	proto.RegisterType((*System)(nil), "motki.evedb.System")
+	proto.RegisterType((*Constellation)(nil), "motki.evedb.Constellation")
+	proto.RegisterType((*Region)(nil), "motki.evedb.Region")
+	proto.RegisterType((*Station)(nil), "motki.evedb.Station")
+	proto.RegisterType((*ItemType)(nil), "motki.evedb.ItemType")
+	proto.RegisterType((*ItemTypeDetail)(nil), "motki.evedb.ItemTypeDetail")
+	proto.RegisterType((*MaterialSheet)(nil), "motki.evedb.MaterialSheet")
+	proto.RegisterType((*Material)(nil), "motki.evedb.Material")
+	proto.RegisterType((*GetRegionRequest)(nil), "motki.evedb.GetRegionRequest")
+	proto.RegisterType((*GetRegionResponse)(nil), "motki.evedb.GetRegionResponse")
+	proto.RegisterType((*GetRegionsRequest)(nil), "motki.evedb.GetRegionsRequest")
+	proto.RegisterType((*GetRegionsResponse)(nil), "motki.evedb.GetRegionsResponse")
+	proto.RegisterType((*GetConstellationRequest)(nil), "motki.evedb.GetConstellationRequest")
+	proto.RegisterType((*GetConstellationResponse)(nil), "motki.evedb.GetConstellationResponse")
+	proto.RegisterType((*GetSystemRequest)(nil), "motki.evedb.GetSystemRequest")
+	proto.RegisterType((*GetSystemResponse)(nil), "motki.evedb.GetSystemResponse")
+	proto.RegisterType((*GetRaceRequest)(nil), "motki.evedb.GetRaceRequest")
+	proto.RegisterType((*GetRaceResponse)(nil), "motki.evedb.GetRaceResponse")
+	proto.RegisterType((*GetRacesRequest)(nil), "motki.evedb.GetRacesRequest")
+	proto.RegisterType((*GetRacesResponse)(nil), "motki.evedb.GetRacesResponse")
+	proto.RegisterType((*GetBloodlineRequest)(nil), "motki.evedb.GetBloodlineRequest")
+	proto.RegisterType((*GetBloodlineResponse)(nil), "motki.evedb.GetBloodlineResponse")
+	proto.RegisterType((*GetAncestryRequest)(nil), "motki.evedb.GetAncestryRequest")
+	proto.RegisterType((*GetAncestryResponse)(nil), "motki.evedb.GetAncestryResponse")
+	proto.RegisterType((*GetItemTypeRequest)(nil), "motki.evedb.GetItemTypeRequest")
+	proto.RegisterType((*GetItemTypeResponse)(nil), "motki.evedb.GetItemTypeResponse")
+	proto.RegisterType((*GetItemTypeDetailRequest)(nil), "motki.evedb.GetItemTypeDetailRequest")
+	proto.RegisterType((*GetItemTypeDetailResponse)(nil), "motki.evedb.GetItemTypeDetailResponse")
+	proto.RegisterType((*QueryItemTypesRequest)(nil), "motki.evedb.QueryItemTypesRequest")
+	proto.RegisterType((*QueryItemTypesResponse)(nil), "motki.evedb.QueryItemTypesResponse")
+	proto.RegisterType((*QueryItemTypeDetailsRequest)(nil), "motki.evedb.QueryItemTypeDetailsRequest")
+	proto.RegisterType((*QueryItemTypeDetailsResponse)(nil), "motki.evedb.QueryItemTypeDetailsResponse")
+	proto.RegisterType((*GetMaterialSheetRequest)(nil), "motki.evedb.GetMaterialSheetRequest")
+	proto.RegisterType((*GetMaterialSheetResponse)(nil), "motki.evedb.GetMaterialSheetResponse")
+	proto.RegisterType((*GetStationRequest)(nil), "motki.evedb.GetStationRequest")
+	proto.RegisterType((*GetStationResponse)(nil), "motki.evedb.GetStationResponse")
 }
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -1344,8 +2230,9 @@ var _ grpc.ClientConn
 // is compatible with the grpc package it is being compiled against.
 const _ = grpc.SupportPackageIsVersion4
 
-// Client API for EveDBService service
-
+// EveDBServiceClient is the client API for EveDBService service.
+//
+// For semantics around ctx use and closing/ending streaming RPCs, please refer to https://godoc.org/google.golang.org/grpc#ClientConn.NewStream.
 type EveDBServiceClient interface {
 	// GetRegion gets a specific region.
 	GetRegion(ctx context.Context, in *GetRegionRequest, opts ...grpc.CallOption) (*GetRegionResponse, error)
@@ -1387,7 +2274,7 @@ func NewEveDBServiceClient(cc *grpc.ClientConn) EveDBServiceClient {
 
 func (c *eveDBServiceClient) GetRegion(ctx context.Context, in *GetRegionRequest, opts ...grpc.CallOption) (*GetRegionResponse, error) {
 	out := new(GetRegionResponse)
-	err := grpc.Invoke(ctx, "/motki.evedb.EveDBService/GetRegion", in, out, c.cc, opts...)
+	err := c.cc.Invoke(ctx, "/motki.evedb.EveDBService/GetRegion", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -1396,7 +2283,7 @@ func (c *eveDBServiceClient) GetRegion(ctx context.Context, in *GetRegionRequest
 
 func (c *eveDBServiceClient) GetRegions(ctx context.Context, in *GetRegionsRequest, opts ...grpc.CallOption) (*GetRegionsResponse, error) {
 	out := new(GetRegionsResponse)
-	err := grpc.Invoke(ctx, "/motki.evedb.EveDBService/GetRegions", in, out, c.cc, opts...)
+	err := c.cc.Invoke(ctx, "/motki.evedb.EveDBService/GetRegions", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -1405,7 +2292,7 @@ func (c *eveDBServiceClient) GetRegions(ctx context.Context, in *GetRegionsReque
 
 func (c *eveDBServiceClient) GetConstellation(ctx context.Context, in *GetConstellationRequest, opts ...grpc.CallOption) (*GetConstellationResponse, error) {
 	out := new(GetConstellationResponse)
-	err := grpc.Invoke(ctx, "/motki.evedb.EveDBService/GetConstellation", in, out, c.cc, opts...)
+	err := c.cc.Invoke(ctx, "/motki.evedb.EveDBService/GetConstellation", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -1414,7 +2301,7 @@ func (c *eveDBServiceClient) GetConstellation(ctx context.Context, in *GetConste
 
 func (c *eveDBServiceClient) GetSystem(ctx context.Context, in *GetSystemRequest, opts ...grpc.CallOption) (*GetSystemResponse, error) {
 	out := new(GetSystemResponse)
-	err := grpc.Invoke(ctx, "/motki.evedb.EveDBService/GetSystem", in, out, c.cc, opts...)
+	err := c.cc.Invoke(ctx, "/motki.evedb.EveDBService/GetSystem", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -1423,7 +2310,7 @@ func (c *eveDBServiceClient) GetSystem(ctx context.Context, in *GetSystemRequest
 
 func (c *eveDBServiceClient) GetStation(ctx context.Context, in *GetStationRequest, opts ...grpc.CallOption) (*GetStationResponse, error) {
 	out := new(GetStationResponse)
-	err := grpc.Invoke(ctx, "/motki.evedb.EveDBService/GetStation", in, out, c.cc, opts...)
+	err := c.cc.Invoke(ctx, "/motki.evedb.EveDBService/GetStation", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -1432,7 +2319,7 @@ func (c *eveDBServiceClient) GetStation(ctx context.Context, in *GetStationReque
 
 func (c *eveDBServiceClient) GetRace(ctx context.Context, in *GetRaceRequest, opts ...grpc.CallOption) (*GetRaceResponse, error) {
 	out := new(GetRaceResponse)
-	err := grpc.Invoke(ctx, "/motki.evedb.EveDBService/GetRace", in, out, c.cc, opts...)
+	err := c.cc.Invoke(ctx, "/motki.evedb.EveDBService/GetRace", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -1441,7 +2328,7 @@ func (c *eveDBServiceClient) GetRace(ctx context.Context, in *GetRaceRequest, op
 
 func (c *eveDBServiceClient) GetRaces(ctx context.Context, in *GetRacesRequest, opts ...grpc.CallOption) (*GetRacesResponse, error) {
 	out := new(GetRacesResponse)
-	err := grpc.Invoke(ctx, "/motki.evedb.EveDBService/GetRaces", in, out, c.cc, opts...)
+	err := c.cc.Invoke(ctx, "/motki.evedb.EveDBService/GetRaces", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -1450,7 +2337,7 @@ func (c *eveDBServiceClient) GetRaces(ctx context.Context, in *GetRacesRequest, 
 
 func (c *eveDBServiceClient) GetBloodline(ctx context.Context, in *GetBloodlineRequest, opts ...grpc.CallOption) (*GetBloodlineResponse, error) {
 	out := new(GetBloodlineResponse)
-	err := grpc.Invoke(ctx, "/motki.evedb.EveDBService/GetBloodline", in, out, c.cc, opts...)
+	err := c.cc.Invoke(ctx, "/motki.evedb.EveDBService/GetBloodline", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -1459,7 +2346,7 @@ func (c *eveDBServiceClient) GetBloodline(ctx context.Context, in *GetBloodlineR
 
 func (c *eveDBServiceClient) GetAncestry(ctx context.Context, in *GetAncestryRequest, opts ...grpc.CallOption) (*GetAncestryResponse, error) {
 	out := new(GetAncestryResponse)
-	err := grpc.Invoke(ctx, "/motki.evedb.EveDBService/GetAncestry", in, out, c.cc, opts...)
+	err := c.cc.Invoke(ctx, "/motki.evedb.EveDBService/GetAncestry", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -1468,7 +2355,7 @@ func (c *eveDBServiceClient) GetAncestry(ctx context.Context, in *GetAncestryReq
 
 func (c *eveDBServiceClient) GetItemType(ctx context.Context, in *GetItemTypeRequest, opts ...grpc.CallOption) (*GetItemTypeResponse, error) {
 	out := new(GetItemTypeResponse)
-	err := grpc.Invoke(ctx, "/motki.evedb.EveDBService/GetItemType", in, out, c.cc, opts...)
+	err := c.cc.Invoke(ctx, "/motki.evedb.EveDBService/GetItemType", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -1477,7 +2364,7 @@ func (c *eveDBServiceClient) GetItemType(ctx context.Context, in *GetItemTypeReq
 
 func (c *eveDBServiceClient) GetItemTypeDetail(ctx context.Context, in *GetItemTypeDetailRequest, opts ...grpc.CallOption) (*GetItemTypeDetailResponse, error) {
 	out := new(GetItemTypeDetailResponse)
-	err := grpc.Invoke(ctx, "/motki.evedb.EveDBService/GetItemTypeDetail", in, out, c.cc, opts...)
+	err := c.cc.Invoke(ctx, "/motki.evedb.EveDBService/GetItemTypeDetail", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -1486,7 +2373,7 @@ func (c *eveDBServiceClient) GetItemTypeDetail(ctx context.Context, in *GetItemT
 
 func (c *eveDBServiceClient) GetMaterialSheet(ctx context.Context, in *GetMaterialSheetRequest, opts ...grpc.CallOption) (*GetMaterialSheetResponse, error) {
 	out := new(GetMaterialSheetResponse)
-	err := grpc.Invoke(ctx, "/motki.evedb.EveDBService/GetMaterialSheet", in, out, c.cc, opts...)
+	err := c.cc.Invoke(ctx, "/motki.evedb.EveDBService/GetMaterialSheet", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -1495,7 +2382,7 @@ func (c *eveDBServiceClient) GetMaterialSheet(ctx context.Context, in *GetMateri
 
 func (c *eveDBServiceClient) QueryItemTypes(ctx context.Context, in *QueryItemTypesRequest, opts ...grpc.CallOption) (*QueryItemTypesResponse, error) {
 	out := new(QueryItemTypesResponse)
-	err := grpc.Invoke(ctx, "/motki.evedb.EveDBService/QueryItemTypes", in, out, c.cc, opts...)
+	err := c.cc.Invoke(ctx, "/motki.evedb.EveDBService/QueryItemTypes", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -1504,15 +2391,14 @@ func (c *eveDBServiceClient) QueryItemTypes(ctx context.Context, in *QueryItemTy
 
 func (c *eveDBServiceClient) QueryItemTypeDetails(ctx context.Context, in *QueryItemTypeDetailsRequest, opts ...grpc.CallOption) (*QueryItemTypeDetailsResponse, error) {
 	out := new(QueryItemTypeDetailsResponse)
-	err := grpc.Invoke(ctx, "/motki.evedb.EveDBService/QueryItemTypeDetails", in, out, c.cc, opts...)
+	err := c.cc.Invoke(ctx, "/motki.evedb.EveDBService/QueryItemTypeDetails", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-// Server API for EveDBService service
-
+// EveDBServiceServer is the server API for EveDBService service.
 type EveDBServiceServer interface {
 	// GetRegion gets a specific region.
 	GetRegion(context.Context, *GetRegionRequest) (*GetRegionResponse, error)
@@ -1865,9 +2751,9 @@ var _EveDBService_serviceDesc = grpc.ServiceDesc{
 	Metadata: "evedb.proto",
 }
 
-func init() { proto1.RegisterFile("evedb.proto", fileDescriptor2) }
+func init() { proto.RegisterFile("evedb.proto", fileDescriptor_evedb_b05ddaeec1c8004d) }
 
-var fileDescriptor2 = []byte{
+var fileDescriptor_evedb_b05ddaeec1c8004d = []byte{
 	// 1621 bytes of a gzipped FileDescriptorProto
 	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xac, 0x58, 0xcd, 0x72, 0xdb, 0x46,
 	0x12, 0x2e, 0x88, 0x14, 0x49, 0x34, 0x44, 0xfd, 0x8c, 0x65, 0x9b, 0xa6, 0x6c, 0x8b, 0x1e, 0x5b,

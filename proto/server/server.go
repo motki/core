@@ -138,7 +138,7 @@ func (srv *grpcServer) Authenticate(ctx context.Context, req *proto.Authenticate
 	if err != nil {
 		return nil, err
 	}
-	return &proto.AuthenticateResponse{Result: successResult, Token: &proto.Token{tok}}, nil
+	return &proto.AuthenticateResponse{Result: successResult, Token: &proto.Token{Identifier: tok}}, nil
 }
 
 func (srv *grpcServer) getAuthorizedContext(tok *proto.Token, role model.Role) (context.Context, int, error) {

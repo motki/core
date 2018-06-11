@@ -1,7 +1,6 @@
 language: go
 
 go:
-  - '1.7'
   - '1.8'
   - '1.9'
   - '1.10'
@@ -26,14 +25,11 @@ matrix:
     - env: GIMME_ARCH=arm64
   exclude:
     - os: osx
-    - os: windows
-  include:
-    - os: osx
-      env: GIMME_ARCH=amd64
-    - os: windows
       env: GIMME_ARCH=x86
-    - os: windows
-      env: GIMME_ARCH=amd64
+    - os: osx
+      env: GIMME_ARCH=arm
+    - os: osx
+      env: GIMME_ARCH=arm64
 
 
 before_install:

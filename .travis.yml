@@ -1,7 +1,6 @@
 language: go
 
 go:
-  - '1.8'
   - '1.9'
   - '1.10'
   - 'tip'
@@ -30,7 +29,6 @@ matrix:
       env: GIMME_ARCH=arm
     - os: osx
       env: GIMME_ARCH=arm64
-
 
 before_install:
   - if [ "$TRAVIS_OS_NAME" = "osx" ]; then ulimit -n 1024; fi
